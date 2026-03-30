@@ -1,0 +1,326 @@
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://lqvrzqryfjtsytcahnpb.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_9J_ASwCPqXaybEmXn4UGow_G_8CLupE
+
+# Needed by AI agent tools (get from Supabase Dashboard → Settings → API → service_role)
+SUPABASE_SERVICE_ROLE_KEY=
+
+# AI Providers
+OPENAI_API_KEY=
+ANTHROPIC_API_KEY=
+
+# App
+NEXT_PUBLIC_APP_URL=http://localhost:3000-- Victoria's Apartment Finder — Supabase Schema
+-- Run this in the Supabase SQL Editor
+
+-- ============================================================
+-- 1. Profiles (extends auth.users)
+-- ============================================================
+create table public.profiles (
+  id uuid references auth.users on delete cascade primary key,
+  full_name text not null,
+  phone text,
+  role text not null check (role in ('landlord', 'tenant')),
+  income_range text,
+  preferred_cities text[] default '{}',
+  created_at timestamptz default now() not null
+);
+
+alter table public.profiles enable row level security;
+
+create policy "Users can read own profile"
+  on public.profiles for select using (auth.uid() = id);
+
+create policy "Users can update own profile"
+  on public.profiles for update using (auth.uid() = id);
+
+create policy "Users can insert own profile"
+  on public.profiles for insert with check (auth.uid() = id);
+
+-- Auto-create profile on signup via trigger
+create or replace function public.handle_new_user()
+returns trigger as $$
+begin
+  insert into public.profiles (id, full_name, role)
+  values (
+    new.id,
+    coalesce(new.raw_user_meta_data->>'full_name', ''),
+    coalesce(new.raw_user_meta_data->>'role', 'tenant')
+  );
+  return new;
+end;
+$$ language plpgsql security definer;
+
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute function public.handle_new_user();
+
+-- ============================================================
+-- 2. Apartments
+-- ============================================================
+create table public.apartments (
+  id uuid default gen_random_uuid() primary key,
+  landlord_id uuid references public.profiles(id) on delete cascade not null,
+  title text not null,
+  description text not null default '',
+  apartment_type text not null check (apartment_type in (
+    'self-contained', 'mini-flat', '1-bedroom', '2-bedroom', '3-bedroom', 'duplex'
+  )),
+  annual_rent integer not null check (annual_rent > 0),
+  deposit integer not null default 0,
+  agent_fee integer not null default 0,
+  total_upfront_cost integer generated always as (annual_rent + deposit + agent_fee) stored,
+  address text not null default '',
+  city text not null check (city in ('lagos', 'abuja', 'port-harcourt')),
+  lga text not null default '',
+  neighborhood text not null default '',
+  latitude double precision,
+  longitude double precision,
+  is_verified boolean default false,
+  is_available boolean default true,
+  created_at timestamptz default now() not null,
+  updated_at timestamptz default now() not null
+);
+
+alter table public.apartments enable row level security;
+
+-- Anyone can read available apartments
+create policy "Anyone can read available apartments"
+  on public.apartments for select using (is_available = true);
+
+-- Landlords can read all their own apartments (including unavailable)
+create policy "Landlords can read own apartments"
+  on public.apartments for select using (auth.uid() = landlord_id);
+
+create policy "Landlords can insert own apartments"
+  on public.apartments for insert with check (auth.uid() = landlord_id);
+
+create policy "Landlords can update own apartments"
+  on public.apartments for update using (auth.uid() = landlord_id);
+
+create policy "Landlords can delete own apartments"
+  on public.apartments for delete using (auth.uid() = landlord_id);
+
+-- Updated_at trigger
+create or replace function public.update_updated_at()
+returns trigger as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$ language plpgsql;
+
+create trigger set_apartments_updated_at
+  before update on public.apartments
+  for each row execute function public.update_updated_at();
+
+-- ============================================================
+-- 3. Apartment amenities
+-- ============================================================
+create table public.apartment_amenities (
+  id uuid default gen_random_uuid() primary key,
+  apartment_id uuid references public.apartments(id) on delete cascade not null,
+  amenity text not null check (amenity in (
+    'water_supply', 'generator', 'security', 'parking', 'prepaid_meter',
+    'pop_ceiling', 'tiled_floor', 'wardrobe', 'kitchen_cabinet',
+    'balcony', 'fenced_compound', 'gate_man'
+  )),
+  unique (apartment_id, amenity)
+);
+
+alter table public.apartment_amenities enable row level security;
+
+create policy "Anyone can read amenities"
+  on public.apartment_amenities for select using (true);
+
+create policy "Landlords can manage amenities"
+  on public.apartment_amenities for insert with check (
+    exists (select 1 from public.apartments where id = apartment_id and landlord_id = auth.uid())
+  );
+
+create policy "Landlords can delete amenities"
+  on public.apartment_amenities for delete using (
+    exists (select 1 from public.apartments where id = apartment_id and landlord_id = auth.uid())
+  );
+
+-- ============================================================
+-- 4. Apartment images
+-- ============================================================
+create table public.apartment_images (
+  id uuid default gen_random_uuid() primary key,
+  apartment_id uuid references public.apartments(id) on delete cascade not null,
+  image_url text not null,
+  is_primary boolean default false,
+  display_order integer default 0
+);
+
+alter table public.apartment_images enable row level security;
+
+create policy "Anyone can read images"
+  on public.apartment_images for select using (true);
+
+create policy "Landlords can manage images"
+  on public.apartment_images for insert with check (
+    exists (select 1 from public.apartments where id = apartment_id and landlord_id = auth.uid())
+  );
+
+create policy "Landlords can update images"
+  on public.apartment_images for update using (
+    exists (select 1 from public.apartments where id = apartment_id and landlord_id = auth.uid())
+  );
+
+create policy "Landlords can delete images"
+  on public.apartment_images for delete using (
+    exists (select 1 from public.apartments where id = apartment_id and landlord_id = auth.uid())
+  );
+
+-- ============================================================
+-- 5. Environmental factors
+-- ============================================================
+create table public.environmental_factors (
+  id uuid default gen_random_uuid() primary key,
+  apartment_id uuid references public.apartments(id) on delete cascade not null unique,
+  flood_risk text not null default 'low' check (flood_risk in ('low', 'medium', 'high')),
+  power_supply_rating integer not null default 3 check (power_supply_rating between 1 and 5),
+  water_supply_rating integer not null default 3 check (water_supply_rating between 1 and 5),
+  security_rating integer not null default 3 check (security_rating between 1 and 5),
+  road_condition_rating integer not null default 3 check (road_condition_rating between 1 and 5),
+  nearest_bus_stop text,
+  nearest_market text,
+  nearest_hospital text,
+  traffic_notes text
+);
+
+alter table public.environmental_factors enable row level security;
+
+create policy "Anyone can read environmental factors"
+  on public.environmental_factors for select using (true);
+
+create policy "Landlords can manage environmental factors"
+  on public.environmental_factors for insert with check (
+    exists (select 1 from public.apartments where id = apartment_id and landlord_id = auth.uid())
+  );
+
+create policy "Landlords can update environmental factors"
+  on public.environmental_factors for update using (
+    exists (select 1 from public.apartments where id = apartment_id and landlord_id = auth.uid())
+  );
+
+-- ============================================================
+-- 6. Saved apartments
+-- ============================================================
+create table public.saved_apartments (
+  id uuid default gen_random_uuid() primary key,
+  tenant_id uuid references public.profiles(id) on delete cascade not null,
+  apartment_id uuid references public.apartments(id) on delete cascade not null,
+  created_at timestamptz default now() not null,
+  unique (tenant_id, apartment_id)
+);
+
+alter table public.saved_apartments enable row level security;
+
+create policy "Tenants can read own saved"
+  on public.saved_apartments for select using (auth.uid() = tenant_id);
+
+create policy "Tenants can save apartments"
+  on public.saved_apartments for insert with check (auth.uid() = tenant_id);
+
+create policy "Tenants can unsave apartments"
+  on public.saved_apartments for delete using (auth.uid() = tenant_id);
+
+-- ============================================================
+-- 7. Conversations (AI chat history)
+-- ============================================================
+create table public.conversations (
+  id uuid default gen_random_uuid() primary key,
+  tenant_id uuid references public.profiles(id) on delete cascade not null,
+  messages jsonb not null default '[]',
+  created_at timestamptz default now() not null,
+  updated_at timestamptz default now() not null
+);
+
+alter table public.conversations enable row level security;
+
+create policy "Tenants can read own conversations"
+  on public.conversations for select using (auth.uid() = tenant_id);
+
+create policy "Tenants can create conversations"
+  on public.conversations for insert with check (auth.uid() = tenant_id);
+
+create policy "Tenants can update own conversations"
+  on public.conversations for update using (auth.uid() = tenant_id);
+
+create trigger set_conversations_updated_at
+  before update on public.conversations
+  for each row execute function public.update_updated_at();
+
+-- ============================================================
+-- 8. Inquiries
+-- ============================================================
+create table public.inquiries (
+  id uuid default gen_random_uuid() primary key,
+  tenant_id uuid references public.profiles(id) on delete cascade not null,
+  apartment_id uuid references public.apartments(id) on delete cascade not null,
+  message text not null,
+  status text not null default 'pending' check (status in ('pending', 'responded', 'closed')),
+  created_at timestamptz default now() not null
+);
+
+alter table public.inquiries enable row level security;
+
+create policy "Tenants can read own inquiries"
+  on public.inquiries for select using (auth.uid() = tenant_id);
+
+create policy "Tenants can create inquiries"
+  on public.inquiries for insert with check (auth.uid() = tenant_id);
+
+-- Landlords can read inquiries on their apartments
+create policy "Landlords can read inquiries for own apartments"
+  on public.inquiries for select using (
+    exists (select 1 from public.apartments where id = apartment_id and landlord_id = auth.uid())
+  );
+
+-- Landlords can update inquiry status
+create policy "Landlords can update inquiry status"
+  on public.inquiries for update using (
+    exists (select 1 from public.apartments where id = apartment_id and landlord_id = auth.uid())
+  );
+
+-- ============================================================
+-- 9. Indexes for common queries
+-- ============================================================
+create index idx_apartments_city on public.apartments(city);
+create index idx_apartments_type on public.apartments(apartment_type);
+create index idx_apartments_rent on public.apartments(annual_rent);
+create index idx_apartments_available on public.apartments(is_available);
+create index idx_apartments_landlord on public.apartments(landlord_id);
+create index idx_apartments_neighborhood on public.apartments(city, neighborhood);
+create index idx_inquiries_apartment on public.inquiries(apartment_id);
+create index idx_inquiries_tenant on public.inquiries(tenant_id);
+create index idx_saved_tenant on public.saved_apartments(tenant_id);
+
+-- ============================================================
+-- 10. Storage bucket for apartment images
+-- ============================================================
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values (
+  'apartment-images',
+  'apartment-images',
+  true,
+  5242880, -- 5MB
+  array['image/jpeg', 'image/png', 'image/webp']
+);
+
+-- Storage policies
+create policy "Anyone can view apartment images"
+  on storage.objects for select using (bucket_id = 'apartment-images');
+
+create policy "Authenticated users can upload apartment images"
+  on storage.objects for insert with check (
+    bucket_id = 'apartment-images' and auth.role() = 'authenticated'
+  );
+
+create policy "Users can delete own apartment images"
+  on storage.objects for delete using (
+    bucket_id = 'apartment-images' and auth.uid()::text = (storage.foldername(name))[1]
+  );
