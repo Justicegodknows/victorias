@@ -134,13 +134,44 @@ export type Database = {
         Tables: {
             profiles: {
                 Row: Profile;
-                Insert: Omit<Profile, "created_at">;
+                Insert: Omit<Profile, "created_at" | "phone" | "income_range" | "preferred_cities"> & {
+                    phone?: string | null;
+                    income_range?: string | null;
+                    preferred_cities?: City[];
+                };
                 Update: Partial<Omit<Profile, "id" | "created_at">>;
                 Relationships: [];
             };
             apartments: {
                 Row: Apartment;
-                Insert: Omit<Apartment, "id" | "created_at" | "updated_at" | "total_upfront_cost">;
+                Insert: Omit<
+                    Apartment,
+                    | "id"
+                    | "created_at"
+                    | "updated_at"
+                    | "total_upfront_cost"
+                    | "description"
+                    | "deposit"
+                    | "agent_fee"
+                    | "address"
+                    | "lga"
+                    | "neighborhood"
+                    | "latitude"
+                    | "longitude"
+                    | "is_verified"
+                    | "is_available"
+                > & {
+                    description?: string;
+                    deposit?: number;
+                    agent_fee?: number;
+                    address?: string;
+                    lga?: string;
+                    neighborhood?: string;
+                    latitude?: number | null;
+                    longitude?: number | null;
+                    is_verified?: boolean;
+                    is_available?: boolean;
+                };
                 Update: Partial<Omit<Apartment, "id" | "landlord_id" | "created_at">>;
                 Relationships: [
                     {
@@ -168,7 +199,10 @@ export type Database = {
             };
             apartment_images: {
                 Row: ApartmentImage;
-                Insert: Omit<ApartmentImage, "id">;
+                Insert: Omit<ApartmentImage, "id" | "is_primary" | "display_order"> & {
+                    is_primary?: boolean;
+                    display_order?: number;
+                };
                 Update: Partial<Omit<ApartmentImage, "id" | "apartment_id">>;
                 Relationships: [
                     {
@@ -182,7 +216,29 @@ export type Database = {
             };
             environmental_factors: {
                 Row: EnvironmentalFactors;
-                Insert: Omit<EnvironmentalFactors, "id">;
+                Insert: Omit<
+                    EnvironmentalFactors,
+                    | "id"
+                    | "flood_risk"
+                    | "power_supply_rating"
+                    | "water_supply_rating"
+                    | "security_rating"
+                    | "road_condition_rating"
+                    | "nearest_bus_stop"
+                    | "nearest_market"
+                    | "nearest_hospital"
+                    | "traffic_notes"
+                > & {
+                    flood_risk?: FloodRisk;
+                    power_supply_rating?: Rating;
+                    water_supply_rating?: Rating;
+                    security_rating?: Rating;
+                    road_condition_rating?: Rating;
+                    nearest_bus_stop?: string | null;
+                    nearest_market?: string | null;
+                    nearest_hospital?: string | null;
+                    traffic_notes?: string | null;
+                };
                 Update: Partial<Omit<EnvironmentalFactors, "id" | "apartment_id">>;
                 Relationships: [
                     {
@@ -217,7 +273,9 @@ export type Database = {
             };
             conversations: {
                 Row: Conversation;
-                Insert: Omit<Conversation, "id" | "created_at" | "updated_at">;
+                Insert: Omit<Conversation, "id" | "created_at" | "updated_at" | "messages"> & {
+                    messages?: unknown;
+                };
                 Update: Partial<Pick<Conversation, "messages">>;
                 Relationships: [
                     {
@@ -231,7 +289,9 @@ export type Database = {
             };
             inquiries: {
                 Row: Inquiry;
-                Insert: Omit<Inquiry, "id" | "created_at">;
+                Insert: Omit<Inquiry, "id" | "created_at" | "status"> & {
+                    status?: InquiryStatus;
+                };
                 Update: Partial<Pick<Inquiry, "status">>;
                 Relationships: [
                     {

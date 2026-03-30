@@ -1,16 +1,4 @@
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=https://lqvrzqryfjtsytcahnpb.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_9J_ASwCPqXaybEmXn4UGow_G_8CLupE
-
-# Needed by AI agent tools (get from Supabase Dashboard → Settings → API → service_role)
-SUPABASE_SERVICE_ROLE_KEY=
-
-# AI Providers
-OPENAI_API_KEY=
-ANTHROPIC_API_KEY=
-
-# App
-NEXT_PUBLIC_APP_URL=http://localhost:3000-- Victoria's Apartment Finder — Supabase Schema
+-- Victoria's Apartment Finder — Supabase Schema
 -- Run this in the Supabase SQL Editor
 
 -- ============================================================
