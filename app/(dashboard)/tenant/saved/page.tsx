@@ -37,7 +37,7 @@ export default async function SavedApartmentsPage(): Promise<React.ReactElement>
         .order("created_at", { ascending: false })
         .overrideTypes<SavedRow[]>();
 
-    const apartments = saved?.map((s) => s.apartments).filter(Boolean) ?? [];
+    const apartments = saved?.map((s) => s.apartments).filter((apt): apt is NonNullable<typeof apt> => apt !== null) ?? [];
 
     return (
         <div className="mx-auto w-full max-w-7xl px-4 py-8">

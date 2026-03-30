@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { createSupabaseBrowser } from "@/app/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import type { City, ApartmentType, Amenity, FloodRisk } from "@/app/lib/types";
+import type { City, ApartmentType, Amenity, FloodRisk, Rating } from "@/app/lib/types";
 import {
     APARTMENT_TYPE_LABELS,
     AMENITY_LABELS,
@@ -46,10 +46,10 @@ export default function NewListingPage(): React.ReactElement {
 
     // Step 4 — Environmental
     const [floodRisk, setFloodRisk] = useState<FloodRisk>("low");
-    const [powerRating, setPowerRating] = useState(3);
-    const [waterRating, setWaterRating] = useState(3);
-    const [securityRating, setSecurityRating] = useState(3);
-    const [roadRating, setRoadRating] = useState(3);
+    const [powerRating, setPowerRating] = useState<Rating>(3);
+    const [waterRating, setWaterRating] = useState<Rating>(3);
+    const [securityRating, setSecurityRating] = useState<Rating>(3);
+    const [roadRating, setRoadRating] = useState<Rating>(3);
     const [nearestBusStop, setNearestBusStop] = useState("");
     const [nearestMarket, setNearestMarket] = useState("");
     const [nearestHospital, setNearestHospital] = useState("");
@@ -179,10 +179,10 @@ export default function NewListingPage(): React.ReactElement {
                         type="button"
                         onClick={() => setStep(s)}
                         className={`flex-1 rounded-full py-1.5 text-xs font-medium transition-colors ${s === step
-                                ? "bg-green-600 text-white"
-                                : s < step
-                                    ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-400"
-                                    : "bg-zinc-100 text-zinc-400 dark:bg-zinc-800"
+                            ? "bg-green-600 text-white"
+                            : s < step
+                                ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-400"
+                                : "bg-zinc-100 text-zinc-400 dark:bg-zinc-800"
                             }`}
                     >
                         {STEPS[s]}
@@ -268,14 +268,14 @@ export default function NewListingPage(): React.ReactElement {
                                 <label
                                     key={key}
                                     className={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2.5 text-sm transition-colors ${amenities.has(key)
-                                            ? "border-green-600 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400"
-                                            : "border-zinc-200 text-zinc-600 hover:border-zinc-300 dark:border-zinc-700 dark:text-zinc-400"
+                                        ? "border-green-600 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400"
+                                        : "border-zinc-200 text-zinc-600 hover:border-zinc-300 dark:border-zinc-700 dark:text-zinc-400"
                                         }`}
                                 >
                                     <input type="checkbox" checked={amenities.has(key)} onChange={() => toggleAmenity(key)} className="sr-only" />
                                     <span className={`flex h-4 w-4 items-center justify-center rounded border text-[10px] ${amenities.has(key)
-                                            ? "border-green-600 bg-green-600 text-white"
-                                            : "border-zinc-300 dark:border-zinc-600"
+                                        ? "border-green-600 bg-green-600 text-white"
+                                        : "border-zinc-300 dark:border-zinc-600"
                                         }`}>
                                         {amenities.has(key) && "✓"}
                                     </span>
@@ -294,10 +294,10 @@ export default function NewListingPage(): React.ReactElement {
                             <div className="mt-2 flex gap-2">
                                 {(["low", "medium", "high"] as FloodRisk[]).map((risk) => (
                                     <button key={risk} type="button" onClick={() => setFloodRisk(risk)} className={`flex-1 rounded-lg border py-2 text-sm font-medium capitalize transition-colors ${floodRisk === risk
-                                            ? risk === "low" ? "border-green-600 bg-green-50 text-green-700" :
-                                                risk === "medium" ? "border-amber-600 bg-amber-50 text-amber-700" :
-                                                    "border-red-600 bg-red-50 text-red-700"
-                                            : "border-zinc-200 text-zinc-500 dark:border-zinc-700 dark:text-zinc-400"
+                                        ? risk === "low" ? "border-green-600 bg-green-50 text-green-700" :
+                                            risk === "medium" ? "border-amber-600 bg-amber-50 text-amber-700" :
+                                                "border-red-600 bg-red-50 text-red-700"
+                                        : "border-zinc-200 text-zinc-500 dark:border-zinc-700 dark:text-zinc-400"
                                         }`}>
                                         {risk}
                                     </button>
@@ -313,7 +313,7 @@ export default function NewListingPage(): React.ReactElement {
                             <div key={label}>
                                 <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">{label} Rating</label>
                                 <div className="mt-2 flex gap-1">
-                                    {[1, 2, 3, 4, 5].map((rating) => (
+                                    {([1, 2, 3, 4, 5] as const).map((rating) => (
                                         <button key={rating} type="button" onClick={() => setter(rating)} className={`h-8 w-10 rounded text-sm font-medium transition-colors ${rating <= value ? "bg-green-600 text-white" : "bg-zinc-100 text-zinc-400 dark:bg-zinc-800"
                                             }`}>
                                             {rating}

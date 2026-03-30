@@ -5,6 +5,7 @@ import {
     CITY_LABELS,
 } from "@/app/lib/data/neighborhoods";
 import { formatNaira } from "@/app/lib/ai/affordability";
+import type { City, ApartmentType } from "@/app/lib/types";
 
 export default async function BrowsePage({
     searchParams,
@@ -12,8 +13,8 @@ export default async function BrowsePage({
     searchParams: Promise<Record<string, string | string[] | undefined>>;
 }): Promise<React.ReactElement> {
     const params = await searchParams;
-    const city = typeof params.city === "string" ? params.city : undefined;
-    const type = typeof params.type === "string" ? params.type : undefined;
+    const city = typeof params.city === "string" ? (params.city as City) : undefined;
+    const type = typeof params.type === "string" ? (params.type as ApartmentType) : undefined;
     const maxRent = typeof params.max_rent === "string" ? parseInt(params.max_rent, 10) : undefined;
 
     const supabase = await createSupabaseServer();
@@ -43,14 +44,13 @@ export default async function BrowsePage({
     `)
         .eq("is_available", true)
         .order("created_at", { ascending: false })
-        .limit(20)
-        .overrideTypes<BrowseApartment[]>();
+        .limit(20);
 
     if (city) query = query.eq("city", city);
     if (type) query = query.eq("apartment_type", type);
     if (maxRent && !isNaN(maxRent)) query = query.lte("annual_rent", maxRent);
 
-    const { data: apartments } = await query;
+    const { data: apartments } = await query.overrideTypes<BrowseApartment[]>();
 
     return (
         <div className="mx-auto w-full max-w-7xl px-4 py-8">

@@ -1,13 +1,12 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
+import { isToolUIPart, getToolName } from "ai";
 import { useState, useRef, useEffect } from "react";
-import { ApartmentCard } from "@/app/components/chat/apartment-card";
+import { ApartmentCard, type ApartmentCardData } from "@/app/components/chat/apartment-card";
 
 export function ChatInterface(): React.ReactElement {
-    const { messages, sendMessage, status, error } = useChat({
-        api: "/api/chat",
-    });
+    const { messages, sendMessage, status, error } = useChat();
     const [input, setInput] = useState("");
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -79,16 +78,16 @@ export function ChatInterface(): React.ReactElement {
                                     if (part.type === "text") {
                                         return <p key={i} className="whitespace-pre-wrap">{part.text}</p>;
                                     }
-                                    if (part.type.startsWith("tool-") && part.state === "output-available") {
-                                        const output = (part as unknown as { output: Record<string, unknown> }).output;
-                                        const toolName = part.type.replace("tool-", "");
+                                    if (isToolUIPart(part) && part.state === "output-available") {
+                                        const output = part.output as Record<string, unknown>;
+                                        const toolName = getToolName(part);
 
                                         if (toolName === "searchApartments" && output?.results) {
-                                            const apartments = output.results as Array<Record<string, unknown>>;
+                                            const apartments = output.results as ApartmentCardData[];
                                             return (
                                                 <div key={i} className="mt-2 space-y-3">
-                                                    {apartments.map((apt) => (
-                                                        <ApartmentCard key={apt.id as string} apartment={apt} />
+                                                    {apartments.map((apt, j) => (
+                                                        <ApartmentCard key={apt.title + j} apartment={apt} />
                                                     ))}
                                                 </div>
                                             );
