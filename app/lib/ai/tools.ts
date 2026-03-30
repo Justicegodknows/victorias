@@ -16,7 +16,7 @@ function getServiceClient(): ReturnType<typeof createClient<Database>> {
 export const searchApartments = tool({
     description:
         "Search for available apartments based on tenant criteria. Returns matching listings sorted by relevance.",
-    parameters: z.object({
+    inputSchema: z.object({
         city: z.enum(["lagos", "abuja", "port-harcourt"]).optional().describe("City to search in"),
         min_rent: z.number().optional().describe("Minimum annual rent in Naira"),
         max_rent: z.number().optional().describe("Maximum annual rent in Naira"),
@@ -102,7 +102,7 @@ export const searchApartments = tool({
 
 export const getApartmentDetails = tool({
     description: "Get full details for a specific apartment listing including all images and environmental data.",
-    parameters: z.object({
+    inputSchema: z.object({
         apartment_id: z.string().uuid().describe("The apartment ID to look up"),
     }),
     execute: async ({ apartment_id }) => {
@@ -139,7 +139,7 @@ export const getApartmentDetails = tool({
 export const checkAffordability = tool({
     description:
         "Calculate whether an apartment is affordable for a tenant based on their annual income. Uses Nigerian affordability standards (rent ≤30% of income). Also breaks down total upfront cost.",
-    parameters: z.object({
+    inputSchema: z.object({
         annual_income: z.number().describe("Tenant's gross annual income in Naira"),
         annual_rent: z.number().describe("The apartment's annual rent in Naira"),
         deposit: z.number().default(0).describe("Caution/security deposit in Naira"),
@@ -160,7 +160,7 @@ export const checkAffordability = tool({
 export const getNeighborhoodInfo = tool({
     description:
         "Get detailed information about a neighborhood including typical rent ranges, environmental factors, pros/cons, and nearby hubs.",
-    parameters: z.object({
+    inputSchema: z.object({
         neighborhood_name: z.string().describe("Name of the neighborhood to look up"),
         city: z.enum(["lagos", "abuja", "port-harcourt"]).optional().describe("City to narrow search"),
     }),
@@ -195,7 +195,7 @@ export const getNeighborhoodInfo = tool({
 
 export const saveApartment = tool({
     description: "Save an apartment to the tenant's favorites list.",
-    parameters: z.object({
+    inputSchema: z.object({
         apartment_id: z.string().uuid().describe("The apartment ID to save"),
         tenant_id: z.string().uuid().describe("The tenant's user ID"),
     }),
@@ -217,7 +217,7 @@ export const saveApartment = tool({
 export const createInquiry = tool({
     description:
         "Send an inquiry message to the landlord about a specific apartment. Always confirm with the tenant before calling this tool.",
-    parameters: z.object({
+    inputSchema: z.object({
         apartment_id: z.string().uuid().describe("The apartment ID to inquire about"),
         tenant_id: z.string().uuid().describe("The tenant's user ID"),
         message: z.string().describe("The inquiry message to send to the landlord"),

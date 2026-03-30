@@ -1,5 +1,5 @@
 import { createOpenAI } from "@ai-sdk/openai";
-import type { LanguageModelV1 } from "ai";
+import type { LanguageModel } from "ai";
 
 // Ollama — primary provider (local, OpenAI-compatible API)
 const OLLAMA_MODEL = "gpt-oss:20b-cloud";
@@ -25,7 +25,7 @@ function createHuggingFaceProvider(): ReturnType<typeof createOpenAI> {
     });
 }
 
-export function getModel(): LanguageModelV1 {
+export function getModel(): LanguageModel {
     // Primary: Ollama (local)
     if (process.env.OLLAMA_BASE_URL || !process.env.HUGGINGFACE_API_KEY) {
         const ollama = createOllamaProvider();
