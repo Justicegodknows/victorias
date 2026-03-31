@@ -1,8 +1,9 @@
-import { streamText, stepCountIs } from "ai";
+import { streamText, stepCountIs, convertToModelMessages, type UIMessage } from "ai";
 import { getModel } from "@/app/lib/ai/provider";
 import { SYSTEM_PROMPT } from "@/app/lib/ai/system-prompt";
 import { agentTools } from "@/app/lib/ai/tools";
 import { createSupabaseServer } from "@/app/lib/supabase/server";
+import { retrieveContext } from "@/app/lib/ai/rag";
 
 export async function POST(req: Request): Promise<Response> {
     const supabase = await createSupabaseServer();
@@ -14,15 +15,38 @@ export async function POST(req: Request): Promise<Response> {
         return new Response("Unauthorized", { status: 401 });
     }
 
-    const { messages } = await req.json();
+    const { messages } = (await req.json()) as { messages: UIMessage[] };
+    const modelMessages = await convertToModelMessages(messages);
+
+    // Extract the latest user message text for RAG retrieval
+    const lastUserMessage = [...messages].reverse().find((m) => m.role === "user");
+    let ragContext = "";
+    if (lastUserMessage?.parts) {
+        const userText = lastUserMessage.parts
+            .filter((p): p is { type: "text"; text: string } => p.type === "text")
+            .map((p) => p.text)
+            .join(" ");
+        if (userText) {
+            try {
+                ragContext = await retrieveContext(userText);
+            } catch (e) {
+                // RAG is best-effort — don't block the chat if it fails
+                console.error("[RAG] Context retrieval failed:", e);
+            }
+        }
+    }
+
+    const systemPrompt = ragContext
+        ? `${SYSTEM_PROMPT}\n\n---\n\n# Retrieved Context\nThe following information was retrieved from the knowledge base based on the user's latest message. Use it to provide more accurate and relevant responses, but always verify with your tools before presenting listings.\n\n${ragContext}`
+        : SYSTEM_PROMPT;
 
     const result = streamText({
         model: getModel(),
-        system: SYSTEM_PROMPT,
-        messages,
+        system: systemPrompt,
+        messages: modelMessages,
         tools: agentTools,
         stopWhen: stepCountIs(10),
-        onStepFinish({ toolCalls, toolResults }) {
+        onStepFinish({ toolCalls }) {
             // Log tool usage for debugging (server-side only)
             if (toolCalls && toolCalls.length > 0) {
                 console.log(
@@ -33,5 +57,5 @@ export async function POST(req: Request): Promise<Response> {
         },
     });
 
-    return result.toTextStreamResponse();
+    return result.toUIMessageStreamResponse();
 }

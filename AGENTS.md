@@ -54,8 +54,10 @@ victorias/
 ├── package.json
 ├── package-lock.json     # Locked dependency tree — do not modify manually
 ├── postcss.config.mjs    # PostCSS config for Tailwind v4
+├── playwright.config.ts  # Playwright test config
 ├── tsconfig.json         # TypeScript compiler options
-└── README.md
+├── README.md
+└── tests/                # Playwright smoke & e2e tests
 ```
 
 **Rules:**
@@ -88,9 +90,13 @@ npm install <package>
 
 # Install a new dev dependency
 npm install --save-dev <package>
-```
 
-**No test runner is configured yet.** Do not invent or assume a test command. When tests are added, update this file with the exact command.
+# Run all Playwright tests
+npm test
+
+# Run smoke tests only
+npm run test:smoke
+```
 
 ---
 
@@ -223,7 +229,7 @@ The following were planned but have not been committed. Do not fabricate stubs, 
 - **Python layer** — no `requirements.txt`, `pyproject.toml`, or Python files exist. Do not create Python files without explicit instruction.
 - **Dockerfile / docker-compose** — no container config is committed. Do not add or reference one.
 - **GitHub Actions workflows** — no `.github/` directory exists. Do not reference CI commands.
-- **Test framework** — no Jest, Vitest, or Playwright config exists. Do not write `*.test.ts` or `*.spec.ts` files without a test runner being configured first.
+
 
 When any of the above are added, **update this file immediately** with the relevant commands and conventions.
 

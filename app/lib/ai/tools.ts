@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import type { Database, ApartmentWithDetails } from "@/app/lib/types";
 import { calculateAffordability, formatNaira } from "@/app/lib/ai/affordability";
 import { NEIGHBORHOODS } from "@/app/lib/data/neighborhoods";
+import { searchApartmentsBySemantic, searchKnowledge } from "@/app/lib/ai/rag";
 
 // Service-role client for AI agent operations (bypasses RLS)
 function getServiceClient(): ReturnType<typeof createClient<Database>> {
@@ -243,8 +244,88 @@ export const createInquiry = tool({
     },
 });
 
+export const semanticSearchApartments = tool({
+    description:
+        "Search for apartments using natural language. This uses AI-powered semantic search to find apartments matching a descriptive query like 'quiet 2-bedroom near tech hubs in Lagos with good power supply'. Use this when the tenant describes what they want in natural language rather than specific filters.",
+    inputSchema: z.object({
+        query: z.string().describe("Natural language description of the ideal apartment"),
+        city: z.enum(["lagos", "abuja", "port-harcourt"]).optional().describe("City to search in"),
+        apartment_type: z
+            .enum(["self-contained", "mini-flat", "1-bedroom", "2-bedroom", "3-bedroom", "duplex"])
+            .optional()
+            .describe("Type of apartment"),
+        max_rent: z.number().optional().describe("Maximum annual rent in Naira"),
+    }),
+    execute: async ({ query, city, apartment_type, max_rent }) => {
+        const results = await searchApartmentsBySemantic(query, {
+            city,
+            apartmentType: apartment_type,
+            maxRent: max_rent,
+            matchCount: 8,
+            matchThreshold: 0.3,
+        });
+
+        if (results.length === 0) {
+            return {
+                results: [],
+                message: "No apartments found matching your description. Try broadening your search or using different terms.",
+            };
+        }
+
+        return {
+            results: results.map((r) => ({
+                apartment_id: r.apartment_id,
+                similarity_score: Math.round(r.similarity * 100) / 100,
+                summary: r.content.slice(0, 300),
+                metadata: r.metadata,
+            })),
+            count: results.length,
+            message: `Found ${results.length} apartment${results.length === 1 ? "" : "s"} matching your description.`,
+        };
+    },
+});
+
+export const semanticSearchKnowledge = tool({
+    description:
+        "Search the knowledge base for information about neighborhoods, market insights, and real estate FAQs. Use this when the tenant asks general questions about areas, living conditions, or the Nigerian rental market.",
+    inputSchema: z.object({
+        query: z.string().describe("Natural language question about neighborhoods or the rental market"),
+        source_type: z
+            .enum(["neighborhood", "market_insight", "faq"])
+            .optional()
+            .describe("Filter by knowledge type"),
+    }),
+    execute: async ({ query, source_type }) => {
+        const results = await searchKnowledge(query, {
+            sourceType: source_type,
+            matchCount: 5,
+            matchThreshold: 0.3,
+        });
+
+        if (results.length === 0) {
+            return {
+                results: [],
+                message: "No relevant information found in the knowledge base.",
+            };
+        }
+
+        return {
+            results: results.map((r) => ({
+                source_type: r.source_type,
+                source_id: r.source_id,
+                content: r.content,
+                similarity_score: Math.round(r.similarity * 100) / 100,
+            })),
+            count: results.length,
+            message: `Found ${results.length} relevant knowledge entries.`,
+        };
+    },
+});
+
 export const agentTools = {
     searchApartments,
+    semanticSearchApartments,
+    semanticSearchKnowledge,
     getApartmentDetails,
     checkAffordability,
     getNeighborhoodInfo,
