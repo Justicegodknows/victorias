@@ -168,21 +168,24 @@ export default function NewListingPage(): React.ReactElement {
     }
 
     return (
-        <div className="mx-auto w-full max-w-2xl px-4 py-8">
-            <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">New Listing</h1>
+        <div className="mx-auto w-full max-w-4xl">
+            <div className="mb-12">
+                <h1 className="font-[family-name:var(--font-geist-sans)] text-4xl font-black tracking-tight text-[#1a1b22] dark:text-zinc-50 mb-2">Create New Listing</h1>
+                <p className="text-[#3e4a3d] dark:text-zinc-400 font-medium">Curate your property for Victoria&apos;s premium audience.</p>
+            </div>
 
             {/* Step indicator */}
-            <div className="mt-6 flex gap-1">
+            <div className="mb-8 flex gap-2">
                 {([1, 2, 3, 4, 5] as Step[]).map((s) => (
                     <button
                         key={s}
                         type="button"
                         onClick={() => setStep(s)}
-                        className={`flex-1 rounded-full py-1.5 text-xs font-medium transition-colors ${s === step
-                            ? "bg-green-600 text-white"
+                        className={`flex-1 rounded-full py-2 text-xs font-bold uppercase tracking-widest transition-all ${s === step
+                            ? "btn-primary-gradient text-white shadow-[0px_4px_12px_rgba(0,107,44,0.3)]"
                             : s < step
-                                ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-400"
-                                : "bg-zinc-100 text-zinc-400 dark:bg-zinc-800"
+                                ? "bg-[#baecbc] dark:bg-emerald-900 text-[#006b2c] dark:text-emerald-400"
+                                : "bg-[#f4f2fd] dark:bg-zinc-800 text-zinc-400"
                             }`}
                     >
                         {STEPS[s]}
@@ -191,166 +194,196 @@ export default function NewListingPage(): React.ReactElement {
             </div>
 
             {error && (
-                <div className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
+                <div className="mb-6 rounded-2xl bg-red-50 dark:bg-red-950 p-4 text-sm text-red-700 dark:text-red-300">
                     {error}
                 </div>
             )}
 
-            <div className="mt-6 space-y-4">
+            <div className="space-y-6">
                 {/* Step 1: Basic Info */}
                 {step === 1 && (
-                    <>
-                        <div>
-                            <label htmlFor="title" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Title</label>
-                            <input id="title" type="text" required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g., Spacious 2-bedroom in Lekki Phase 1" className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50" />
+                    <section className="space-y-6">
+                        <div className="flex items-center gap-4 mb-2">
+                            <div className="w-10 h-10 rounded-xl bg-[#006b2c]/10 flex items-center justify-center text-[#006b2c]">
+                                📝
+                            </div>
+                            <h3 className="text-xl font-[family-name:var(--font-geist-sans)] font-bold text-[#1a1b22] dark:text-zinc-50">Basic Information</h3>
                         </div>
-                        <div>
-                            <label htmlFor="type" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Apartment Type</label>
-                            <select id="type" value={apartmentType} onChange={(e) => setApartmentType(e.target.value as ApartmentType)} className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50">
-                                {Object.entries(APARTMENT_TYPE_LABELS).map(([val, label]) => (
-                                    <option key={val} value={val}>{label}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <div>
-                            <label htmlFor="rent" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Annual Rent (₦)</label>
-                            <input id="rent" type="number" required value={annualRent} onChange={(e) => setAnnualRent(e.target.value)} placeholder="e.g., 1500000" className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50" />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label htmlFor="deposit" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Caution Deposit (₦)</label>
-                                <input id="deposit" type="number" value={deposit} onChange={(e) => setDeposit(e.target.value)} placeholder="0" className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50" />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-8 bg-[#f4f2fd] dark:bg-zinc-900 rounded-3xl">
+                            <div className="md:col-span-2">
+                                <label htmlFor="title" className="block text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em] text-zinc-500 mb-2">Listing Title</label>
+                                <input id="title" type="text" required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g., Minimalist Ocean View Villa" className="w-full bg-white dark:bg-zinc-800 border-0 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#006b2c] shadow-sm dark:text-zinc-50" />
                             </div>
                             <div>
-                                <label htmlFor="agentFee" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Agent Fee (₦)</label>
-                                <input id="agentFee" type="number" value={agentFee} onChange={(e) => setAgentFee(e.target.value)} placeholder="0" className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50" />
+                                <label htmlFor="type" className="block text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em] text-zinc-500 mb-2">Property Type</label>
+                                <select id="type" value={apartmentType} onChange={(e) => setApartmentType(e.target.value as ApartmentType)} className="w-full bg-white dark:bg-zinc-800 border-0 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#006b2c] shadow-sm dark:text-zinc-50">
+                                    {Object.entries(APARTMENT_TYPE_LABELS).map(([val, label]) => (
+                                        <option key={val} value={val}>{label}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label htmlFor="rent" className="block text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em] text-zinc-500 mb-2">Annual Rent (₦)</label>
+                                <input id="rent" type="number" required value={annualRent} onChange={(e) => setAnnualRent(e.target.value)} placeholder="e.g., 1500000" className="w-full bg-white dark:bg-zinc-800 border-0 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#006b2c] shadow-sm font-[family-name:var(--font-geist-mono)] dark:text-zinc-50" />
+                            </div>
+                            <div>
+                                <label htmlFor="deposit" className="block text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em] text-zinc-500 mb-2">Caution Deposit (₦)</label>
+                                <input id="deposit" type="number" value={deposit} onChange={(e) => setDeposit(e.target.value)} placeholder="0" className="w-full bg-white dark:bg-zinc-800 border-0 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#006b2c] shadow-sm font-[family-name:var(--font-geist-mono)] dark:text-zinc-50" />
+                            </div>
+                            <div>
+                                <label htmlFor="agentFee" className="block text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em] text-zinc-500 mb-2">Agent Fee (₦)</label>
+                                <input id="agentFee" type="number" value={agentFee} onChange={(e) => setAgentFee(e.target.value)} placeholder="0" className="w-full bg-white dark:bg-zinc-800 border-0 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#006b2c] shadow-sm font-[family-name:var(--font-geist-mono)] dark:text-zinc-50" />
+                            </div>
+                            <div className="md:col-span-2">
+                                <label htmlFor="description" className="block text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em] text-zinc-500 mb-2">Editorial Description</label>
+                                <textarea id="description" rows={4} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe the soul of this property..." className="w-full bg-white dark:bg-zinc-800 border-0 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#006b2c] shadow-sm dark:text-zinc-50" />
                             </div>
                         </div>
-                        <div>
-                            <label htmlFor="description" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Description</label>
-                            <textarea id="description" rows={4} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe the apartment, its features, and the surrounding area..." className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50" />
-                        </div>
-                    </>
+                    </section>
                 )}
 
                 {/* Step 2: Location */}
                 {step === 2 && (
-                    <>
-                        <div>
-                            <label htmlFor="city" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">City</label>
-                            <select id="city" value={city} onChange={(e) => setCity(e.target.value as City)} className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50">
-                                {Object.entries(CITY_LABELS).map(([val, label]) => (
-                                    <option key={val} value={val}>{label}</option>
-                                ))}
-                            </select>
+                    <section className="space-y-6">
+                        <div className="flex items-center gap-4 mb-2">
+                            <div className="w-10 h-10 rounded-xl bg-[#006b2c]/10 flex items-center justify-center text-[#006b2c]">
+                                📍
+                            </div>
+                            <h3 className="text-xl font-[family-name:var(--font-geist-sans)] font-bold text-[#1a1b22] dark:text-zinc-50">Location Details</h3>
                         </div>
-                        <div>
-                            <label htmlFor="lga" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Local Government Area (LGA)</label>
-                            <input id="lga" type="text" value={lga} onChange={(e) => setLga(e.target.value)} placeholder="e.g., Eti-Osa" className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50" />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-8 bg-[#f4f2fd] dark:bg-zinc-900 rounded-3xl">
+                            <div>
+                                <label htmlFor="city" className="block text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em] text-zinc-500 mb-2">City</label>
+                                <select id="city" value={city} onChange={(e) => setCity(e.target.value as City)} className="w-full bg-white dark:bg-zinc-800 border-0 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#006b2c] shadow-sm dark:text-zinc-50">
+                                    {Object.entries(CITY_LABELS).map(([val, label]) => (
+                                        <option key={val} value={val}>{label}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label htmlFor="lga" className="block text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em] text-zinc-500 mb-2">Local Government Area</label>
+                                <input id="lga" type="text" value={lga} onChange={(e) => setLga(e.target.value)} placeholder="e.g., Eti-Osa" className="w-full bg-white dark:bg-zinc-800 border-0 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#006b2c] shadow-sm dark:text-zinc-50" />
+                            </div>
+                            <div>
+                                <label htmlFor="neighborhood" className="block text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em] text-zinc-500 mb-2">Neighborhood</label>
+                                <input id="neighborhood" type="text" value={neighborhood} onChange={(e) => setNeighborhood(e.target.value)} placeholder="e.g., Lekki Phase 1" className="w-full bg-white dark:bg-zinc-800 border-0 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#006b2c] shadow-sm dark:text-zinc-50" />
+                            </div>
+                            <div>
+                                <label htmlFor="address" className="block text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em] text-zinc-500 mb-2">Full Address</label>
+                                <input id="address" type="text" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="e.g., Banana Island, Road 3" className="w-full bg-white dark:bg-zinc-800 border-0 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#006b2c] shadow-sm dark:text-zinc-50" />
+                            </div>
                         </div>
-                        <div>
-                            <label htmlFor="neighborhood" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Neighborhood</label>
-                            <input id="neighborhood" type="text" value={neighborhood} onChange={(e) => setNeighborhood(e.target.value)} placeholder="e.g., Lekki Phase 1" className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50" />
-                        </div>
-                        <div>
-                            <label htmlFor="address" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Full Address</label>
-                            <input id="address" type="text" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="e.g., 15 Admiralty Way, Lekki Phase 1" className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50" />
-                        </div>
-                    </>
+                    </section>
                 )}
 
                 {/* Step 3: Amenities */}
                 {step === 3 && (
-                    <div>
-                        <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Select available amenities</p>
-                        <div className="mt-3 grid grid-cols-2 gap-2">
+                    <section className="space-y-6">
+                        <div className="flex items-center gap-4 mb-2">
+                            <div className="w-10 h-10 rounded-xl bg-[#006b2c]/10 flex items-center justify-center text-[#006b2c]">
+                                🏊
+                            </div>
+                            <h3 className="text-xl font-[family-name:var(--font-geist-sans)] font-bold text-[#1a1b22] dark:text-zinc-50">Premium Amenities</h3>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 p-8 bg-[#f4f2fd] dark:bg-zinc-900 rounded-3xl">
                             {(Object.entries(AMENITY_LABELS) as [Amenity, string][]).map(([key, label]) => (
                                 <label
                                     key={key}
-                                    className={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2.5 text-sm transition-colors ${amenities.has(key)
-                                        ? "border-green-600 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400"
-                                        : "border-zinc-200 text-zinc-600 hover:border-zinc-300 dark:border-zinc-700 dark:text-zinc-400"
-                                        }`}
+                                    className="flex items-center gap-3 cursor-pointer group"
                                 >
-                                    <input type="checkbox" checked={amenities.has(key)} onChange={() => toggleAmenity(key)} className="sr-only" />
-                                    <span className={`flex h-4 w-4 items-center justify-center rounded border text-[10px] ${amenities.has(key)
-                                        ? "border-green-600 bg-green-600 text-white"
-                                        : "border-zinc-300 dark:border-zinc-600"
-                                        }`}>
-                                        {amenities.has(key) && "✓"}
-                                    </span>
-                                    {label}
+                                    <input
+                                        type="checkbox"
+                                        checked={amenities.has(key)}
+                                        onChange={() => toggleAmenity(key)}
+                                        className="w-5 h-5 rounded border-zinc-300 dark:border-zinc-600 text-[#006b2c] focus:ring-[#006b2c]"
+                                    />
+                                    <span className="text-sm font-medium text-[#3e4a3d] dark:text-zinc-400 group-hover:text-[#006b2c] dark:group-hover:text-emerald-400 transition-colors">{label}</span>
                                 </label>
                             ))}
                         </div>
-                    </div>
+                    </section>
                 )}
 
                 {/* Step 4: Environmental */}
                 {step === 4 && (
-                    <>
-                        <div>
-                            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Flood Risk</label>
-                            <div className="mt-2 flex gap-2">
-                                {(["low", "medium", "high"] as FloodRisk[]).map((risk) => (
-                                    <button key={risk} type="button" onClick={() => setFloodRisk(risk)} className={`flex-1 rounded-lg border py-2 text-sm font-medium capitalize transition-colors ${floodRisk === risk
-                                        ? risk === "low" ? "border-green-600 bg-green-50 text-green-700" :
-                                            risk === "medium" ? "border-amber-600 bg-amber-50 text-amber-700" :
-                                                "border-red-600 bg-red-50 text-red-700"
-                                        : "border-zinc-200 text-zinc-500 dark:border-zinc-700 dark:text-zinc-400"
-                                        }`}>
-                                        {risk}
-                                    </button>
-                                ))}
+                    <section className="space-y-6">
+                        <div className="flex items-center gap-4 mb-2">
+                            <div className="w-10 h-10 rounded-xl bg-[#006b2c]/10 flex items-center justify-center text-[#006b2c]">
+                                🌿
                             </div>
+                            <h3 className="text-xl font-[family-name:var(--font-geist-sans)] font-bold text-[#1a1b22] dark:text-zinc-50">Environmental Integrity</h3>
                         </div>
-                        {[
-                            { label: "Power Supply", value: powerRating, setter: setPowerRating },
-                            { label: "Water Supply", value: waterRating, setter: setWaterRating },
-                            { label: "Security", value: securityRating, setter: setSecurityRating },
-                            { label: "Road Condition", value: roadRating, setter: setRoadRating },
-                        ].map(({ label, value, setter }) => (
-                            <div key={label}>
-                                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">{label} Rating</label>
-                                <div className="mt-2 flex gap-1">
-                                    {([1, 2, 3, 4, 5] as const).map((rating) => (
-                                        <button key={rating} type="button" onClick={() => setter(rating)} className={`h-8 w-10 rounded text-sm font-medium transition-colors ${rating <= value ? "bg-green-600 text-white" : "bg-zinc-100 text-zinc-400 dark:bg-zinc-800"
+                        <div className="p-8 bg-[#f4f2fd] dark:bg-zinc-900 rounded-3xl space-y-6">
+                            <div>
+                                <label className="block text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em] text-zinc-500 mb-3">Flood Risk</label>
+                                <div className="flex gap-3">
+                                    {(["low", "medium", "high"] as FloodRisk[]).map((risk) => (
+                                        <button key={risk} type="button" onClick={() => setFloodRisk(risk)} className={`flex-1 rounded-xl py-3 text-sm font-bold capitalize transition-all ${floodRisk === risk
+                                            ? risk === "low" ? "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 ring-2 ring-emerald-500" :
+                                                risk === "medium" ? "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 ring-2 ring-amber-500" :
+                                                    "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 ring-2 ring-red-500"
+                                            : "bg-white dark:bg-zinc-800 text-zinc-500"
                                             }`}>
-                                            {rating}
+                                            {risk}
                                         </button>
                                     ))}
                                 </div>
                             </div>
-                        ))}
-                        <div>
-                            <label htmlFor="busStop" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Nearest Bus Stop</label>
-                            <input id="busStop" type="text" value={nearestBusStop} onChange={(e) => setNearestBusStop(e.target.value)} className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50" />
+                            {[
+                                { label: "Power Supply", value: powerRating, setter: setPowerRating },
+                                { label: "Water Supply", value: waterRating, setter: setWaterRating },
+                                { label: "Security", value: securityRating, setter: setSecurityRating },
+                                { label: "Road Condition", value: roadRating, setter: setRoadRating },
+                            ].map(({ label, value, setter }) => (
+                                <div key={label}>
+                                    <label className="block text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em] text-zinc-500 mb-3">{label}</label>
+                                    <div className="flex gap-2">
+                                        {([1, 2, 3, 4, 5] as const).map((rating) => (
+                                            <button key={rating} type="button" onClick={() => setter(rating)} className={`h-10 w-12 rounded-xl text-sm font-bold transition-all ${rating <= value ? "bg-[#006b2c] text-white shadow-sm" : "bg-white dark:bg-zinc-800 text-zinc-400"
+                                                }`}>
+                                                {rating}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                                <div>
+                                    <label htmlFor="busStop" className="block text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em] text-zinc-500 mb-2">Nearest Bus Stop</label>
+                                    <input id="busStop" type="text" value={nearestBusStop} onChange={(e) => setNearestBusStop(e.target.value)} className="w-full bg-white dark:bg-zinc-800 border-0 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#006b2c] shadow-sm dark:text-zinc-50" />
+                                </div>
+                                <div>
+                                    <label htmlFor="market" className="block text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em] text-zinc-500 mb-2">Nearest Market</label>
+                                    <input id="market" type="text" value={nearestMarket} onChange={(e) => setNearestMarket(e.target.value)} className="w-full bg-white dark:bg-zinc-800 border-0 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#006b2c] shadow-sm dark:text-zinc-50" />
+                                </div>
+                                <div>
+                                    <label htmlFor="hospital" className="block text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em] text-zinc-500 mb-2">Nearest Hospital</label>
+                                    <input id="hospital" type="text" value={nearestHospital} onChange={(e) => setNearestHospital(e.target.value)} className="w-full bg-white dark:bg-zinc-800 border-0 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#006b2c] shadow-sm dark:text-zinc-50" />
+                                </div>
+                                <div>
+                                    <label htmlFor="traffic" className="block text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em] text-zinc-500 mb-2">Traffic Notes</label>
+                                    <input id="traffic" type="text" value={trafficNotes} onChange={(e) => setTrafficNotes(e.target.value)} placeholder="Any traffic-related info..." className="w-full bg-white dark:bg-zinc-800 border-0 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#006b2c] shadow-sm dark:text-zinc-50" />
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <label htmlFor="market" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Nearest Market</label>
-                            <input id="market" type="text" value={nearestMarket} onChange={(e) => setNearestMarket(e.target.value)} className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50" />
-                        </div>
-                        <div>
-                            <label htmlFor="hospital" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Nearest Hospital</label>
-                            <input id="hospital" type="text" value={nearestHospital} onChange={(e) => setNearestHospital(e.target.value)} className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50" />
-                        </div>
-                        <div>
-                            <label htmlFor="traffic" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Traffic Notes</label>
-                            <textarea id="traffic" rows={2} value={trafficNotes} onChange={(e) => setTrafficNotes(e.target.value)} placeholder="Any traffic-related info..." className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50" />
-                        </div>
-                    </>
+                    </section>
                 )}
 
                 {/* Step 5: Photos */}
                 {step === 5 && (
-                    <div>
-                        <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Upload Photos (max 10)</p>
-                        <p className="mt-1 text-xs text-zinc-500">First photo will be the primary/cover image. JPEG, PNG, or WebP. Max 5MB each.</p>
-                        <label className="mt-3 flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-zinc-300 p-8 transition-colors hover:border-green-500 dark:border-zinc-600">
-                            <svg className="h-8 w-8 text-zinc-400" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.41a2.25 2.25 0 013.182 0l2.909 2.91m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                            </svg>
-                            <span className="mt-2 text-sm text-zinc-500">Click to select photos</span>
+                    <section className="space-y-6">
+                        <div className="flex items-center gap-4 mb-2">
+                            <div className="w-10 h-10 rounded-xl bg-[#006b2c]/10 flex items-center justify-center text-[#006b2c]">
+                                📸
+                            </div>
+                            <h3 className="text-xl font-[family-name:var(--font-geist-sans)] font-bold text-[#1a1b22] dark:text-zinc-50">Visual Assets</h3>
+                        </div>
+                        <label className="border-2 border-dashed border-[#bdcaba] dark:border-zinc-600 rounded-3xl p-12 flex flex-col items-center justify-center text-center group hover:border-[#006b2c] transition-colors cursor-pointer bg-white/50 dark:bg-zinc-800/50">
+                            <div className="w-16 h-16 rounded-full bg-[#006b2c]/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <span className="text-4xl">☁️</span>
+                            </div>
+                            <p className="text-lg font-[family-name:var(--font-geist-sans)] font-bold text-[#1a1b22] dark:text-zinc-50 mb-1">Drag and drop your high-res gallery</p>
+                            <p className="text-sm text-zinc-400">First photo will be the cover image. JPEG, PNG, or WebP. Max 5MB each.</p>
                             <input
                                 type="file"
                                 accept="image/jpeg,image/png,image/webp"
@@ -363,43 +396,46 @@ export default function NewListingPage(): React.ReactElement {
                             />
                         </label>
                         {imageFiles.length > 0 && (
-                            <div className="mt-4 grid grid-cols-5 gap-2">
+                            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4">
                                 {imageFiles.map((file, i) => (
-                                    <div key={i} className="relative h-20 overflow-hidden rounded-lg bg-zinc-100">
+                                    <div key={i} className="aspect-square rounded-xl overflow-hidden relative group">
                                         <img src={URL.createObjectURL(file)} alt="" className="h-full w-full object-cover" />
                                         {i === 0 && (
-                                            <span className="absolute bottom-1 left-1 rounded bg-green-600 px-1 py-0.5 text-[9px] text-white">
+                                            <span className="absolute bottom-2 left-2 rounded-full bg-[#006b2c] px-2 py-0.5 text-[9px] font-bold text-white">
                                                 Cover
                                             </span>
                                         )}
                                     </div>
                                 ))}
+                                <div className="aspect-square rounded-xl bg-[#e3e1ec] dark:bg-zinc-800 flex items-center justify-center">
+                                    <span className="text-2xl text-zinc-400">+</span>
+                                </div>
                             </div>
                         )}
-                    </div>
+                    </section>
                 )}
 
                 {/* Navigation buttons */}
-                <div className="flex justify-between pt-4">
+                <div className="flex justify-between pt-6">
                     {step > 1 ? (
-                        <button type="button" onClick={() => setStep((step - 1) as Step)} className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-800">
-                            Back
+                        <button type="button" onClick={() => setStep((step - 1) as Step)} className="px-6 py-3 text-zinc-500 dark:text-zinc-400 font-medium hover:text-[#1a1b22] dark:hover:text-zinc-50 transition-colors">
+                            ← Back
                         </button>
                     ) : (
                         <div />
                     )}
                     {step < 5 ? (
-                        <button type="button" onClick={() => setStep((step + 1) as Step)} className="rounded-lg bg-green-600 px-6 py-2 text-sm font-medium text-white hover:bg-green-700">
-                            Next
+                        <button type="button" onClick={() => setStep((step + 1) as Step)} className="bg-[#1a1b22] dark:bg-zinc-800 text-white px-8 py-3 rounded-xl font-[family-name:var(--font-geist-sans)] font-bold hover:opacity-90 transition-opacity">
+                            Next →
                         </button>
                     ) : (
                         <button
                             type="button"
                             onClick={handleSubmit}
                             disabled={loading || uploading || !title || !annualRent}
-                            className="rounded-lg bg-green-600 px-6 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
+                            className="btn-primary-gradient text-white px-8 py-3 rounded-xl font-[family-name:var(--font-geist-sans)] font-bold shadow-lg shadow-[#006b2c]/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
                         >
-                            {uploading ? "Uploading photos..." : loading ? "Publishing..." : "Publish Listing"}
+                            {uploading ? "Uploading photos..." : loading ? "Publishing..." : "Publish to Victoria's"}
                         </button>
                     )}
                 </div>

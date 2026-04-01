@@ -5,6 +5,13 @@ import { isToolUIPart, getToolName } from "ai";
 import { useState, useRef, useEffect } from "react";
 import { ApartmentCard, type ApartmentCardData } from "@/app/components/chat/apartment-card";
 
+const suggestions = [
+    "Find me a 2-bedroom in Lekki under ₦2M",
+    "Affordable studio in Yaba near Tech Hub",
+    "Serviced apartment in Abuja with 24/7 power",
+    "What's the best neighborhood for expats in Lagos?",
+];
+
 export function ChatInterface(): React.ReactElement {
     const { messages, sendMessage, status, error } = useChat();
     const [input, setInput] = useState("");
@@ -26,35 +33,29 @@ export function ChatInterface(): React.ReactElement {
     }
 
     return (
-        <div className="flex h-full flex-col">
+        <div className="flex h-full flex-col bg-[#fbf8ff] dark:bg-zinc-950">
             {/* Messages area */}
-            <div className="flex-1 overflow-y-auto px-4 py-6">
-                <div className="mx-auto max-w-3xl space-y-6">
+            <div className="flex-1 overflow-y-auto no-scrollbar px-4 py-8">
+                <div className="mx-auto max-w-4xl w-full flex flex-col gap-8">
                     {messages.length === 0 && (
-                        <div className="flex flex-col items-center justify-center py-20 text-center">
-                            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
-                                <svg className="h-8 w-8 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
-                                </svg>
+                        <div className="flex flex-col items-center justify-center text-center py-12">
+                            <div className="w-20 h-20 rounded-full bg-[#006b2c] flex items-center justify-center text-white shadow-2xl mb-6 relative">
+                                <span className="text-4xl">✨</span>
+                                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-400 border-4 border-[#fbf8ff] dark:border-zinc-950 rounded-full" />
                             </div>
-                            <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">
+                            <h3 className="text-2xl font-[family-name:var(--font-geist-sans)] font-bold text-[#1a1b22] dark:text-zinc-50 mb-2">
                                 Hi! I&apos;m Victoria
-                            </h2>
-                            <p className="mt-2 max-w-md text-sm text-zinc-600 dark:text-zinc-400">
-                                Your AI apartment finder for Nigeria. Tell me what you&apos;re looking for — your budget, preferred city, apartment type, and any must-have features.
+                            </h3>
+                            <p className="text-[#3e4a3d] dark:text-zinc-400 max-w-md text-sm leading-relaxed mb-10">
+                                Your premium AI apartment curator for the Nigerian market. How can I help you find your dream home today?
                             </p>
-                            <div className="mt-6 flex flex-wrap justify-center gap-2">
-                                {[
-                                    "Find me a 2-bedroom in Lekki under ₦2M",
-                                    "What's available in Wuse 2, Abuja?",
-                                    "I earn ₦4M/year, what can I afford?",
-                                    "Is Ajah prone to flooding?",
-                                ].map((suggestion) => (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-2xl px-4">
+                                {suggestions.map((suggestion) => (
                                     <button
                                         key={suggestion}
                                         type="button"
                                         onClick={() => handleSuggestion(suggestion)}
-                                        className="rounded-full border border-zinc-200 px-3 py-1.5 text-xs text-zinc-600 transition-colors hover:border-green-300 hover:bg-green-50 hover:text-green-700 dark:border-zinc-700 dark:text-zinc-400 dark:hover:border-green-800 dark:hover:bg-green-950 dark:hover:text-green-400"
+                                        className="px-5 py-4 bg-[#f4f2fd] dark:bg-zinc-900 text-left text-sm font-medium text-emerald-800 dark:text-emerald-400 rounded-2xl hover:bg-[#e3e1ec] dark:hover:bg-zinc-800 transition-colors shadow-sm"
                                     >
                                         {suggestion}
                                     </button>
@@ -66,17 +67,24 @@ export function ChatInterface(): React.ReactElement {
                     {messages.map((message) => (
                         <div
                             key={message.id}
-                            className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                            className={`flex w-full ${message.role === "user" ? "justify-end" : "justify-start"}`}
                         >
                             <div
-                                className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${message.role === "user"
-                                    ? "bg-green-600 text-white"
-                                    : "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50"
+                                className={`max-w-[85%] md:max-w-[80%] text-sm leading-relaxed ${message.role === "user"
+                                        ? "bg-[#006b2c] px-6 py-4 rounded-2xl rounded-tr-none text-white shadow-lg"
+                                        : "flex flex-col gap-4"
                                     }`}
                             >
                                 {message.parts.map((part, i) => {
                                     if (part.type === "text") {
-                                        return <p key={i} className="whitespace-pre-wrap">{part.text}</p>;
+                                        if (message.role === "user") {
+                                            return <p key={i} className="whitespace-pre-wrap">{part.text}</p>;
+                                        }
+                                        return (
+                                            <div key={i} className="bg-zinc-100 dark:bg-zinc-800 px-6 py-4 rounded-2xl rounded-tl-none text-[#1a1b22] dark:text-zinc-50 shadow-sm">
+                                                <p className="whitespace-pre-wrap">{part.text}</p>
+                                            </div>
+                                        );
                                     }
                                     if (isToolUIPart(part) && part.state === "output-available") {
                                         const output = part.output as Record<string, unknown>;
@@ -85,7 +93,7 @@ export function ChatInterface(): React.ReactElement {
                                         if (toolName === "searchApartments" && output?.results) {
                                             const apartments = output.results as ApartmentCardData[];
                                             return (
-                                                <div key={i} className="mt-2 space-y-3">
+                                                <div key={i} className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
                                                     {apartments.map((apt, j) => (
                                                         <ApartmentCard key={apt.title + j} apartment={apt} />
                                                     ))}
@@ -98,20 +106,18 @@ export function ChatInterface(): React.ReactElement {
                                             return (
                                                 <div
                                                     key={i}
-                                                    className={`mt-2 rounded-lg border p-3 ${affordable
-                                                        ? "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950"
-                                                        : "border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950"
+                                                    className={`rounded-2xl p-4 ${affordable
+                                                            ? "bg-[#baecbc] dark:bg-emerald-950 text-emerald-900 dark:text-emerald-300"
+                                                            : "bg-[#ffdad6] dark:bg-red-950 text-[#93000a] dark:text-red-300"
                                                         }`}
                                                 >
-                                                    <div className="flex items-center gap-2">
-                                                        <span className={`text-lg ${affordable ? "text-green-600" : "text-amber-600"}`}>
-                                                            {affordable ? "✓" : "⚠"}
-                                                        </span>
-                                                        <span className="text-sm font-medium">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <span className="text-lg">{affordable ? "✓" : "⚠"}</span>
+                                                        <span className="text-sm font-bold">
                                                             {output.recommendation as string}
                                                         </span>
                                                     </div>
-                                                    <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
+                                                    <p className="text-xs opacity-80">
                                                         Rent-to-income: {output.rent_to_income_percentage as string} | Total upfront: {output.total_upfront_cost_formatted as string}
                                                     </p>
                                                 </div>
@@ -125,19 +131,17 @@ export function ChatInterface(): React.ReactElement {
                     ))}
 
                     {status === "streaming" && (
-                        <div className="flex justify-start">
-                            <div className="rounded-2xl bg-zinc-100 px-4 py-3 dark:bg-zinc-800">
-                                <div className="flex gap-1">
-                                    <span className="h-2 w-2 animate-bounce rounded-full bg-zinc-400 [animation-delay:-0.3s]" />
-                                    <span className="h-2 w-2 animate-bounce rounded-full bg-zinc-400 [animation-delay:-0.15s]" />
-                                    <span className="h-2 w-2 animate-bounce rounded-full bg-zinc-400" />
-                                </div>
+                        <div className="flex justify-start w-full">
+                            <div className="bg-zinc-100 dark:bg-zinc-800 px-4 py-3 rounded-2xl rounded-tl-none flex items-center gap-1">
+                                <div className="w-1.5 h-1.5 rounded-full bg-[#006b2c] dot-1" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-[#006b2c] dot-2" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-[#006b2c] dot-3" />
                             </div>
                         </div>
                     )}
 
                     {error && (
-                        <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
+                        <div className="rounded-2xl bg-[#ffdad6] dark:bg-red-950 p-4 text-sm text-[#93000a] dark:text-red-300">
                             Something went wrong. Please try again.
                         </div>
                     )}
@@ -147,23 +151,37 @@ export function ChatInterface(): React.ReactElement {
             </div>
 
             {/* Input area */}
-            <div className="border-t border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-                <form onSubmit={handleSubmit} className="mx-auto flex max-w-3xl gap-3">
-                    <input
-                        type="text"
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        placeholder="Ask Victoria about apartments..."
-                        className="flex-1 rounded-xl border border-zinc-300 px-4 py-2.5 text-sm shadow-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50"
-                    />
+            <div className="p-6 bg-[#f4f2fd]/50 dark:bg-zinc-900/50 backdrop-blur-md">
+                <form onSubmit={handleSubmit} className="mx-auto flex max-w-4xl gap-3 items-end">
+                    <div className="flex-1 bg-white dark:bg-zinc-900 rounded-2xl shadow-sm px-4 py-3 flex items-center gap-3">
+                        <textarea
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter" && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSubmit(e);
+                                }
+                            }}
+                            placeholder="Message Victoria..."
+                            className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-1 resize-none h-6 no-scrollbar leading-tight placeholder:text-zinc-400 dark:placeholder:text-zinc-500 text-[#1a1b22] dark:text-zinc-50"
+                            rows={1}
+                        />
+                    </div>
                     <button
                         type="submit"
                         disabled={!input.trim() || status === "streaming"}
-                        className="rounded-xl bg-green-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50"
+                        className="w-12 h-12 bg-[#006b2c] hover:bg-[#00873a] text-white rounded-2xl flex items-center justify-center shadow-lg transition-transform active:scale-95 disabled:opacity-50"
                     >
-                        Send
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="22" y1="2" x2="11" y2="13" />
+                            <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                        </svg>
                     </button>
                 </form>
+                <p className="text-[10px] text-zinc-400 text-center mt-3 uppercase tracking-[0.2em] font-[family-name:var(--font-geist-mono)]">
+                    Victoria can occasionally provide estimates; verify critical info with landlords.
+                </p>
             </div>
         </div>
     );

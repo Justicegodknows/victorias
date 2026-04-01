@@ -39,60 +39,102 @@ export default async function InquiriesPage(): Promise<React.ReactElement> {
     const apartmentMap = new Map(apartments?.map((a) => [a.id, a]) ?? []);
 
     return (
-        <div className="mx-auto w-full max-w-4xl px-4 py-8">
-            <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">Inquiries</h1>
-            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                Messages from interested tenants
-            </p>
+        <div className="mx-auto w-full max-w-6xl">
+            {/* Header */}
+            <div className="mb-12">
+                <h1 className="font-[family-name:var(--font-geist-sans)] text-4xl font-black tracking-tight text-[#1a1b22] dark:text-zinc-50 mb-2">Inquiries</h1>
+                <p className="text-zinc-500 dark:text-zinc-400 max-w-lg">Manage your property inquiries and tenant communication through Victoria&apos;s curated workspace.</p>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                <div className="bg-[#f4f2fd] dark:bg-zinc-900 p-6 rounded-3xl relative overflow-hidden group">
+                    <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-zinc-500 mb-2">Pending</p>
+                    <h3 className="font-[family-name:var(--font-geist-sans)] text-3xl font-black text-[#1a1b22] dark:text-zinc-50">
+                        {inquiries?.filter((i) => i.status === "pending").length ?? 0}
+                    </h3>
+                </div>
+                <div className="bg-[#f4f2fd] dark:bg-zinc-900 p-6 rounded-3xl relative overflow-hidden group">
+                    <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-zinc-500 mb-2">Responded</p>
+                    <h3 className="font-[family-name:var(--font-geist-sans)] text-3xl font-black text-[#1a1b22] dark:text-zinc-50">
+                        {inquiries?.filter((i) => i.status === "responded").length ?? 0}
+                    </h3>
+                </div>
+                <div className="bg-[#f4f2fd] dark:bg-zinc-900 p-6 rounded-3xl relative overflow-hidden group">
+                    <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-zinc-500 mb-2">Total</p>
+                    <h3 className="font-[family-name:var(--font-geist-sans)] text-3xl font-black text-[#1a1b22] dark:text-zinc-50">
+                        {inquiries?.length ?? 0}
+                    </h3>
+                </div>
+            </div>
 
             {inquiries && inquiries.length > 0 ? (
-                <div className="mt-8 space-y-4">
-                    {inquiries.map((inq) => {
-                        const tenant = inq.profiles;
-                        const apt = apartmentMap.get(inq.apartment_id);
+                <div className="bg-white dark:bg-zinc-900 rounded-3xl ambient-shadow overflow-hidden">
+                    <div className="p-6 flex items-center justify-between bg-[#f4f2fd]/50 dark:bg-zinc-800/50">
+                        <span className="font-[family-name:var(--font-geist-mono)] text-[10px] text-zinc-400 uppercase tracking-[0.3em]">
+                            Showing {inquiries.length} inquir{inquiries.length !== 1 ? "ies" : "y"}
+                        </span>
+                    </div>
+                    <div className="divide-y divide-zinc-50 dark:divide-zinc-800">
+                        {inquiries.map((inq) => {
+                            const tenant = inq.profiles;
+                            const apt = apartmentMap.get(inq.apartment_id);
 
-                        return (
-                            <div key={inq.id} className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-700 dark:bg-zinc-800">
-                                <div className="flex items-start justify-between">
-                                    <div>
-                                        <p className="font-medium text-zinc-900 dark:text-zinc-50">
-                                            {tenant?.full_name ?? "Unknown tenant"}
-                                        </p>
-                                        {apt && (
-                                            <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
-                                                Re: {apt.title} — {APARTMENT_TYPE_LABELS[apt.apartment_type as keyof typeof APARTMENT_TYPE_LABELS]}, {apt.neighborhood}, {CITY_LABELS[apt.city as keyof typeof CITY_LABELS]} ({formatNaira(apt.annual_rent)}/yr)
-                                            </p>
+                            return (
+                                <div key={inq.id} className="p-6 hover:bg-zinc-50/50 dark:hover:bg-zinc-800/50 transition-colors">
+                                    <div className="flex items-start justify-between gap-4">
+                                        <div className="flex items-start gap-4">
+                                            <div className="w-10 h-10 rounded-full bg-[#e8e7f1] dark:bg-zinc-800 flex items-center justify-center text-sm font-bold text-[#006b2c]">
+                                                {(tenant?.full_name ?? "?")[0].toUpperCase()}
+                                            </div>
+                                            <div>
+                                                <p className="font-bold text-[#1a1b22] dark:text-zinc-50">
+                                                    {tenant?.full_name ?? "Unknown tenant"}
+                                                </p>
+                                                {apt && (
+                                                    <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
+                                                        Re: <span className="text-[#006b2c] dark:text-emerald-400 font-semibold">{apt.title}</span> — {APARTMENT_TYPE_LABELS[apt.apartment_type as keyof typeof APARTMENT_TYPE_LABELS]}, {apt.neighborhood}, {CITY_LABELS[apt.city as keyof typeof CITY_LABELS]} ({formatNaira(apt.annual_rent)}/yr)
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <span className="font-[family-name:var(--font-geist-mono)] text-[10px] text-zinc-400">
+                                                {new Date(inq.created_at).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}
+                                            </span>
+                                            <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${inq.status === "pending"
+                                                ? "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400"
+                                                : inq.status === "responded"
+                                                    ? "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
+                                                    : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500"
+                                                }`}>
+                                                {inq.status}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="mt-4 ml-14">
+                                        <p className="text-sm leading-relaxed text-[#3e4a3d] dark:text-zinc-300">{inq.message}</p>
+                                        {tenant?.phone && (
+                                            <a
+                                                href={`https://wa.me/${tenant.phone.replace(/\D/g, "")}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center gap-2 mt-4 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-4 py-2 rounded-xl text-xs font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors"
+                                            >
+                                                💬 Reply on WhatsApp
+                                            </a>
                                         )}
                                     </div>
-                                    <span className={`rounded-full px-2 py-1 text-xs font-medium ${inq.status === "pending" ? "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-400" :
-                                        inq.status === "responded" ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-400" :
-                                            "bg-zinc-100 text-zinc-500 dark:bg-zinc-700 dark:text-zinc-400"
-                                        }`}>
-                                        {inq.status}
-                                    </span>
                                 </div>
-                                <p className="mt-3 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">{inq.message}</p>
-                                <div className="mt-3 flex items-center justify-between">
-                                    <p className="text-xs text-zinc-400">
-                                        {new Date(inq.created_at).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
-                                    </p>
-                                    {tenant?.phone && (
-                                        <a
-                                            href={`https://wa.me/${tenant.phone.replace(/\D/g, "")}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="inline-flex items-center gap-1 rounded-lg bg-green-50 px-3 py-1.5 text-xs font-medium text-green-700 hover:bg-green-100 dark:bg-green-950 dark:text-green-400"
-                                        >
-                                            Reply on WhatsApp
-                                        </a>
-                                    )}
-                                </div>
-                            </div>
-                        );
-                    })}
+                            );
+                        })}
+                    </div>
                 </div>
             ) : (
-                <div className="mt-20 text-center">
+                <div className="mt-12 py-20 bg-[#f4f2fd] dark:bg-zinc-900 rounded-[2rem] flex flex-col items-center justify-center text-center px-6">
+                    <div className="w-20 h-20 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-6">
+                        <span className="text-4xl">📬</span>
+                    </div>
                     <p className="text-zinc-500 dark:text-zinc-400">No inquiries yet. They&apos;ll appear here when tenants express interest.</p>
                 </div>
             )}

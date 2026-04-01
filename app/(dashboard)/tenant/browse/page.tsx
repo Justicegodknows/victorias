@@ -53,26 +53,32 @@ export default async function BrowsePage({
     const { data: apartments } = await query.overrideTypes<BrowseApartment[]>();
 
     return (
-        <div className="mx-auto w-full max-w-7xl px-4 py-8">
-            <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-                    Browse Apartments
-                </h1>
-                <Link
-                    href="/tenant"
-                    className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
-                >
-                    Ask Victoria AI
-                </Link>
+        <div className="mx-auto w-full max-w-6xl">
+            {/* Editorial header */}
+            <div className="mb-10">
+                <span className="font-[family-name:var(--font-geist-mono)] text-[#006b2c] dark:text-emerald-400 uppercase tracking-[0.3em] font-bold text-[10px]">
+                    Curated Collection
+                </span>
+                <div className="flex items-end justify-between mt-2">
+                    <h1 className="font-[family-name:var(--font-manrope)] text-3xl font-bold text-[#1a1b22] dark:text-zinc-50">
+                        Browse Apartments
+                    </h1>
+                    <Link
+                        href="/tenant"
+                        className="text-[#006b2c] dark:text-emerald-400 font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all"
+                    >
+                        Ask Victoria AI →
+                    </Link>
+                </div>
             </div>
 
             {/* Filters */}
-            <form className="mt-6 flex flex-wrap gap-3">
+            <form className="flex flex-wrap gap-3 mb-10">
                 <select
                     name="city"
                     defaultValue={city ?? ""}
                     aria-label="Filter by city"
-                    className="rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50"
+                    className="bg-[#f4f2fd] dark:bg-zinc-900 border-none rounded-xl px-4 py-3 text-sm font-medium text-[#1a1b22] dark:text-zinc-50 focus:ring-2 focus:ring-[#006b2c]/20"
                 >
                     <option value="">All Cities</option>
                     {Object.entries(CITY_LABELS).map(([value, label]) => (
@@ -84,7 +90,7 @@ export default async function BrowsePage({
                     name="type"
                     defaultValue={type ?? ""}
                     aria-label="Filter by apartment type"
-                    className="rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50"
+                    className="bg-[#f4f2fd] dark:bg-zinc-900 border-none rounded-xl px-4 py-3 text-sm font-medium text-[#1a1b22] dark:text-zinc-50 focus:ring-2 focus:ring-[#006b2c]/20"
                 >
                     <option value="">All Types</option>
                     {Object.entries(APARTMENT_TYPE_LABELS).map(([value, label]) => (
@@ -96,7 +102,7 @@ export default async function BrowsePage({
                     name="max_rent"
                     defaultValue={maxRent?.toString() ?? ""}
                     aria-label="Filter by maximum rent"
-                    className="rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50"
+                    className="bg-[#f4f2fd] dark:bg-zinc-900 border-none rounded-xl px-4 py-3 text-sm font-medium text-[#1a1b22] dark:text-zinc-50 focus:ring-2 focus:ring-[#006b2c]/20"
                 >
                     <option value="">Any Budget</option>
                     <option value="500000">Up to ₦500,000</option>
@@ -109,14 +115,14 @@ export default async function BrowsePage({
 
                 <button
                     type="submit"
-                    className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
+                    className="bg-[#006b2c] text-white px-6 py-3 rounded-xl text-sm font-bold hover:bg-[#00873a] transition-colors"
                 >
                     Filter
                 </button>
             </form>
 
             {/* Results grid */}
-            <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {apartments && apartments.length > 0 ? (
                     apartments.map((apt) => {
                         const primaryImage = apt.apartment_images?.find((img) => img.is_primary)?.image_url;
@@ -127,35 +133,58 @@ export default async function BrowsePage({
                             <Link
                                 key={apt.id}
                                 href={`/tenant/apartments/${apt.id}`}
-                                className="group overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition-shadow hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800"
+                                className="group bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden ambient-shadow hover:shadow-xl transition-all"
                             >
-                                <div className="flex h-44 items-center justify-center bg-zinc-100 dark:bg-zinc-700">
+                                <div className="relative h-48">
                                     {primaryImage ? (
-                                        <img src={primaryImage} alt={apt.title} className="h-full w-full object-cover" />
+                                        <img src={primaryImage} alt={apt.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" />
                                     ) : (
-                                        <span className="text-sm text-zinc-400">No image</span>
+                                        <div className="h-full bg-gradient-to-br from-emerald-100 to-emerald-50 dark:from-zinc-800 dark:to-zinc-900 flex items-center justify-center">
+                                            <span className="text-4xl">🏠</span>
+                                        </div>
                                     )}
+                                    <div className="absolute top-3 right-3 bg-[#006b2c] text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-tighter">
+                                        Verified
+                                    </div>
                                 </div>
-                                <div className="p-4">
-                                    <h3 className="font-semibold text-zinc-900 group-hover:text-green-600 dark:text-zinc-50">
+                                <div className="p-5">
+                                    <h3 className="font-[family-name:var(--font-geist-sans)] font-bold text-[#1a1b22] dark:text-zinc-50 group-hover:text-[#006b2c] dark:group-hover:text-emerald-400 transition-colors">
                                         {apt.title}
                                     </h3>
-                                    <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                                    <p className="mt-1 text-sm text-[#3e4a3d] dark:text-zinc-400">
                                         {APARTMENT_TYPE_LABELS[apt.apartment_type as keyof typeof APARTMENT_TYPE_LABELS]} · {apt.neighborhood}, {CITY_LABELS[apt.city as keyof typeof CITY_LABELS]}
                                     </p>
                                     <div className="mt-3 flex items-baseline justify-between">
-                                        <span className="text-lg font-bold text-green-600">
-                                            {formatNaira(apt.annual_rent)}<span className="text-xs font-normal">/yr</span>
+                                        <span className="font-[family-name:var(--font-geist-mono)] text-lg font-black text-[#006b2c] dark:text-emerald-400">
+                                            {formatNaira(apt.annual_rent)}<span className="text-xs font-normal text-zinc-400">/yr</span>
                                         </span>
-                                        <span className="text-xs text-zinc-400">
+                                        <span className="text-[10px] text-zinc-400">
                                             Total: {formatNaira(apt.total_upfront_cost)}
                                         </span>
                                     </div>
+                                    {amenities.length > 0 && (
+                                        <div className="mt-3 flex flex-wrap gap-1">
+                                            {amenities.slice(0, 3).map((a) => (
+                                                <span key={a} className="px-2 py-1 bg-[#f4f2fd] dark:bg-zinc-800 rounded-full text-[9px] font-semibold text-zinc-600 dark:text-zinc-400">
+                                                    {a}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    )}
                                     {env && (
-                                        <div className="mt-2 flex gap-3 text-xs text-zinc-500 dark:text-zinc-400">
-                                            <span>⚡ {env.power_supply_rating}/5</span>
-                                            <span>🔒 {env.security_rating}/5</span>
-                                            <span>🌊 {env.flood_risk}</span>
+                                        <div className="mt-3 grid grid-cols-3 gap-1 pt-3 border-t border-zinc-100 dark:border-zinc-800">
+                                            <div className="flex flex-col items-center">
+                                                <span className="text-xs text-emerald-500">⚡</span>
+                                                <span className="text-[8px] uppercase font-bold text-zinc-400">{env.power_supply_rating}/5</span>
+                                            </div>
+                                            <div className="flex flex-col items-center border-x border-zinc-100 dark:border-zinc-800">
+                                                <span className="text-xs text-emerald-500">🛡️</span>
+                                                <span className="text-[8px] uppercase font-bold text-zinc-400">{env.security_rating}/5</span>
+                                            </div>
+                                            <div className="flex flex-col items-center">
+                                                <span className="text-xs text-emerald-500">🌊</span>
+                                                <span className="text-[8px] uppercase font-bold text-zinc-400">{env.flood_risk}</span>
+                                            </div>
                                         </div>
                                     )}
                                 </div>
@@ -164,8 +193,8 @@ export default async function BrowsePage({
                     })
                 ) : (
                     <div className="col-span-full py-20 text-center">
-                        <p className="text-zinc-500 dark:text-zinc-400">No apartments found. Try adjusting your filters.</p>
-                        <Link href="/tenant" className="mt-3 inline-block text-sm font-medium text-green-600 hover:text-green-500">
+                        <p className="text-[#3e4a3d] dark:text-zinc-400">No apartments found. Try adjusting your filters.</p>
+                        <Link href="/tenant" className="mt-3 inline-block text-sm font-bold text-[#006b2c] dark:text-emerald-400 hover:underline underline-offset-4">
                             Ask Victoria AI for help
                         </Link>
                     </div>

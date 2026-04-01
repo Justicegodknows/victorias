@@ -69,21 +69,21 @@ export default async function ApartmentDetailPage({
     const landlord = apartment.profiles;
 
     return (
-        <div className="mx-auto w-full max-w-4xl px-4 py-8">
-            <Link href="/tenant/browse" className="mb-4 inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200">
+        <div className="mx-auto w-full max-w-6xl">
+            <Link href="/tenant/browse" className="mb-6 inline-flex items-center gap-2 text-sm text-[#3e4a3d] dark:text-zinc-400 hover:text-[#006b2c] dark:hover:text-emerald-400 transition-colors font-medium">
                 ← Back to browse
             </Link>
 
-            {/* Image gallery */}
+            {/* Hero image gallery */}
             {images.length > 0 && (
-                <div className="grid gap-2 rounded-xl overflow-hidden" style={{ gridTemplateColumns: images.length > 1 ? "2fr 1fr" : "1fr" }}>
-                    <div className="h-72 bg-zinc-100 dark:bg-zinc-700">
+                <div className="grid gap-2 rounded-3xl overflow-hidden" style={{ gridTemplateColumns: images.length > 1 ? "2fr 1fr" : "1fr" }}>
+                    <div className="h-80 bg-zinc-100 dark:bg-zinc-800">
                         <img src={images[0].image_url} alt={apartment.title} className="h-full w-full object-cover" />
                     </div>
                     {images.length > 1 && (
                         <div className="grid gap-2">
                             {images.slice(1, 3).map((img, i) => (
-                                <div key={i} className="h-[calc(50%-4px)] bg-zinc-100 dark:bg-zinc-700">
+                                <div key={i} className="h-[calc(50%-4px)] bg-zinc-100 dark:bg-zinc-800">
                                     <img src={img.image_url} alt="" className="h-full w-full object-cover" />
                                 </div>
                             ))}
@@ -92,20 +92,23 @@ export default async function ApartmentDetailPage({
                 </div>
             )}
 
-            <div className="mt-6 grid gap-8 lg:grid-cols-3">
+            <div className="mt-8 grid gap-8 lg:grid-cols-3">
                 {/* Main info */}
-                <div className="lg:col-span-2 space-y-6">
+                <div className="lg:col-span-2 space-y-8">
                     <div>
-                        <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{apartment.title}</h1>
-                        <p className="mt-1 text-zinc-500 dark:text-zinc-400">
-                            {APARTMENT_TYPE_LABELS[apartment.apartment_type as keyof typeof APARTMENT_TYPE_LABELS]} · {apartment.neighborhood}, {apartment.lga}, {CITY_LABELS[apartment.city as keyof typeof CITY_LABELS]}
+                        <span className="font-[family-name:var(--font-geist-mono)] text-[#006b2c] dark:text-emerald-400 uppercase tracking-[0.3em] font-bold text-[10px]">
+                            {APARTMENT_TYPE_LABELS[apartment.apartment_type as keyof typeof APARTMENT_TYPE_LABELS]}
+                        </span>
+                        <h1 className="font-[family-name:var(--font-manrope)] text-3xl font-bold text-[#1a1b22] dark:text-zinc-50 mt-2">{apartment.title}</h1>
+                        <p className="mt-2 text-[#3e4a3d] dark:text-zinc-400">
+                            {apartment.neighborhood}, {apartment.lga}, {CITY_LABELS[apartment.city as keyof typeof CITY_LABELS]}
                         </p>
                     </div>
 
                     {apartment.description && (
-                        <div>
-                            <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">Description</h2>
-                            <p className="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+                        <div className="bg-[#f4f2fd] dark:bg-zinc-900 rounded-2xl p-6">
+                            <h2 className="font-[family-name:var(--font-geist-sans)] font-bold text-[#1a1b22] dark:text-zinc-50 mb-3">About this property</h2>
+                            <p className="text-sm leading-relaxed text-[#3e4a3d] dark:text-zinc-400">
                                 {apartment.description}
                             </p>
                         </div>
@@ -114,11 +117,11 @@ export default async function ApartmentDetailPage({
                     {/* Amenities */}
                     {amenities.length > 0 && (
                         <div>
-                            <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">Amenities</h2>
-                            <div className="mt-3 grid grid-cols-2 gap-2">
+                            <h2 className="font-[family-name:var(--font-geist-sans)] font-bold text-[#1a1b22] dark:text-zinc-50 mb-4">Amenities</h2>
+                            <div className="grid grid-cols-2 gap-3">
                                 {amenities.map((amenity) => (
-                                    <div key={amenity} className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-                                        <span className="text-green-600">✓</span>
+                                    <div key={amenity} className="flex items-center gap-3 bg-[#f4f2fd] dark:bg-zinc-900 rounded-xl px-4 py-3 text-sm text-[#1a1b22] dark:text-zinc-50">
+                                        <span className="text-[#006b2c] dark:text-emerald-400">✓</span>
                                         {AMENITY_LABELS[amenity] ?? amenity}
                                     </div>
                                 ))}
@@ -129,43 +132,32 @@ export default async function ApartmentDetailPage({
                     {/* Environmental factors */}
                     {env && (
                         <div>
-                            <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">Environmental Factors</h2>
-                            <div className="mt-3 grid gap-4 sm:grid-cols-2">
-                                <div className="rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
-                                    <p className="text-xs text-zinc-500 dark:text-zinc-400">Power Supply</p>
-                                    <div className="mt-1 flex gap-1">
-                                        {Array.from({ length: 5 }).map((_, i) => (
-                                            <div key={i} className={`h-2 w-6 rounded-full ${i < env.power_supply_rating ? "bg-green-500" : "bg-zinc-200 dark:bg-zinc-600"}`} />
-                                        ))}
+                            <h2 className="font-[family-name:var(--font-geist-sans)] font-bold text-[#1a1b22] dark:text-zinc-50 mb-4">Lifestyle Metrics</h2>
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                {[
+                                    { label: "Power Supply", rating: env.power_supply_rating, color: "emerald", icon: "⚡" },
+                                    { label: "Water Supply", rating: env.water_supply_rating, color: "blue", icon: "💧" },
+                                    { label: "Security", rating: env.security_rating, color: "amber", icon: "🛡️" },
+                                    { label: "Road Condition", rating: env.road_condition_rating, color: "purple", icon: "🛣️" },
+                                ].map((metric) => (
+                                    <div key={metric.label} className="bg-white dark:bg-zinc-900 rounded-2xl p-4 ambient-shadow">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <span>{metric.icon}</span>
+                                            <p className="text-xs font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.2em] text-zinc-400">{metric.label}</p>
+                                        </div>
+                                        <div className="flex gap-1">
+                                            {Array.from({ length: 5 }).map((_, i) => (
+                                                <div key={i} className={`h-2 flex-1 rounded-full ${i < metric.rating ? "bg-[#006b2c]" : "bg-zinc-200 dark:bg-zinc-700"}`} />
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
-                                    <p className="text-xs text-zinc-500 dark:text-zinc-400">Water Supply</p>
-                                    <div className="mt-1 flex gap-1">
-                                        {Array.from({ length: 5 }).map((_, i) => (
-                                            <div key={i} className={`h-2 w-6 rounded-full ${i < env.water_supply_rating ? "bg-blue-500" : "bg-zinc-200 dark:bg-zinc-600"}`} />
-                                        ))}
+                                ))}
+                                <div className="bg-white dark:bg-zinc-900 rounded-2xl p-4 ambient-shadow">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <span>🌊</span>
+                                        <p className="text-xs font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.2em] text-zinc-400">Flood Risk</p>
                                     </div>
-                                </div>
-                                <div className="rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
-                                    <p className="text-xs text-zinc-500 dark:text-zinc-400">Security</p>
-                                    <div className="mt-1 flex gap-1">
-                                        {Array.from({ length: 5 }).map((_, i) => (
-                                            <div key={i} className={`h-2 w-6 rounded-full ${i < env.security_rating ? "bg-amber-500" : "bg-zinc-200 dark:bg-zinc-600"}`} />
-                                        ))}
-                                    </div>
-                                </div>
-                                <div className="rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
-                                    <p className="text-xs text-zinc-500 dark:text-zinc-400">Road Condition</p>
-                                    <div className="mt-1 flex gap-1">
-                                        {Array.from({ length: 5 }).map((_, i) => (
-                                            <div key={i} className={`h-2 w-6 rounded-full ${i < env.road_condition_rating ? "bg-purple-500" : "bg-zinc-200 dark:bg-zinc-600"}`} />
-                                        ))}
-                                    </div>
-                                </div>
-                                <div className="rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
-                                    <p className="text-xs text-zinc-500 dark:text-zinc-400">Flood Risk</p>
-                                    <p className={`mt-1 text-sm font-medium capitalize ${env.flood_risk === "low" ? "text-green-600" :
+                                    <p className={`text-sm font-bold capitalize ${env.flood_risk === "low" ? "text-emerald-600" :
                                         env.flood_risk === "medium" ? "text-amber-600" : "text-red-600"
                                         }`}>
                                         {env.flood_risk}
@@ -173,41 +165,37 @@ export default async function ApartmentDetailPage({
                                 </div>
                             </div>
                             {(env.nearest_bus_stop || env.nearest_market || env.nearest_hospital) && (
-                                <div className="mt-3 space-y-1 text-sm text-zinc-600 dark:text-zinc-400">
+                                <div className="mt-4 bg-[#f4f2fd] dark:bg-zinc-900 rounded-2xl p-5 space-y-2 text-sm text-[#3e4a3d] dark:text-zinc-400">
                                     {env.nearest_bus_stop && <p>🚌 Nearest bus stop: {env.nearest_bus_stop}</p>}
                                     {env.nearest_market && <p>🛒 Nearest market: {env.nearest_market}</p>}
                                     {env.nearest_hospital && <p>🏥 Nearest hospital: {env.nearest_hospital}</p>}
+                                    {env.traffic_notes && <p>🚗 {env.traffic_notes}</p>}
                                 </div>
-                            )}
-                            {env.traffic_notes && (
-                                <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-                                    🚗 {env.traffic_notes}
-                                </p>
                             )}
                         </div>
                     )}
                 </div>
 
                 {/* Sidebar — pricing + contact */}
-                <div className="space-y-4">
-                    <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
-                        <p className="text-2xl font-bold text-green-600">{formatNaira(apartment.annual_rent)}</p>
-                        <p className="text-xs text-zinc-500 dark:text-zinc-400">per year</p>
+                <div className="space-y-4 lg:sticky lg:top-28 h-fit">
+                    <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 ambient-shadow">
+                        <p className="font-[family-name:var(--font-geist-mono)] text-3xl font-black text-[#006b2c] dark:text-emerald-400">{formatNaira(apartment.annual_rent)}</p>
+                        <p className="text-xs text-zinc-400 font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.2em] mt-1">per year</p>
 
-                        <div className="mt-4 space-y-2 text-sm">
-                            <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
+                        <div className="mt-6 space-y-3 text-sm">
+                            <div className="flex justify-between text-[#3e4a3d] dark:text-zinc-400">
                                 <span>Annual Rent</span>
-                                <span>{formatNaira(apartment.annual_rent)}</span>
+                                <span className="font-medium">{formatNaira(apartment.annual_rent)}</span>
                             </div>
-                            <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
+                            <div className="flex justify-between text-[#3e4a3d] dark:text-zinc-400">
                                 <span>Caution Deposit</span>
-                                <span>{formatNaira(apartment.deposit)}</span>
+                                <span className="font-medium">{formatNaira(apartment.deposit)}</span>
                             </div>
-                            <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
+                            <div className="flex justify-between text-[#3e4a3d] dark:text-zinc-400">
                                 <span>Agent Fee</span>
-                                <span>{formatNaira(apartment.agent_fee)}</span>
+                                <span className="font-medium">{formatNaira(apartment.agent_fee)}</span>
                             </div>
-                            <div className="flex justify-between border-t border-zinc-200 pt-2 font-semibold text-zinc-900 dark:border-zinc-700 dark:text-zinc-50">
+                            <div className="flex justify-between pt-3 border-t border-zinc-100 dark:border-zinc-800 font-bold text-[#1a1b22] dark:text-zinc-50">
                                 <span>Total Upfront</span>
                                 <span>{formatNaira(apartment.total_upfront_cost)}</span>
                             </div>
@@ -215,24 +203,24 @@ export default async function ApartmentDetailPage({
 
                         <Link
                             href={`/tenant?ask=Tell me more about the apartment "${apartment.title}" in ${apartment.neighborhood}`}
-                            className="mt-4 block w-full rounded-lg bg-green-600 px-4 py-2.5 text-center text-sm font-medium text-white hover:bg-green-700"
+                            className="mt-6 block w-full btn-primary-gradient text-white py-3 rounded-xl text-center font-bold shadow-lg shadow-[#006b2c]/10 hover:scale-[1.01] active:scale-[0.98] transition-all"
                         >
                             Ask Victoria about this
                         </Link>
                     </div>
 
                     {landlord && (
-                        <div className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-700 dark:bg-zinc-800">
-                            <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">Listed by</h3>
-                            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">{landlord.full_name}</p>
+                        <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 ambient-shadow">
+                            <h3 className="font-[family-name:var(--font-geist-sans)] font-bold text-[#1a1b22] dark:text-zinc-50 mb-2">Listed by</h3>
+                            <p className="text-sm text-[#3e4a3d] dark:text-zinc-400">{landlord.full_name}</p>
                             {landlord.phone && (
                                 <a
                                     href={`https://wa.me/${landlord.phone.replace(/\D/g, "")}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="mt-3 inline-flex items-center gap-2 rounded-lg bg-green-50 px-3 py-2 text-sm font-medium text-green-700 hover:bg-green-100 dark:bg-green-950 dark:text-green-400 dark:hover:bg-green-900"
+                                    className="mt-4 inline-flex items-center gap-2 bg-[#baecbc] dark:bg-emerald-900 px-4 py-2.5 rounded-xl text-sm font-bold text-emerald-900 dark:text-emerald-300 hover:bg-[#a1d3a4] dark:hover:bg-emerald-800 transition-colors"
                                 >
-                                    Chat on WhatsApp
+                                    💬 Chat on WhatsApp
                                 </a>
                             )}
                         </div>
