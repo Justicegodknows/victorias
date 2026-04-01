@@ -44,21 +44,19 @@ export default function RegisterPage(): React.ReactElement {
 
     if (success) {
         return (
-            <div className="space-y-4 text-center">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
-                    <svg className="h-6 w-6 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                    </svg>
+            <div className="bg-[#f4f2fd] dark:bg-zinc-900 rounded-[2rem] p-8 md:p-12 ambient-shadow text-center space-y-4">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#baecbc] dark:bg-emerald-900">
+                    <span className="text-3xl">✓</span>
                 </div>
-                <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">
+                <h2 className="font-[family-name:var(--font-manrope)] text-xl font-bold text-[#1a1b22] dark:text-zinc-50">
                     Check your email
                 </h2>
-                <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                    We sent a confirmation link to <strong>{email}</strong>. Click the link to activate your account.
+                <p className="text-sm text-[#3e4a3d] dark:text-zinc-400">
+                    We sent a confirmation link to <strong className="text-[#006b2c] dark:text-emerald-400">{email}</strong>. Click the link to activate your account.
                 </p>
                 <Link
                     href="/login"
-                    className="inline-block text-sm font-medium text-green-600 hover:text-green-500"
+                    className="inline-block text-sm font-bold text-[#006b2c] dark:text-emerald-400 hover:underline underline-offset-4"
                 >
                     Back to login
                 </Link>
@@ -67,126 +65,127 @@ export default function RegisterPage(): React.ReactElement {
     }
 
     return (
-        <div className="space-y-6">
-            <div className="text-center">
-                <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-                    Create your account
-                </h1>
-                <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-                    Join Victoria&apos;s to find or list apartments
-                </p>
+        <div className="space-y-8">
+            {/* Role Selector */}
+            <div className="space-y-6">
+                <div className="text-center">
+                    <h2 className="font-[family-name:var(--font-manrope)] text-2xl font-bold dark:text-zinc-50">Choose your role</h2>
+                    <p className="text-[#3e4a3d] dark:text-zinc-400 mt-1">Get started with the curator.</p>
+                </div>
+                <div className="grid grid-cols-2 gap-6">
+                    <button
+                        type="button"
+                        onClick={() => setRole("tenant")}
+                        className={`group cursor-pointer p-6 rounded-3xl ambient-shadow transition-all relative overflow-hidden text-left ${role === "tenant"
+                                ? "bg-[#006b2c]/5 dark:bg-emerald-900/20 ring-2 ring-[#006b2c] dark:ring-emerald-400"
+                                : "bg-[#f4f2fd] dark:bg-zinc-900 hover:bg-[#006b2c]/5 dark:hover:bg-zinc-800"
+                            }`}
+                    >
+                        <div className="mb-4 w-12 h-12 rounded-2xl bg-[#baecbc] dark:bg-emerald-900 flex items-center justify-center">
+                            <span className="text-2xl">🏠</span>
+                        </div>
+                        <h3 className="font-bold text-lg mb-1 dark:text-zinc-50">Tenant</h3>
+                        <p className="text-xs text-[#3e4a3d] dark:text-zinc-400 leading-relaxed">Find your dream home with AI assistance.</p>
+                        {role === "tenant" && (
+                            <div className="absolute top-2 right-2">
+                                <span className="text-[#006b2c] dark:text-emerald-400">✓</span>
+                            </div>
+                        )}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setRole("landlord")}
+                        className={`group cursor-pointer p-6 rounded-3xl ambient-shadow transition-all relative overflow-hidden text-left ${role === "landlord"
+                                ? "bg-[#006b2c]/5 dark:bg-emerald-900/20 ring-2 ring-[#006b2c] dark:ring-emerald-400"
+                                : "bg-[#f4f2fd] dark:bg-zinc-900 hover:bg-[#006b2c]/5 dark:hover:bg-zinc-800"
+                            }`}
+                    >
+                        <div className="mb-4 w-12 h-12 rounded-2xl bg-[#00873a] flex items-center justify-center">
+                            <span className="text-2xl">🏢</span>
+                        </div>
+                        <h3 className="font-bold text-lg mb-1 dark:text-zinc-50">Landlord</h3>
+                        <p className="text-xs text-[#3e4a3d] dark:text-zinc-400 leading-relaxed">List and manage your premium assets.</p>
+                        {role === "landlord" && (
+                            <div className="absolute top-2 right-2">
+                                <span className="text-[#006b2c] dark:text-emerald-400">✓</span>
+                            </div>
+                        )}
+                    </button>
+                </div>
             </div>
 
-            {error && (
-                <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
-                    {error}
-                </div>
-            )}
-
-            <form onSubmit={handleRegister} className="space-y-4">
-                {/* Role selection */}
-                <fieldset>
-                    <legend className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                        I want to
-                    </legend>
-                    <div className="mt-2 flex gap-3">
-                        <label
-                            className={`flex flex-1 cursor-pointer items-center justify-center rounded-lg border-2 px-4 py-3 text-sm font-medium transition-colors ${role === "tenant"
-                                    ? "border-green-600 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400"
-                                    : "border-zinc-200 text-zinc-600 hover:border-zinc-300 dark:border-zinc-700 dark:text-zinc-400"
-                                }`}
-                        >
-                            <input
-                                type="radio"
-                                name="role"
-                                value="tenant"
-                                checked={role === "tenant"}
-                                onChange={() => setRole("tenant")}
-                                className="sr-only"
-                            />
-                            Find an apartment
-                        </label>
-                        <label
-                            className={`flex flex-1 cursor-pointer items-center justify-center rounded-lg border-2 px-4 py-3 text-sm font-medium transition-colors ${role === "landlord"
-                                    ? "border-green-600 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400"
-                                    : "border-zinc-200 text-zinc-600 hover:border-zinc-300 dark:border-zinc-700 dark:text-zinc-400"
-                                }`}
-                        >
-                            <input
-                                type="radio"
-                                name="role"
-                                value="landlord"
-                                checked={role === "landlord"}
-                                onChange={() => setRole("landlord")}
-                                className="sr-only"
-                            />
-                            List apartments
-                        </label>
+            {/* Registration Card */}
+            <div className="bg-[#f4f2fd] dark:bg-zinc-900 rounded-[2rem] p-8 md:p-12 ambient-shadow relative overflow-hidden">
+                {error && (
+                    <div className="rounded-xl bg-[#ffdad6] dark:bg-red-950 p-4 text-sm text-[#93000a] dark:text-red-300 mb-6">
+                        {error}
                     </div>
-                </fieldset>
+                )}
 
-                <div>
-                    <label htmlFor="fullName" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                        Full Name
-                    </label>
-                    <input
-                        id="fullName"
-                        type="text"
-                        required
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50"
-                        placeholder="Adaeze Okafor"
-                    />
-                </div>
+                <form onSubmit={handleRegister} className="space-y-6">
+                    <div>
+                        <label htmlFor="fullName" className="block text-xs font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.2em] text-[#3e4a3d] dark:text-zinc-400 mb-2 ml-1">
+                            Full Name
+                        </label>
+                        <input
+                            id="fullName"
+                            type="text"
+                            required
+                            value={fullName}
+                            onChange={(e) => setFullName(e.target.value)}
+                            className="w-full bg-white dark:bg-zinc-800 border-none rounded-xl px-4 py-4 focus:ring-2 focus:ring-[#006b2c]/20 text-[#1a1b22] dark:text-zinc-50 placeholder:text-[#6e7b6c] dark:placeholder:text-zinc-500 transition-all"
+                            placeholder="Adaeze Okafor"
+                        />
+                    </div>
 
-                <div>
-                    <label htmlFor="registerEmail" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                        Email
-                    </label>
-                    <input
-                        id="registerEmail"
-                        type="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50"
-                        placeholder="you@example.com"
-                    />
-                </div>
+                    <div>
+                        <label htmlFor="registerEmail" className="block text-xs font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.2em] text-[#3e4a3d] dark:text-zinc-400 mb-2 ml-1">
+                            Email Address
+                        </label>
+                        <input
+                            id="registerEmail"
+                            type="email"
+                            required
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="w-full bg-white dark:bg-zinc-800 border-none rounded-xl px-4 py-4 focus:ring-2 focus:ring-[#006b2c]/20 text-[#1a1b22] dark:text-zinc-50 placeholder:text-[#6e7b6c] dark:placeholder:text-zinc-500 transition-all"
+                            placeholder="curator@victorias.luxury"
+                        />
+                    </div>
 
-                <div>
-                    <label htmlFor="registerPassword" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                        Password
-                    </label>
-                    <input
-                        id="registerPassword"
-                        type="password"
-                        required
-                        minLength={8}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50"
-                        placeholder="••••••••"
-                    />
-                    <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">Minimum 8 characters</p>
-                </div>
+                    <div>
+                        <label htmlFor="registerPassword" className="block text-xs font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.2em] text-[#3e4a3d] dark:text-zinc-400 mb-2 ml-1">
+                            Password
+                        </label>
+                        <input
+                            id="registerPassword"
+                            type="password"
+                            required
+                            minLength={8}
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="w-full bg-white dark:bg-zinc-800 border-none rounded-xl px-4 py-4 focus:ring-2 focus:ring-[#006b2c]/20 text-[#1a1b22] dark:text-zinc-50 placeholder:text-[#6e7b6c] dark:placeholder:text-zinc-500 transition-all"
+                            placeholder="••••••••"
+                        />
+                        <p className="mt-2 text-xs text-[#6e7b6c] dark:text-zinc-500 ml-1">Minimum 8 characters</p>
+                    </div>
 
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full rounded-lg bg-green-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50"
-                >
-                    {loading ? "Creating account..." : "Create account"}
-                </button>
-            </form>
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full py-4 rounded-xl btn-primary-gradient text-white font-bold tracking-tight shadow-lg shadow-[#006b2c]/10 hover:scale-[1.01] active:scale-[0.98] transition-all disabled:opacity-50"
+                    >
+                        {loading ? "Creating account..." : "Create Account"}
+                    </button>
+                </form>
 
-            <p className="text-center text-sm text-zinc-600 dark:text-zinc-400">
-                Already have an account?{" "}
-                <Link href="/login" className="font-medium text-green-600 hover:text-green-500">
-                    Sign in
-                </Link>
-            </p>
+                <p className="text-center mt-10 text-[#3e4a3d] dark:text-zinc-400 text-sm">
+                    Already have an account?
+                    <Link href="/login" className="text-[#006b2c] dark:text-emerald-400 font-bold ml-1 hover:underline underline-offset-4">
+                        Sign in
+                    </Link>
+                </p>
+            </div>
         </div>
     );
 }
