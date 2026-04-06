@@ -369,3 +369,113 @@ create policy "Users can delete own apartment images"
   on storage.objects for delete using (
     bucket_id = 'apartment-images' and auth.uid()::text = (storage.foldername(name))[1]
   );
+
+-- ============================================================
+-- 11. Rental Price Index (RPI)
+-- ============================================================
+create table public.rental_transactions (
+  id uuid default gen_random_uuid() primary key,
+  apartment_id uuid references public.apartments(id) on delete set null,
+  city text not null check (city in ('lagos', 'abuja', 'port-harcourt')),
+  lga text not null,
+  neighborhood text,
+  apartment_type text not null check (apartment_type in (
+    'self-contained', 'mini-flat', '1-bedroom', '2-bedroom', '3-bedroom', 'duplex'
+  )),
+  annual_rent integer not null check (annual_rent > 0),
+  lease_start_date date not null,
+  lease_end_date date,
+  source text not null default 'manual',
+  created_at timestamptz default now() not null
+);
+
+create table public.inflation_rates (
+  id uuid default gen_random_uuid() primary key,
+  state_code text not null check (state_code in ('LA', 'FC', 'RI')),
+  year integer not null check (year >= 2000),
+  month integer not null check (month between 1 and 12),
+  monthly_rate numeric(8, 6) not null check (monthly_rate > -1),
+  source text not null default 'official',
+  created_at timestamptz default now() not null,
+  unique (state_code, year, month)
+);
+
+create table public.lga_rpi_monthly (
+  id uuid default gen_random_uuid() primary key,
+  city text not null check (city in ('lagos', 'abuja', 'port-harcourt')),
+  state_code text not null check (state_code in ('LA', 'FC', 'RI')),
+  lga text not null,
+  apartment_type text not null check (apartment_type in (
+    'all', 'self-contained', 'mini-flat', '1-bedroom', '2-bedroom', '3-bedroom', 'duplex'
+  )),
+  year integer not null check (year >= 2000),
+  month integer not null check (month between 1 and 12),
+  rpi_value numeric(12, 2) not null check (rpi_value > 0),
+  hist_component numeric(12, 2),
+  comp_component numeric(12, 2),
+  inflation_component numeric(8, 6) not null default 0,
+  sample_size_hist integer not null default 0,
+  sample_size_comp integer not null default 0,
+  computed_at timestamptz not null default now(),
+  unique (city, lga, apartment_type, year, month)
+);
+
+create index idx_rental_transactions_scope
+  on public.rental_transactions(city, lga, apartment_type, lease_start_date desc);
+create index idx_rental_transactions_apartment
+  on public.rental_transactions(apartment_id);
+create index idx_inflation_rates_period
+  on public.inflation_rates(state_code, year, month);
+create index idx_lga_rpi_lookup
+  on public.lga_rpi_monthly(city, lga, apartment_type, year, month desc);
+
+alter table public.rental_transactions enable row level security;
+alter table public.inflation_rates enable row level security;
+alter table public.lga_rpi_monthly enable row level security;
+
+create policy "Anyone can read rental transactions"
+  on public.rental_transactions for select using (true);
+create policy "Anyone can read inflation rates"
+  on public.inflation_rates for select using (true);
+create policy "Anyone can read LGA RPI"
+  on public.lga_rpi_monthly for select using (true);
+
+create policy "Service role can manage rental transactions"
+  on public.rental_transactions for insert with check (auth.role() = 'service_role');
+create policy "Service role can update rental transactions"
+  on public.rental_transactions for update using (auth.role() = 'service_role');
+create policy "Service role can delete rental transactions"
+  on public.rental_transactions for delete using (auth.role() = 'service_role');
+
+create policy "Service role can manage inflation rates"
+  on public.inflation_rates for insert with check (auth.role() = 'service_role');
+create policy "Service role can update inflation rates"
+  on public.inflation_rates for update using (auth.role() = 'service_role');
+create policy "Service role can delete inflation rates"
+  on public.inflation_rates for delete using (auth.role() = 'service_role');
+
+create policy "Service role can manage LGA RPI"
+  on public.lga_rpi_monthly for insert with check (auth.role() = 'service_role');
+create policy "Service role can update LGA RPI"
+  on public.lga_rpi_monthly for update using (auth.role() = 'service_role');
+create policy "Service role can delete LGA RPI"
+  on public.lga_rpi_monthly for delete using (auth.role() = 'service_role');
+
+create or replace function public.city_to_state_code(city_value text)
+returns text
+language sql
+immutable
+as $$
+  select case city_value
+    when 'lagos' then 'LA'
+    when 'abuja' then 'FC'
+    when 'port-harcourt' then 'RI'
+    else 'LA'
+  end;
+$$;
+
+-- See migration 20260406010000_rpi_index.sql for full implementation details.
+-- RPI function definitions:
+-- - public.compute_lga_rpi(...)
+-- - public.get_lga_rpi(...)
+-- are maintained in migration 20260406010000_rpi_index.sql.

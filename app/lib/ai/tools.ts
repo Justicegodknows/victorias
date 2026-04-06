@@ -195,6 +195,80 @@ export const getNeighborhoodInfo = tool({
     },
 });
 
+export const getRentalPriceIndex = tool({
+    description:
+        "Get the Rental Price Index (RPI) for a specific LGA and city, computed from historical transactions, inflation rates, and comparable active listings.",
+    inputSchema: z.object({
+        city: z.enum(["lagos", "abuja", "port-harcourt"]).describe("City for the LGA"),
+        lga: z.string().describe("Local Government Area name"),
+        apartment_type: z
+            .enum(["all", "self-contained", "mini-flat", "1-bedroom", "2-bedroom", "3-bedroom", "duplex"])
+            .default("all")
+            .describe("Apartment type bucket for the index"),
+        year: z.number().optional().describe("Target year; defaults to latest available"),
+        month: z.number().optional().describe("Target month (1-12); defaults to latest available"),
+    }),
+    execute: async ({ city, lga, apartment_type, year, month }) => {
+        const supabase = getServiceClient();
+
+        const { data, error } = await supabase.rpc("get_lga_rpi", {
+            p_city: city,
+            p_lga: lga,
+            p_apartment_type: apartment_type,
+            p_year: year ?? null,
+            p_month: month ?? null,
+        });
+
+        if (error) {
+            return {
+                found: false,
+                message: "Unable to fetch Rental Price Index right now.",
+            };
+        }
+
+        const row = data?.[0];
+
+        if (!row) {
+            return {
+                found: false,
+                message: "No Rental Price Index data available for that LGA yet.",
+            };
+        }
+
+        const totalSamples = row.sample_size_hist + row.sample_size_comp;
+        const confidence =
+            totalSamples >= 30
+                ? "high"
+                : totalSamples >= 12
+                    ? "medium"
+                    : "low";
+
+        return {
+            found: true,
+            city: row.city,
+            state_code: row.state_code,
+            lga: row.lga,
+            apartment_type: row.apartment_type,
+            period: `${row.year}-${String(row.month).padStart(2, "0")}`,
+            rpi_value: row.rpi_value,
+            rpi_formatted: formatNaira(Math.round(row.rpi_value)),
+            trend: row.trend,
+            trend_percent: row.trend_percent,
+            components: {
+                historical_transactions: row.hist_component,
+                comparable_listings: row.comp_component,
+                inflation_rate: row.inflation_component,
+            },
+            sample_sizes: {
+                historical: row.sample_size_hist,
+                comparable: row.sample_size_comp,
+                total: totalSamples,
+            },
+            confidence,
+        };
+    },
+});
+
 export const saveApartment = tool({
     description: "Save an apartment to the tenant's favorites list.",
     inputSchema: z.object({
@@ -327,6 +401,7 @@ export const agentTools = {
     searchApartments,
     semanticSearchApartments,
     semanticSearchKnowledge,
+    getRentalPriceIndex,
     getApartmentDetails,
     checkAffordability,
     getNeighborhoodInfo,

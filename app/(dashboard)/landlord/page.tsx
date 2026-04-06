@@ -2,6 +2,7 @@ import { createSupabaseServer } from "@/app/lib/supabase/server";
 import Link from "next/link";
 import { APARTMENT_TYPE_LABELS, CITY_LABELS } from "@/app/lib/data/neighborhoods";
 import { formatNaira } from "@/app/lib/ai/affordability";
+import type { City } from "@/app/lib/types";
 
 export default async function LandlordDashboard(): Promise<React.ReactElement> {
     const supabase = await createSupabaseServer();
@@ -16,6 +17,7 @@ export default async function LandlordDashboard(): Promise<React.ReactElement> {
         apartment_type: string;
         annual_rent: number;
         city: string;
+        lga: string;
         neighborhood: string;
         is_available: boolean;
         is_verified: boolean;
@@ -26,7 +28,7 @@ export default async function LandlordDashboard(): Promise<React.ReactElement> {
     const { data: apartments } = await supabase
         .from("apartments")
         .select(`
-            id, ppid, title, apartment_type, annual_rent, city, neighborhood,
+                        id, ppid, title, apartment_type, annual_rent, city, lga, neighborhood,
       is_available, is_verified, created_at,
       apartment_images(image_url, is_primary)
     `)
@@ -42,6 +44,41 @@ export default async function LandlordDashboard(): Promise<React.ReactElement> {
             "apartment_id",
             (apartments ?? []).map((a) => a.id),
         );
+
+    type LgaRpiRow = {
+        city: string;
+        lga: string;
+        apartment_type: string;
+        year: number;
+        month: number;
+        rpi_value: number;
+    };
+
+    const cities = [...new Set((apartments ?? []).map((apt) => apt.city as City))];
+    const lgas = [...new Set((apartments ?? []).map((apt) => apt.lga))];
+
+    const { data: rpiRows } =
+        cities.length > 0 && lgas.length > 0
+            ? await supabase
+                .from("lga_rpi_monthly")
+                .select("city, lga, apartment_type, year, month, rpi_value")
+                .eq("apartment_type", "all")
+                .in("city", cities)
+                .in("lga", lgas)
+                .order("year", { ascending: false })
+                .order("month", { ascending: false })
+                .overrideTypes<LgaRpiRow[]>()
+            : { data: [] as LgaRpiRow[] };
+
+    const rpiByLga = new Map<string, LgaRpiRow>();
+    for (const row of rpiRows ?? []) {
+        const key = `${row.city}:${row.lga}`;
+        if (!rpiByLga.has(key)) {
+            rpiByLga.set(key, row);
+        }
+    }
+
+    const marketRows = [...rpiByLga.values()].slice(0, 4);
 
     return (
         <div className="mx-auto w-full max-w-6xl">
@@ -69,10 +106,26 @@ export default async function LandlordDashboard(): Promise<React.ReactElement> {
                 </Link>
             </div>
 
+            {marketRows.length > 0 && (
+                <div className="mb-8 rounded-2xl border border-emerald-100 bg-emerald-50/60 p-5 dark:border-emerald-900/40 dark:bg-emerald-950/30">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-emerald-700 dark:text-emerald-400">Rental Price Index</p>
+                    <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                        {marketRows.map((row) => (
+                            <div key={`${row.city}:${row.lga}`} className="rounded-xl bg-white/80 px-3 py-2 dark:bg-zinc-900/60">
+                                <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">{row.lga}</p>
+                                <p className="mt-1 text-lg font-black text-emerald-700 dark:text-emerald-300">{formatNaira(Math.round(row.rpi_value))}</p>
+                                <p className="text-[10px] text-zinc-500">{String(row.month).padStart(2, "0")}/{row.year}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {apartments && apartments.length > 0 ? (
                 <div className="space-y-6">
                     {apartments.map((apt) => {
                         const primaryImage = apt.apartment_images?.find((img) => img.is_primary)?.image_url;
+                        const areaRpi = rpiByLga.get(`${apt.city}:${apt.lga}`);
 
                         return (
                             <Link
@@ -108,6 +161,11 @@ export default async function LandlordDashboard(): Promise<React.ReactElement> {
                                         <p className="text-zinc-500 flex items-center gap-1">
                                             📍 {apt.neighborhood}, {CITY_LABELS[apt.city as keyof typeof CITY_LABELS]}
                                         </p>
+                                        {areaRpi && (
+                                            <p className="mt-2 inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400">
+                                                LGA RPI {formatNaira(Math.round(areaRpi.rpi_value))}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
                                 <div className="md:w-48 flex flex-col items-end justify-between py-2 text-right">

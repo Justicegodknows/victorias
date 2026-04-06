@@ -53,6 +53,48 @@ export default async function BrowsePage({
 
     const { data: apartments } = await query.overrideTypes<BrowseApartment[]>();
 
+    type LgaRpiRow = {
+        city: string;
+        lga: string;
+        apartment_type: string;
+        year: number;
+        month: number;
+        rpi_value: number;
+    };
+
+    const cities = [...new Set((apartments ?? []).map((apt) => apt.city as City))];
+    const lgas = [...new Set((apartments ?? []).map((apt) => apt.lga))];
+
+    const { data: rpiRows } =
+        cities.length > 0 && lgas.length > 0
+            ? await supabase
+                .from("lga_rpi_monthly")
+                .select("city, lga, apartment_type, year, month, rpi_value")
+                .eq("apartment_type", "all")
+                .in("city", cities)
+                .in("lga", lgas)
+                .order("year", { ascending: false })
+                .order("month", { ascending: false })
+                .overrideTypes<LgaRpiRow[]>()
+            : { data: [] as LgaRpiRow[] };
+
+    const rpiByLga = new Map<string, LgaRpiRow>();
+    for (const row of rpiRows ?? []) {
+        const key = `${row.city}:${row.lga}`;
+        if (!rpiByLga.has(key)) {
+            rpiByLga.set(key, row);
+        }
+    }
+
+    const shownRpiValues = (apartments ?? [])
+        .map((apt) => rpiByLga.get(`${apt.city}:${apt.lga}`)?.rpi_value)
+        .filter((value): value is number => typeof value === "number");
+
+    const averageRpi =
+        shownRpiValues.length > 0
+            ? shownRpiValues.reduce((sum, value) => sum + value, 0) / shownRpiValues.length
+            : null;
+
     return (
         <div className="mx-auto w-full max-w-6xl">
             {/* Editorial header */}
@@ -123,12 +165,23 @@ export default async function BrowsePage({
             </form>
 
             {/* Results grid */}
+            {averageRpi !== null && (
+                <div className="mb-6 rounded-2xl border border-emerald-100 bg-emerald-50/60 px-5 py-4 dark:border-emerald-900/40 dark:bg-emerald-950/30">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-emerald-700 dark:text-emerald-400">Market Index Snapshot</p>
+                    <div className="mt-2 flex flex-wrap items-baseline gap-3">
+                        <p className="text-2xl font-black text-emerald-800 dark:text-emerald-300">{formatNaira(Math.round(averageRpi))}</p>
+                        <p className="text-xs text-emerald-700/80 dark:text-emerald-400/80">Average RPI across currently shown LGAs</p>
+                    </div>
+                </div>
+            )}
+
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {apartments && apartments.length > 0 ? (
                     apartments.map((apt) => {
                         const primaryImage = apt.apartment_images?.find((img) => img.is_primary)?.image_url;
                         const amenities = apt.apartment_amenities?.map((a) => a.amenity) ?? [];
                         const env = apt.environmental_factors?.[0];
+                        const areaRpi = rpiByLga.get(`${apt.city}:${apt.lga}`);
 
                         return (
                             <Link
@@ -156,6 +209,11 @@ export default async function BrowsePage({
                                     <p className="mt-1 text-sm text-[#3e4a3d] dark:text-zinc-400">
                                         {APARTMENT_TYPE_LABELS[apt.apartment_type as keyof typeof APARTMENT_TYPE_LABELS]} · {apt.neighborhood}, {CITY_LABELS[apt.city as keyof typeof CITY_LABELS]}
                                     </p>
+                                    {areaRpi && (
+                                        <p className="mt-2 inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400">
+                                            LGA RPI {formatNaira(Math.round(areaRpi.rpi_value))} ({String(areaRpi.month).padStart(2, "0")}/{areaRpi.year})
+                                        </p>
+                                    )}
                                     <div className="mt-3 flex items-baseline justify-between">
                                         <span className="font-[family-name:var(--font-geist-mono)] text-lg font-black text-[#006b2c] dark:text-emerald-400">
                                             {formatNaira(apt.annual_rent)}<span className="text-xs font-normal text-zinc-400">/yr</span>

@@ -119,6 +119,47 @@ export type Inquiry = {
     created_at: string;
 };
 
+export type RentalTransaction = {
+    id: string;
+    apartment_id: string | null;
+    city: City;
+    lga: string;
+    neighborhood: string | null;
+    apartment_type: ApartmentType;
+    annual_rent: number;
+    lease_start_date: string;
+    lease_end_date: string | null;
+    source: string;
+    created_at: string;
+};
+
+export type InflationRate = {
+    id: string;
+    state_code: "LA" | "FC" | "RI";
+    year: number;
+    month: number;
+    monthly_rate: number;
+    source: string;
+    created_at: string;
+};
+
+export type LgaRpiMonthly = {
+    id: string;
+    city: City;
+    state_code: "LA" | "FC" | "RI";
+    lga: string;
+    apartment_type: "all" | ApartmentType;
+    year: number;
+    month: number;
+    rpi_value: number;
+    hist_component: number | null;
+    comp_component: number | null;
+    inflation_component: number;
+    sample_size_hist: number;
+    sample_size_comp: number;
+    computed_at: string;
+};
+
 // ---- Composite types for UI ----
 
 export type ApartmentWithDetails = Apartment & {
@@ -312,9 +353,93 @@ export type Database = {
                     },
                 ];
             };
+            rental_transactions: {
+                Row: RentalTransaction;
+                Insert: Omit<RentalTransaction, "id" | "created_at" | "source" | "neighborhood" | "apartment_id" | "lease_end_date"> & {
+                    apartment_id?: string | null;
+                    neighborhood?: string | null;
+                    lease_end_date?: string | null;
+                    source?: string;
+                };
+                Update: Partial<Omit<RentalTransaction, "id" | "created_at">>;
+                Relationships: [
+                    {
+                        foreignKeyName: "rental_transactions_apartment_id_fkey";
+                        columns: ["apartment_id"];
+                        isOneToOne: false;
+                        referencedRelation: "apartments";
+                        referencedColumns: ["id"];
+                    },
+                ];
+            };
+            inflation_rates: {
+                Row: InflationRate;
+                Insert: Omit<InflationRate, "id" | "created_at" | "source"> & {
+                    source?: string;
+                };
+                Update: Partial<Omit<InflationRate, "id" | "created_at">>;
+                Relationships: [];
+            };
+            lga_rpi_monthly: {
+                Row: LgaRpiMonthly;
+                Insert: Omit<
+                    LgaRpiMonthly,
+                    "id"
+                    | "computed_at"
+                    | "hist_component"
+                    | "comp_component"
+                    | "inflation_component"
+                    | "sample_size_hist"
+                    | "sample_size_comp"
+                > & {
+                    hist_component?: number | null;
+                    comp_component?: number | null;
+                    inflation_component?: number;
+                    sample_size_hist?: number;
+                    sample_size_comp?: number;
+                };
+                Update: Partial<Omit<LgaRpiMonthly, "id">>;
+                Relationships: [];
+            };
         };
         Views: Record<string, never>;
-        Functions: Record<string, never>;
+        Functions: {
+            compute_lga_rpi: {
+                Args: {
+                    target_year?: number;
+                    target_month?: number;
+                    filter_city?: string | null;
+                    filter_lga?: string | null;
+                    filter_apartment_type?: string | null;
+                };
+                Returns: number;
+            };
+            get_lga_rpi: {
+                Args: {
+                    p_city: string;
+                    p_lga: string;
+                    p_apartment_type?: string | null;
+                    p_year?: number | null;
+                    p_month?: number | null;
+                };
+                Returns: {
+                    city: string;
+                    state_code: string;
+                    lga: string;
+                    apartment_type: string;
+                    year: number;
+                    month: number;
+                    rpi_value: number;
+                    hist_component: number | null;
+                    comp_component: number | null;
+                    inflation_component: number;
+                    sample_size_hist: number;
+                    sample_size_comp: number;
+                    trend: string;
+                    trend_percent: number;
+                }[];
+            };
+        };
         Enums: Record<string, never>;
         CompositeTypes: Record<string, never>;
     };
