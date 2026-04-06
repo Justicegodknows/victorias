@@ -19,6 +19,17 @@ type TavilySearchResponse = {
     }>;
 };
 
+type BraveSearchResponse = {
+    web?: {
+        results?: Array<{
+            title?: string;
+            url?: string;
+            description?: string;
+            page_age?: string;
+        }>;
+    };
+};
+
 const DEFAULT_TRUSTED_WEB_SOURCES = [
     "nigerianstat.gov.ng",
     "cbn.gov.ng",
@@ -107,6 +118,85 @@ async function tavilyWebSearch(params: {
             query: payload.query,
             response_time_ms: payload.response_time,
             answer: payload.answer,
+            results: normalizedResults,
+        },
+    };
+}
+
+async function braveWebSearch(params: {
+    query: string;
+    maxResults: number;
+    includeDomains?: string[];
+    excludeDomains?: string[];
+}): Promise<{
+    ok: boolean;
+    error?: string;
+    data?: {
+        query: string;
+        answer?: string;
+        results: Array<{
+            title: string;
+            url: string;
+            snippet: string;
+            score: number | null;
+            published_date: string | null;
+        }>;
+    };
+}> {
+    const apiKey = process.env.BRAVE_SEARCH_API_KEY;
+    if (!apiKey) {
+        return {
+            ok: false,
+            error: "BRAVE_SEARCH_API_KEY is not configured on the server.",
+        };
+    }
+
+    const includeDomainQuery = (params.includeDomains ?? []).map((d) => `site:${d}`).join(" OR ");
+    const excludeDomainQuery = (params.excludeDomains ?? []).map((d) => `-site:${d}`).join(" ");
+    const effectiveQuery = [params.query, includeDomainQuery, excludeDomainQuery]
+        .filter((part) => part && part.trim().length > 0)
+        .join(" ");
+
+    const searchParams = new URLSearchParams({
+        q: effectiveQuery,
+        count: String(params.maxResults),
+        result_filter: "web",
+        country: "NG",
+        search_lang: "en",
+        safesearch: "moderate",
+    });
+
+    const response = await fetch(`https://api.search.brave.com/res/v1/web/search?${searchParams.toString()}`, {
+        method: "GET",
+        headers: {
+            Accept: "application/json",
+            "X-Subscription-Token": apiKey,
+        },
+    });
+
+    if (!response.ok) {
+        const details = await response.text();
+        return {
+            ok: false,
+            error: `Brave search failed (${response.status}): ${details.slice(0, 300)}`,
+        };
+    }
+
+    const payload = (await response.json()) as BraveSearchResponse;
+    const normalizedResults = (payload.web?.results ?? [])
+        .filter((r) => typeof r.url === "string" && typeof r.title === "string")
+        .map((r) => ({
+            title: r.title ?? "Untitled",
+            url: r.url ?? "",
+            snippet: (r.description ?? "").slice(0, 700),
+            score: null,
+            published_date: r.page_age ?? null,
+        }));
+
+    return {
+        ok: true,
+        data: {
+            query: params.query,
             results: normalizedResults,
         },
     };
@@ -545,7 +635,7 @@ export const webSearch = tool({
             : include_domains;
 
         try {
-            const search = await tavilyWebSearch({
+            const tavilySearch = await tavilyWebSearch({
                 query,
                 maxResults: max_results,
                 searchDepth: search_depth,
@@ -553,12 +643,26 @@ export const webSearch = tool({
                 excludeDomains: exclude_domains,
             });
 
+            // Primary provider: Tavily. Fallback provider: Brave Search.
+            const search = tavilySearch.ok && tavilySearch.data
+                ? { provider: "tavily", ...tavilySearch }
+                : await (async () => {
+                    const braveSearch = await braveWebSearch({
+                        query,
+                        maxResults: max_results,
+                        includeDomains: mergedIncludeDomains,
+                        excludeDomains: exclude_domains,
+                    });
+                    return { provider: "brave", ...braveSearch };
+                })();
+
             if (!search.ok || !search.data) {
                 return {
                     success: false,
                     query,
                     message:
-                        search.error ?? "Web search provider failed unexpectedly. Please try again.",
+                        search.error ??
+                        "Web search providers failed (Tavily + Brave). Please try again.",
                 };
             }
 
@@ -566,6 +670,7 @@ export const webSearch = tool({
                 return {
                     success: true,
                     query,
+                    provider: search.provider,
                     count: 0,
                     answer: search.data.answer ?? null,
                     results: [],
@@ -576,9 +681,10 @@ export const webSearch = tool({
             return {
                 success: true,
                 query,
+                provider: search.provider,
                 count: search.data.results.length,
                 answer: search.data.answer ?? null,
-                response_time_ms: search.data.response_time_ms ?? null,
+                response_time_ms: "response_time_ms" in search.data ? search.data.response_time_ms ?? null : null,
                 results: search.data.results,
                 citation_hint:
                     "When using this data in a response, cite the source URLs directly and mention publication dates when available.",
