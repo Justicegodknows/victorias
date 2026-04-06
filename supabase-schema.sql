@@ -9,10 +9,31 @@ create table public.profiles (
   full_name text not null,
   phone text,
   role text not null check (role in ('landlord', 'tenant')),
+  nin text,
+  bvn text,
+  government_id_type text check (government_id_type in (
+    'national-id-card', 'drivers-license', 'international-passport', 'voters-card'
+  )),
+  government_id_number text,
   income_range text,
   preferred_cities text[] default '{}',
-  created_at timestamptz default now() not null
+  created_at timestamptz default now() not null,
+  constraint profiles_tenant_identity_required check (
+    role <> 'tenant'
+    or (
+      nin ~ '^\\d{11}$'
+      and bvn ~ '^\\d{11}$'
+    )
+  )
 );
+
+create unique index idx_profiles_nin_unique
+  on public.profiles (nin)
+  where nin is not null;
+
+create unique index idx_profiles_bvn_unique
+  on public.profiles (bvn)
+  where bvn is not null;
 
 alter table public.profiles enable row level security;
 
@@ -29,11 +50,23 @@ create policy "Users can insert own profile"
 create or replace function public.handle_new_user()
 returns trigger as $$
 begin
-  insert into public.profiles (id, full_name, role)
+  insert into public.profiles (
+    id,
+    full_name,
+    role,
+    nin,
+    bvn,
+    government_id_type,
+    government_id_number
+  )
   values (
     new.id,
     coalesce(new.raw_user_meta_data->>'full_name', ''),
-    coalesce(new.raw_user_meta_data->>'role', 'tenant')
+    coalesce(new.raw_user_meta_data->>'role', 'tenant'),
+    nullif(trim(coalesce(new.raw_user_meta_data->>'nin', '')), ''),
+    nullif(trim(coalesce(new.raw_user_meta_data->>'bvn', '')), ''),
+    nullif(trim(coalesce(new.raw_user_meta_data->>'government_id_type', '')), ''),
+    nullif(trim(coalesce(new.raw_user_meta_data->>'government_id_number', '')), '')
   );
   return new;
 end;

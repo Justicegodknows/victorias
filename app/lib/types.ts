@@ -32,6 +32,12 @@ export type InquiryStatus = "pending" | "responded" | "closed";
 
 export type Rating = 1 | 2 | 3 | 4 | 5;
 
+export type GovernmentIdType =
+    | "national-id-card"
+    | "drivers-license"
+    | "international-passport"
+    | "voters-card";
+
 // ---- Database row types ----
 
 export type Profile = {
@@ -39,6 +45,10 @@ export type Profile = {
     full_name: string;
     phone: string | null;
     role: UserRole;
+    nin: string | null;
+    bvn: string | null;
+    government_id_type: GovernmentIdType | null;
+    government_id_number: string | null;
     income_range: string | null;
     preferred_cities: City[];
     created_at: string;
@@ -176,8 +186,15 @@ export type Database = {
         Tables: {
             profiles: {
                 Row: Profile;
-                Insert: Omit<Profile, "created_at" | "phone" | "income_range" | "preferred_cities"> & {
+                Insert: Omit<
+                    Profile,
+                    "created_at" | "phone" | "income_range" | "preferred_cities" | "nin" | "bvn" | "government_id_type" | "government_id_number"
+                > & {
                     phone?: string | null;
+                    nin?: string | null;
+                    bvn?: string | null;
+                    government_id_type?: GovernmentIdType | null;
+                    government_id_number?: string | null;
                     income_range?: string | null;
                     preferred_cities?: City[];
                 };

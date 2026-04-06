@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createSupabaseBrowser } from "@/app/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import type { City, ApartmentType, Amenity, FloodRisk, Rating } from "@/app/lib/types";
@@ -9,6 +9,8 @@ import {
     AMENITY_LABELS,
     CITY_LABELS,
 } from "@/app/lib/data/neighborhoods";
+import { formatNaira } from "@/app/lib/ai/affordability";
+import { buildRentRecommendation, type RentRecommendation } from "@/app/lib/ai/rent-recommendation";
 
 type Step = 1 | 2 | 3 | 4 | 5;
 
@@ -22,7 +24,7 @@ const STEPS: Record<Step, string> = {
 
 export default function NewListingPage(): React.ReactElement {
     const router = useRouter();
-    const supabase = createSupabaseBrowser();
+    const supabase = useMemo(() => createSupabaseBrowser(), []);
     const [step, setStep] = useState<Step>(1);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -58,6 +60,91 @@ export default function NewListingPage(): React.ReactElement {
     // Step 5 — Photos
     const [imageFiles, setImageFiles] = useState<File[]>([]);
     const [uploading, setUploading] = useState(false);
+
+    // Live pricing guidance
+    const [rentRecommendation, setRentRecommendation] = useState<RentRecommendation | null>(null);
+    const [recommendationLoading, setRecommendationLoading] = useState(false);
+
+    useEffect(() => {
+        const normalizedLga = lga.trim();
+        if (normalizedLga.length < 2) {
+            setRentRecommendation(null);
+            return;
+        }
+
+        let isCancelled = false;
+
+        async function fetchRecommendation(): Promise<void> {
+            setRecommendationLoading(true);
+
+            type ComparableRentRow = { annual_rent: number };
+            const { data: comparableRows } = await supabase
+                .from("apartments")
+                .select("annual_rent")
+                .eq("city", city)
+                .ilike("lga", normalizedLga)
+                .eq("apartment_type", apartmentType)
+                .eq("is_available", true)
+                .limit(200)
+                .overrideTypes<ComparableRentRow[]>();
+
+            type LgaRpiProbe = {
+                rpi_value: number;
+                sample_size_hist: number;
+                sample_size_comp: number;
+            };
+
+            // Prefer apartment-type-specific RPI, fall back to 'all'
+            const { data: typeRpiRows } = await supabase
+                .from("lga_rpi_monthly")
+                .select("rpi_value, sample_size_hist, sample_size_comp")
+                .eq("city", city)
+                .ilike("lga", normalizedLga)
+                .eq("apartment_type", apartmentType)
+                .order("year", { ascending: false })
+                .order("month", { ascending: false })
+                .limit(1)
+                .overrideTypes<LgaRpiProbe[]>();
+
+            const rpiRow = typeRpiRows?.[0]
+                ? typeRpiRows[0]
+                : (await supabase
+                    .from("lga_rpi_monthly")
+                    .select("rpi_value, sample_size_hist, sample_size_comp")
+                    .eq("city", city)
+                    .ilike("lga", normalizedLga)
+                    .eq("apartment_type", "all")
+                    .order("year", { ascending: false })
+                    .order("month", { ascending: false })
+                    .limit(1)
+                    .overrideTypes<LgaRpiProbe[]>()).data?.[0];
+
+            const recommendation = buildRentRecommendation({
+                comparableRents: (comparableRows ?? []).map((row) => row.annual_rent),
+                rpiValue: rpiRow?.rpi_value,
+                rpiSampleSize: (rpiRow?.sample_size_hist ?? 0) + (rpiRow?.sample_size_comp ?? 0),
+            });
+
+            if (!isCancelled) {
+                setRentRecommendation(recommendation);
+                setRecommendationLoading(false);
+            }
+        }
+
+        fetchRecommendation().catch(() => {
+            if (!isCancelled) {
+                setRentRecommendation(null);
+                setRecommendationLoading(false);
+            }
+        });
+
+        return () => {
+            isCancelled = true;
+        };
+    }, [apartmentType, city, lga, supabase]);
+
+    const numericAnnualRent = Number.parseInt(annualRent, 10);
+    const hasValidAnnualRent = Number.isFinite(numericAnnualRent) && numericAnnualRent > 0;
 
     function toggleAmenity(amenity: Amenity): void {
         setAmenities((prev) => {
@@ -238,6 +325,42 @@ export default function NewListingPage(): React.ReactElement {
                                 <label htmlFor="description" className="block text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em] text-zinc-500 mb-2">Editorial Description</label>
                                 <textarea id="description" rows={4} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe the soul of this property..." className="w-full bg-white dark:bg-zinc-800 border-0 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#006b2c] shadow-sm dark:text-zinc-50" />
                             </div>
+
+                            <div className="md:col-span-2">
+                                {recommendationLoading ? (
+                                    <div className="rounded-2xl border border-emerald-100 bg-emerald-50/60 px-4 py-3 dark:border-emerald-900/40 dark:bg-emerald-950/30 text-xs text-emerald-700 dark:text-emerald-400">
+                                        Computing recommended rent range for current city/LGA...
+                                    </div>
+                                ) : rentRecommendation ? (
+                                    <div className="rounded-2xl border border-emerald-100 bg-emerald-50/60 px-4 py-4 dark:border-emerald-900/40 dark:bg-emerald-950/30">
+                                        <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-emerald-700 dark:text-emerald-400">Recommended Rent Range</p>
+                                        <p className="mt-1 text-sm font-semibold text-emerald-900 dark:text-emerald-300">
+                                            {APARTMENT_TYPE_LABELS[apartmentType]} in {lga.trim() || "selected LGA"}, {CITY_LABELS[city]}: {formatNaira(rentRecommendation.minRent)}-{formatNaira(rentRecommendation.maxRent)}/year
+                                        </p>
+                                        <p className="mt-1 text-[10px] text-emerald-700/80 dark:text-emerald-400/80">
+                                            Confidence: {rentRecommendation.confidence} · Source: {rentRecommendation.source === "comparables" ? "local comparable listings" : "LGA market index (RPI)"}
+                                        </p>
+                                        {hasValidAnnualRent && (
+                                            <p className={`mt-2 text-[11px] font-bold ${numericAnnualRent < rentRecommendation.minRent
+                                                    ? "text-emerald-700 dark:text-emerald-400"
+                                                    : numericAnnualRent > rentRecommendation.maxRent
+                                                        ? "text-amber-700 dark:text-amber-400"
+                                                        : "text-emerald-700 dark:text-emerald-400"
+                                                }`}>
+                                                {numericAnnualRent < rentRecommendation.minRent
+                                                    ? "Current asking rent is below the suggested market band."
+                                                    : numericAnnualRent > rentRecommendation.maxRent
+                                                        ? "Current asking rent is above the suggested market band."
+                                                        : "Current asking rent is within the suggested market band."}
+                                            </p>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="rounded-2xl border border-zinc-200 bg-white px-4 py-3 dark:border-zinc-700 dark:bg-zinc-800 text-xs text-zinc-500 dark:text-zinc-400">
+                                        Enter a valid LGA in Step 2 to get a recommended rent range.
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </section>
                 )}
@@ -273,6 +396,19 @@ export default function NewListingPage(): React.ReactElement {
                                 <input id="address" type="text" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="e.g., Banana Island, Road 3" className="w-full bg-white dark:bg-zinc-800 border-0 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#006b2c] shadow-sm dark:text-zinc-50" />
                             </div>
                         </div>
+
+                        {recommendationLoading ? (
+                            <div className="rounded-2xl border border-emerald-100 bg-emerald-50/60 px-4 py-3 dark:border-emerald-900/40 dark:bg-emerald-950/30 text-xs text-emerald-700 dark:text-emerald-400">
+                                Refreshing market recommendation for {APARTMENT_TYPE_LABELS[apartmentType]} in {CITY_LABELS[city]}...
+                            </div>
+                        ) : rentRecommendation ? (
+                            <div className="rounded-2xl border border-emerald-100 bg-emerald-50/60 px-4 py-4 dark:border-emerald-900/40 dark:bg-emerald-950/30">
+                                <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-emerald-700 dark:text-emerald-400">LGA Pricing Guidance</p>
+                                <p className="mt-1 text-sm font-semibold text-emerald-900 dark:text-emerald-300">
+                                    Recommended {APARTMENT_TYPE_LABELS[apartmentType]} range in {lga.trim() || "selected LGA"}, {CITY_LABELS[city]}: {formatNaira(rentRecommendation.minRent)}-{formatNaira(rentRecommendation.maxRent)} per year
+                                </p>
+                            </div>
+                        ) : null}
                     </section>
                 )}
 

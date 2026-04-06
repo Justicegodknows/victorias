@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { APARTMENT_TYPE_LABELS, AMENITY_LABELS, CITY_LABELS } from "@/app/lib/data/neighborhoods";
 import { formatNaira } from "@/app/lib/ai/affordability";
+import { buildRentRecommendation } from "@/app/lib/ai/rent-recommendation";
+import type { ApartmentType, City } from "@/app/lib/types";
 
 export default async function ListingDetailPage({
     params,
@@ -74,6 +76,56 @@ export default async function ListingDetailPage({
         .order("created_at", { ascending: false })
         .overrideTypes<ListingInquiry[]>();
 
+    type ComparableRentRow = { annual_rent: number };
+    const { data: comparableRows } = await supabase
+        .from("apartments")
+        .select("annual_rent")
+        .eq("city", apartment.city as City)
+        .eq("lga", apartment.lga)
+        .eq("apartment_type", apartment.apartment_type as ApartmentType)
+        .eq("is_available", true)
+        .limit(200)
+        .overrideTypes<ComparableRentRow[]>();
+
+    type LgaRpiProbe = {
+        rpi_value: number;
+        sample_size_hist: number;
+        sample_size_comp: number;
+    };
+
+    const { data: typeRpiRows } = await supabase
+        .from("lga_rpi_monthly")
+        .select("rpi_value, sample_size_hist, sample_size_comp")
+        .eq("city", apartment.city as City)
+        .eq("lga", apartment.lga)
+        .eq("apartment_type", apartment.apartment_type as ApartmentType)
+        .order("year", { ascending: false })
+        .order("month", { ascending: false })
+        .limit(1)
+        .overrideTypes<LgaRpiProbe[]>();
+
+    const typeRpiRow = typeRpiRows?.[0];
+    const fallbackRpiRow = !typeRpiRow
+        ? (await supabase
+            .from("lga_rpi_monthly")
+            .select("rpi_value, sample_size_hist, sample_size_comp")
+            .eq("city", apartment.city as City)
+            .eq("lga", apartment.lga)
+            .eq("apartment_type", "all")
+            .order("year", { ascending: false })
+            .order("month", { ascending: false })
+            .limit(1)
+            .overrideTypes<LgaRpiProbe[]>()).data?.[0]
+        : null;
+
+    const marketRecommendation = buildRentRecommendation({
+        comparableRents: (comparableRows ?? []).map((row) => row.annual_rent),
+        rpiValue: typeRpiRow?.rpi_value ?? fallbackRpiRow?.rpi_value,
+        rpiSampleSize:
+            (typeRpiRow?.sample_size_hist ?? fallbackRpiRow?.sample_size_hist ?? 0)
+            + (typeRpiRow?.sample_size_comp ?? fallbackRpiRow?.sample_size_comp ?? 0),
+    });
+
     return (
         <div className="mx-auto w-full max-w-4xl px-4 py-8">
             <Link href="/landlord" className="mb-4 inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200">
@@ -129,6 +181,30 @@ export default async function ListingDetailPage({
                         <p className="text-lg font-bold text-zinc-900 dark:text-zinc-50">{formatNaira(apartment.total_upfront_cost)}</p>
                     </div>
                 </div>
+
+                {marketRecommendation && (
+                    <div className="mt-5 rounded-xl border border-emerald-100 bg-emerald-50/70 px-4 py-3 dark:border-emerald-900/40 dark:bg-emerald-950/30">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-emerald-700 dark:text-emerald-400">Recommended Market Range</p>
+                        <p className="mt-1 text-sm font-semibold text-emerald-900 dark:text-emerald-300">
+                            {APARTMENT_TYPE_LABELS[apartment.apartment_type as keyof typeof APARTMENT_TYPE_LABELS]} in {apartment.lga}, {CITY_LABELS[apartment.city as keyof typeof CITY_LABELS]}: {formatNaira(marketRecommendation.minRent)}-{formatNaira(marketRecommendation.maxRent)}/year
+                        </p>
+                        <p className="mt-1 text-[10px] text-emerald-700/80 dark:text-emerald-400/80">
+                            Confidence: {marketRecommendation.confidence} · Based on {marketRecommendation.source === "comparables" ? "comparable listings" : "LGA RPI"}
+                        </p>
+                        <p className={`mt-2 text-[11px] font-bold ${apartment.annual_rent < marketRecommendation.minRent
+                                ? "text-emerald-700 dark:text-emerald-400"
+                                : apartment.annual_rent > marketRecommendation.maxRent
+                                    ? "text-amber-700 dark:text-amber-400"
+                                    : "text-emerald-700 dark:text-emerald-400"
+                            }`}>
+                            {apartment.annual_rent < marketRecommendation.minRent
+                                ? "Current rent is below recommended market band."
+                                : apartment.annual_rent > marketRecommendation.maxRent
+                                    ? "Current rent is above recommended market band."
+                                    : "Current rent is within recommended market band."}
+                        </p>
+                    </div>
+                )}
             </div>
 
             {/* Amenities */}
