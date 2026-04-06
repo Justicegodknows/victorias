@@ -3,6 +3,8 @@ import Link from "next/link";
 import { APARTMENT_TYPE_LABELS, CITY_LABELS } from "@/app/lib/data/neighborhoods";
 import { formatNaira } from "@/app/lib/ai/affordability";
 import type { City } from "@/app/lib/types";
+import { RpiBadge } from "@/app/components/rpi/rpi-badge";
+import type { RpiBadgeData } from "@/app/components/rpi/rpi-badge";
 
 export default async function LandlordDashboard(): Promise<React.ReactElement> {
     const supabase = await createSupabaseServer();
@@ -52,6 +54,11 @@ export default async function LandlordDashboard(): Promise<React.ReactElement> {
         year: number;
         month: number;
         rpi_value: number;
+        hist_component: number | null;
+        comp_component: number | null;
+        inflation_component: number;
+        sample_size_hist: number;
+        sample_size_comp: number;
     };
 
     const cities = [...new Set((apartments ?? []).map((apt) => apt.city as City))];
@@ -61,21 +68,52 @@ export default async function LandlordDashboard(): Promise<React.ReactElement> {
         cities.length > 0 && lgas.length > 0
             ? await supabase
                 .from("lga_rpi_monthly")
-                .select("city, lga, apartment_type, year, month, rpi_value")
+                .select(
+                    "city, lga, apartment_type, year, month, rpi_value, hist_component, comp_component, inflation_component, sample_size_hist, sample_size_comp",
+                )
                 .eq("apartment_type", "all")
                 .in("city", cities)
                 .in("lga", lgas)
                 .order("year", { ascending: false })
                 .order("month", { ascending: false })
+                .limit(lgas.length * 2)
                 .overrideTypes<LgaRpiRow[]>()
             : { data: [] as LgaRpiRow[] };
 
-    const rpiByLga = new Map<string, LgaRpiRow>();
+    const rpiLatest = new Map<string, LgaRpiRow>();
+    const rpiPrev = new Map<string, LgaRpiRow>();
     for (const row of rpiRows ?? []) {
         const key = `${row.city}:${row.lga}`;
-        if (!rpiByLga.has(key)) {
-            rpiByLga.set(key, row);
+        if (!rpiLatest.has(key)) {
+            rpiLatest.set(key, row);
+        } else if (!rpiPrev.has(key)) {
+            rpiPrev.set(key, row);
         }
+    }
+
+    const rpiByLga = new Map<string, RpiBadgeData>();
+    for (const [key, latest] of rpiLatest) {
+        const prev = rpiPrev.get(key);
+        const trendPercent =
+            prev && prev.rpi_value > 0
+                ? parseFloat((((latest.rpi_value - prev.rpi_value) / prev.rpi_value) * 100).toFixed(2))
+                : 0;
+        const trend: "up" | "down" | "stable" =
+            trendPercent > 0.1 ? "up" : trendPercent < -0.1 ? "down" : "stable";
+        rpiByLga.set(key, {
+            city: latest.city,
+            lga: latest.lga,
+            rpi_value: latest.rpi_value,
+            year: latest.year,
+            month: latest.month,
+            trend,
+            trend_percent: trendPercent,
+            hist_component: latest.hist_component,
+            comp_component: latest.comp_component,
+            inflation_component: latest.inflation_component,
+            sample_size_hist: latest.sample_size_hist,
+            sample_size_comp: latest.sample_size_comp,
+        });
     }
 
     const marketRows = [...rpiByLga.values()].slice(0, 4);
@@ -110,13 +148,30 @@ export default async function LandlordDashboard(): Promise<React.ReactElement> {
                 <div className="mb-8 rounded-2xl border border-emerald-100 bg-emerald-50/60 p-5 dark:border-emerald-900/40 dark:bg-emerald-950/30">
                     <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-emerald-700 dark:text-emerald-400">Rental Price Index</p>
                     <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                        {marketRows.map((row) => (
-                            <div key={`${row.city}:${row.lga}`} className="rounded-xl bg-white/80 px-3 py-2 dark:bg-zinc-900/60">
-                                <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">{row.lga}</p>
-                                <p className="mt-1 text-lg font-black text-emerald-700 dark:text-emerald-300">{formatNaira(Math.round(row.rpi_value))}</p>
-                                <p className="text-[10px] text-zinc-500">{String(row.month).padStart(2, "0")}/{row.year}</p>
-                            </div>
-                        ))}
+                        {marketRows.map((row) => {
+                            const trendColor =
+                                row.trend === "up"
+                                    ? "text-red-500"
+                                    : row.trend === "down"
+                                        ? "text-emerald-600 dark:text-emerald-400"
+                                        : "text-zinc-400";
+                            const arrow =
+                                row.trend === "up" ? "↑" : row.trend === "down" ? "↓" : "—";
+                            return (
+                                <div key={`${row.city}:${row.lga}`} className="rounded-xl bg-white/80 px-3 py-2 dark:bg-zinc-900/60">
+                                    <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">{row.lga}</p>
+                                    <p className="mt-1 text-lg font-black text-emerald-700 dark:text-emerald-300">{formatNaira(Math.round(row.rpi_value))}</p>
+                                    <div className="flex items-center gap-2 mt-0.5">
+                                        <p className="text-[10px] text-zinc-500">{String(row.month).padStart(2, "0")}/{row.year}</p>
+                                        {row.trend !== "stable" && (
+                                            <span className={`text-[10px] font-bold ${trendColor}`}>
+                                                {arrow} {Math.abs(row.trend_percent).toFixed(1)}%
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
             )}
@@ -162,9 +217,9 @@ export default async function LandlordDashboard(): Promise<React.ReactElement> {
                                             📍 {apt.neighborhood}, {CITY_LABELS[apt.city as keyof typeof CITY_LABELS]}
                                         </p>
                                         {areaRpi && (
-                                            <p className="mt-2 inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400">
-                                                LGA RPI {formatNaira(Math.round(areaRpi.rpi_value))}
-                                            </p>
+                                            <div className="mt-2">
+                                                <RpiBadge data={areaRpi} />
+                                            </div>
                                         )}
                                     </div>
                                 </div>

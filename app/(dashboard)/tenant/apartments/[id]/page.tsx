@@ -7,6 +7,8 @@ import {
     CITY_LABELS,
 } from "@/app/lib/data/neighborhoods";
 import { formatNaira } from "@/app/lib/ai/affordability";
+import { RpiBadge } from "@/app/components/rpi/rpi-badge";
+import type { RpiBadgeData } from "@/app/components/rpi/rpi-badge";
 
 export default async function ApartmentDetailPage({
     params,
@@ -61,6 +63,59 @@ export default async function ApartmentDetailPage({
 
     if (!apartment) {
         notFound();
+    }
+
+    // Fetch RPI for this apartment's LGA (latest 2 months for trend)
+    type RpiRow = {
+        city: string;
+        lga: string;
+        apartment_type: string;
+        year: number;
+        month: number;
+        rpi_value: number;
+        hist_component: number | null;
+        comp_component: number | null;
+        inflation_component: number;
+        sample_size_hist: number;
+        sample_size_comp: number;
+    };
+    const { data: rpiRows } = await supabase
+        .from("lga_rpi_monthly")
+        .select(
+            "city, lga, apartment_type, year, month, rpi_value, hist_component, comp_component, inflation_component, sample_size_hist, sample_size_comp",
+        )
+        .eq("city", apartment.city as import("@/app/lib/types").City)
+        .eq("lga", apartment.lga)
+        .eq("apartment_type", "all")
+        .order("year", { ascending: false })
+        .order("month", { ascending: false })
+        .limit(2)
+        .overrideTypes<RpiRow[]>();
+
+    let rpiData: RpiBadgeData | null = null;
+    if (rpiRows && rpiRows.length > 0) {
+        const latest = rpiRows[0];
+        const prev = rpiRows[1];
+        const trendPercent =
+            prev && prev.rpi_value > 0
+                ? parseFloat((((latest.rpi_value - prev.rpi_value) / prev.rpi_value) * 100).toFixed(2))
+                : 0;
+        const trend: "up" | "down" | "stable" =
+            trendPercent > 0.1 ? "up" : trendPercent < -0.1 ? "down" : "stable";
+        rpiData = {
+            city: latest.city,
+            lga: latest.lga,
+            rpi_value: latest.rpi_value,
+            year: latest.year,
+            month: latest.month,
+            trend,
+            trend_percent: trendPercent,
+            hist_component: latest.hist_component,
+            comp_component: latest.comp_component,
+            inflation_component: latest.inflation_component,
+            sample_size_hist: latest.sample_size_hist,
+            sample_size_comp: latest.sample_size_comp,
+        };
     }
 
     const amenities = apartment.apartment_amenities?.map((a) => a.amenity) ?? [];
@@ -210,6 +265,35 @@ export default async function ApartmentDetailPage({
                             Ask Victoria about this
                         </Link>
                     </div>
+
+                    {rpiData && (
+                        <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 ambient-shadow">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-400 mb-3">LGA Market Index</p>
+                            <RpiBadge data={rpiData} />
+                            {(() => {
+                                const delta = apartment.annual_rent - rpiData!.rpi_value;
+                                const pct = (delta / rpiData!.rpi_value) * 100;
+                                if (Math.abs(pct) < 5) {
+                                    return (
+                                        <p className="mt-2 text-[10px] text-zinc-400">
+                                            Priced in line with the LGA market index
+                                        </p>
+                                    );
+                                }
+                                const isBelow = delta < 0;
+                                return (
+                                    <p className={`mt-2 text-[10px] font-bold ${isBelow
+                                            ? "text-emerald-700 dark:text-emerald-400"
+                                            : "text-amber-600 dark:text-amber-400"
+                                        }`}>
+                                        {isBelow
+                                            ? `↓ ${Math.abs(pct).toFixed(0)}% below LGA market index — strong value`
+                                            : `↑ ${Math.abs(pct).toFixed(0)}% above LGA market index`}
+                                    </p>
+                                );
+                            })()}
+                        </div>
+                    )}
 
                     {landlord && (
                         <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 ambient-shadow">

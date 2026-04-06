@@ -6,6 +6,8 @@ import {
 } from "@/app/lib/data/neighborhoods";
 import { formatNaira } from "@/app/lib/ai/affordability";
 import type { City, ApartmentType } from "@/app/lib/types";
+import { RpiBadge } from "@/app/components/rpi/rpi-badge";
+import type { RpiBadgeData } from "@/app/components/rpi/rpi-badge";
 
 export default async function BrowsePage({
     searchParams,
@@ -60,30 +62,68 @@ export default async function BrowsePage({
         year: number;
         month: number;
         rpi_value: number;
+        hist_component: number | null;
+        comp_component: number | null;
+        inflation_component: number;
+        sample_size_hist: number;
+        sample_size_comp: number;
     };
 
     const cities = [...new Set((apartments ?? []).map((apt) => apt.city as City))];
     const lgas = [...new Set((apartments ?? []).map((apt) => apt.lga))];
 
+    // Fetch latest 2 months so we can compute trend_percent in JS
     const { data: rpiRows } =
         cities.length > 0 && lgas.length > 0
             ? await supabase
                 .from("lga_rpi_monthly")
-                .select("city, lga, apartment_type, year, month, rpi_value")
+                .select(
+                    "city, lga, apartment_type, year, month, rpi_value, hist_component, comp_component, inflation_component, sample_size_hist, sample_size_comp",
+                )
                 .eq("apartment_type", "all")
                 .in("city", cities)
                 .in("lga", lgas)
                 .order("year", { ascending: false })
                 .order("month", { ascending: false })
+                .limit(lgas.length * 2)
                 .overrideTypes<LgaRpiRow[]>()
             : { data: [] as LgaRpiRow[] };
 
-    const rpiByLga = new Map<string, LgaRpiRow>();
+    // Take the two most recent months per LGA to calculate trend
+    const rpiLatest = new Map<string, LgaRpiRow>();
+    const rpiPrev = new Map<string, LgaRpiRow>();
     for (const row of rpiRows ?? []) {
         const key = `${row.city}:${row.lga}`;
-        if (!rpiByLga.has(key)) {
-            rpiByLga.set(key, row);
+        if (!rpiLatest.has(key)) {
+            rpiLatest.set(key, row);
+        } else if (!rpiPrev.has(key)) {
+            rpiPrev.set(key, row);
         }
+    }
+
+    const rpiByLga = new Map<string, RpiBadgeData>();
+    for (const [key, latest] of rpiLatest) {
+        const prev = rpiPrev.get(key);
+        const trendPercent =
+            prev && prev.rpi_value > 0
+                ? parseFloat((((latest.rpi_value - prev.rpi_value) / prev.rpi_value) * 100).toFixed(2))
+                : 0;
+        const trend: "up" | "down" | "stable" =
+            trendPercent > 0.1 ? "up" : trendPercent < -0.1 ? "down" : "stable";
+        rpiByLga.set(key, {
+            city: latest.city,
+            lga: latest.lga,
+            rpi_value: latest.rpi_value,
+            year: latest.year,
+            month: latest.month,
+            trend,
+            trend_percent: trendPercent,
+            hist_component: latest.hist_component,
+            comp_component: latest.comp_component,
+            inflation_component: latest.inflation_component,
+            sample_size_hist: latest.sample_size_hist,
+            sample_size_comp: latest.sample_size_comp,
+        });
     }
 
     const shownRpiValues = (apartments ?? [])
@@ -94,6 +134,9 @@ export default async function BrowsePage({
         shownRpiValues.length > 0
             ? shownRpiValues.reduce((sum, value) => sum + value, 0) / shownRpiValues.length
             : null;
+
+    const risingLgaCount = [...rpiByLga.values()].filter((r) => r.trend === "up").length;
+    const fallingLgaCount = [...rpiByLga.values()].filter((r) => r.trend === "down").length;
 
     return (
         <div className="mx-auto w-full max-w-6xl">
@@ -168,10 +211,24 @@ export default async function BrowsePage({
             {averageRpi !== null && (
                 <div className="mb-6 rounded-2xl border border-emerald-100 bg-emerald-50/60 px-5 py-4 dark:border-emerald-900/40 dark:bg-emerald-950/30">
                     <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-emerald-700 dark:text-emerald-400">Market Index Snapshot</p>
-                    <div className="mt-2 flex flex-wrap items-baseline gap-3">
+                    <div className="mt-2 flex flex-wrap items-baseline gap-4">
                         <p className="text-2xl font-black text-emerald-800 dark:text-emerald-300">{formatNaira(Math.round(averageRpi))}</p>
-                        <p className="text-xs text-emerald-700/80 dark:text-emerald-400/80">Average RPI across currently shown LGAs</p>
+                        <p className="text-xs text-emerald-700/80 dark:text-emerald-400/80">Average RPI across shown LGAs</p>
                     </div>
+                    {(risingLgaCount > 0 || fallingLgaCount > 0) && (
+                        <div className="mt-2 flex flex-wrap gap-3">
+                            {risingLgaCount > 0 && (
+                                <span className="text-[10px] font-bold text-red-500">
+                                    ↑ {risingLgaCount} LGA{risingLgaCount > 1 ? "s" : ""} trending up
+                                </span>
+                            )}
+                            {fallingLgaCount > 0 && (
+                                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                                    ↓ {fallingLgaCount} LGA{fallingLgaCount > 1 ? "s" : ""} trending down — potential value
+                                </span>
+                            )}
+                        </div>
+                    )}
                 </div>
             )}
 
@@ -210,9 +267,9 @@ export default async function BrowsePage({
                                         {APARTMENT_TYPE_LABELS[apt.apartment_type as keyof typeof APARTMENT_TYPE_LABELS]} · {apt.neighborhood}, {CITY_LABELS[apt.city as keyof typeof CITY_LABELS]}
                                     </p>
                                     {areaRpi && (
-                                        <p className="mt-2 inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400">
-                                            LGA RPI {formatNaira(Math.round(areaRpi.rpi_value))} ({String(areaRpi.month).padStart(2, "0")}/{areaRpi.year})
-                                        </p>
+                                        <div className="mt-2">
+                                            <RpiBadge data={areaRpi} />
+                                        </div>
                                     )}
                                     <div className="mt-3 flex items-baseline justify-between">
                                         <span className="font-[family-name:var(--font-geist-mono)] text-lg font-black text-[#006b2c] dark:text-emerald-400">

@@ -6,6 +6,112 @@ import { calculateAffordability, formatNaira } from "@/app/lib/ai/affordability"
 import { NEIGHBORHOODS } from "@/app/lib/data/neighborhoods";
 import { searchApartmentsBySemantic, searchKnowledge } from "@/app/lib/ai/rag";
 
+type TavilySearchResponse = {
+    query: string;
+    response_time?: number;
+    answer?: string;
+    results?: Array<{
+        title?: string;
+        url?: string;
+        content?: string;
+        score?: number;
+        published_date?: string;
+    }>;
+};
+
+const DEFAULT_TRUSTED_WEB_SOURCES = [
+    "nigerianstat.gov.ng",
+    "cbn.gov.ng",
+    "lagosstate.gov.ng",
+    "fcta.gov.ng",
+    "riversstate.gov.ng",
+    "nairametrics.com",
+    "businessday.ng",
+    "guardian.ng",
+];
+
+async function tavilyWebSearch(params: {
+    query: string;
+    maxResults: number;
+    searchDepth: "basic" | "advanced";
+    includeDomains?: string[];
+    excludeDomains?: string[];
+}): Promise<{
+    ok: boolean;
+    error?: string;
+    data?: {
+        query: string;
+        response_time_ms?: number;
+        answer?: string;
+        results: Array<{
+            title: string;
+            url: string;
+            snippet: string;
+            score: number | null;
+            published_date: string | null;
+        }>;
+    };
+}> {
+    const apiKey = process.env.TAVILY_API_KEY;
+    if (!apiKey) {
+        return {
+            ok: false,
+            error: "TAVILY_API_KEY is not configured on the server.",
+        };
+    }
+
+    const response = await fetch("https://api.tavily.com/search", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+            query: params.query,
+            search_depth: params.searchDepth,
+            include_answer: true,
+            max_results: params.maxResults,
+            include_domains:
+                params.includeDomains && params.includeDomains.length > 0
+                    ? params.includeDomains
+                    : undefined,
+            exclude_domains:
+                params.excludeDomains && params.excludeDomains.length > 0
+                    ? params.excludeDomains
+                    : undefined,
+        }),
+    });
+
+    if (!response.ok) {
+        const details = await response.text();
+        return {
+            ok: false,
+            error: `Tavily search failed (${response.status}): ${details.slice(0, 300)}`,
+        };
+    }
+
+    const payload = (await response.json()) as TavilySearchResponse;
+    const normalizedResults = (payload.results ?? [])
+        .filter((r) => typeof r.url === "string" && typeof r.title === "string")
+        .map((r) => ({
+            title: r.title ?? "Untitled",
+            url: r.url ?? "",
+            snippet: (r.content ?? "").slice(0, 700),
+            score: typeof r.score === "number" ? r.score : null,
+            published_date: r.published_date ?? null,
+        }));
+
+    return {
+        ok: true,
+        data: {
+            query: payload.query,
+            response_time_ms: payload.response_time,
+            answer: payload.answer,
+            results: normalizedResults,
+        },
+    };
+}
+
 // Service-role client for AI agent operations (bypasses RLS)
 function getServiceClient(): ReturnType<typeof createClient<Database>> {
     return createClient<Database>(
@@ -397,11 +503,325 @@ export const semanticSearchKnowledge = tool({
     },
 });
 
+export const webSearch = tool({
+    description:
+        "Search the live web for up-to-date external information. Use this for current market news, policy/regulation updates, inflation/CPI releases, and facts that are not guaranteed to exist in the local database. Prefer trusted Nigerian sources and always cite returned URLs.",
+    inputSchema: z.object({
+        query: z.string().min(3).describe("What to search for on the web"),
+        max_results: z
+            .number()
+            .int()
+            .min(1)
+            .max(8)
+            .default(5)
+            .describe("Number of search results to return (1-8)"),
+        search_depth: z
+            .enum(["basic", "advanced"])
+            .default("advanced")
+            .describe("Depth of web retrieval"),
+        trusted_sources_only: z
+            .boolean()
+            .default(false)
+            .describe("If true, only query trusted source domains"),
+        include_domains: z
+            .array(z.string())
+            .optional()
+            .describe("Optional list of domains to include"),
+        exclude_domains: z
+            .array(z.string())
+            .optional()
+            .describe("Optional list of domains to exclude"),
+    }),
+    execute: async ({
+        query,
+        max_results,
+        search_depth,
+        trusted_sources_only,
+        include_domains,
+        exclude_domains,
+    }) => {
+        const mergedIncludeDomains = trusted_sources_only
+            ? [...new Set([...(include_domains ?? []), ...DEFAULT_TRUSTED_WEB_SOURCES])]
+            : include_domains;
+
+        try {
+            const search = await tavilyWebSearch({
+                query,
+                maxResults: max_results,
+                searchDepth: search_depth,
+                includeDomains: mergedIncludeDomains,
+                excludeDomains: exclude_domains,
+            });
+
+            if (!search.ok || !search.data) {
+                return {
+                    success: false,
+                    query,
+                    message:
+                        search.error ?? "Web search provider failed unexpectedly. Please try again.",
+                };
+            }
+
+            if (search.data.results.length === 0) {
+                return {
+                    success: true,
+                    query,
+                    count: 0,
+                    answer: search.data.answer ?? null,
+                    results: [],
+                    message: "No web results found for that query.",
+                };
+            }
+
+            return {
+                success: true,
+                query,
+                count: search.data.results.length,
+                answer: search.data.answer ?? null,
+                response_time_ms: search.data.response_time_ms ?? null,
+                results: search.data.results,
+                citation_hint:
+                    "When using this data in a response, cite the source URLs directly and mention publication dates when available.",
+            };
+        } catch (error) {
+            return {
+                success: false,
+                query,
+                message:
+                    error instanceof Error
+                        ? `Web search failed: ${error.message}`
+                        : "Web search failed unexpectedly.",
+            };
+        }
+    },
+});
+
+export const compareRpiAcrossLgas = tool({
+    description:
+        "Compare the Rental Price Index across multiple LGAs in a city side-by-side. Use this when a tenant wants to compare rent markets across different areas, find the best value LGA, or understand price trends relative to each other.",
+    inputSchema: z.object({
+        city: z.enum(["lagos", "abuja", "port-harcourt"]).describe("City to compare LGAs within"),
+        lgas: z
+            .array(z.string())
+            .min(2)
+            .max(6)
+            .describe("2–6 LGA names to compare"),
+        apartment_type: z
+            .enum(["all", "self-contained", "mini-flat", "1-bedroom", "2-bedroom", "3-bedroom", "duplex"])
+            .default("all")
+            .describe("Apartment type to compare; 'all' gives the blended market index"),
+    }),
+    execute: async ({ city, lgas, apartment_type }) => {
+        const supabase = getServiceClient();
+
+        const results = await Promise.all(
+            lgas.map(async (lga) => {
+                const { data } = await supabase.rpc("get_lga_rpi", {
+                    p_city: city,
+                    p_lga: lga,
+                    p_apartment_type: apartment_type,
+                    p_year: null,
+                    p_month: null,
+                });
+
+                const row = data?.[0];
+                if (!row) {
+                    return { lga, found: false };
+                }
+
+                const totalSamples = row.sample_size_hist + row.sample_size_comp;
+                const confidence =
+                    totalSamples >= 30 ? "high" : totalSamples >= 12 ? "medium" : "low";
+
+                return {
+                    lga: row.lga,
+                    found: true,
+                    period: `${row.year}-${String(row.month).padStart(2, "0")}`,
+                    rpi_value: row.rpi_value,
+                    rpi_formatted: formatNaira(Math.round(row.rpi_value)),
+                    trend: row.trend,
+                    trend_percent: row.trend_percent,
+                    confidence,
+                    sample_sizes: {
+                        historical: row.sample_size_hist,
+                        comparable: row.sample_size_comp,
+                        total: totalSamples,
+                    },
+                };
+            }),
+        );
+
+        const found = results.filter((r) => r.found && "rpi_value" in r) as Array<{
+            lga: string;
+            found: true;
+            period: string;
+            rpi_value: number;
+            rpi_formatted: string;
+            trend: string;
+            trend_percent: number;
+            confidence: string;
+            sample_sizes: { historical: number; comparable: number; total: number };
+        }>;
+
+        if (found.length === 0) {
+            return {
+                found: false,
+                message: "No RPI data available for any of the requested LGAs.",
+            };
+        }
+
+        // Sort cheapest to most expensive
+        const ranked = [...found].sort((a, b) => a.rpi_value - b.rpi_value);
+        const cheapest = ranked[0];
+        const mostExpensive = ranked[ranked.length - 1];
+        const spread = mostExpensive.rpi_value - cheapest.rpi_value;
+        const spreadFormatted = formatNaira(Math.round(spread));
+
+        return {
+            city,
+            apartment_type,
+            results: ranked,
+            summary: {
+                lowest_rpi_lga: cheapest.lga,
+                lowest_rpi_value: cheapest.rpi_formatted,
+                highest_rpi_lga: mostExpensive.lga,
+                highest_rpi_value: mostExpensive.rpi_formatted,
+                price_spread: spreadFormatted,
+                trending_up: found.filter((r) => r.trend === "up").map((r) => r.lga),
+                trending_down: found.filter((r) => r.trend === "down").map((r) => r.lga),
+                best_value_lga: cheapest.lga,
+            },
+        };
+    },
+});
+
+export const assessRentVsMarket = tool({
+    description:
+        "Assess whether a specific apartment's rent is fair compared to its LGA's Rental Price Index. Use this after finding apartments to give tenants an honest market assessment — whether a listing is overpriced, fairly priced, or a bargain.",
+    inputSchema: z.object({
+        apartment_id: z.string().uuid().describe("Apartment ID to assess"),
+    }),
+    execute: async ({ apartment_id }) => {
+        const supabase = getServiceClient();
+
+        const { data: apt, error: aptError } = await supabase
+            .from("apartments")
+            .select("id, ppid, title, annual_rent, city, lga, apartment_type, neighborhood")
+            .eq("id", apartment_id)
+            .single();
+
+        if (aptError || !apt) {
+            return { found: false, message: "Apartment not found." };
+        }
+
+        const { data: rpiData } = await supabase.rpc("get_lga_rpi", {
+            p_city: apt.city,
+            p_lga: apt.lga,
+            p_apartment_type: apt.apartment_type,
+            p_year: null,
+            p_month: null,
+        });
+
+        const rpiRow = rpiData?.[0];
+
+        if (!rpiRow) {
+            // Try 'all' types as fallback
+            const { data: rpiAllData } = await supabase.rpc("get_lga_rpi", {
+                p_city: apt.city,
+                p_lga: apt.lga,
+                p_apartment_type: "all",
+                p_year: null,
+                p_month: null,
+            });
+
+            const fallbackRow = rpiAllData?.[0];
+            if (!fallbackRow) {
+                return {
+                    found: true,
+                    apartment_title: apt.title,
+                    annual_rent: apt.annual_rent,
+                    annual_rent_formatted: formatNaira(apt.annual_rent),
+                    rpi_available: false,
+                    message: "No market index data available for this LGA yet.",
+                };
+            }
+
+            const delta = apt.annual_rent - fallbackRow.rpi_value;
+            const pct = (delta / fallbackRow.rpi_value) * 100;
+
+            return buildAssessment(apt, fallbackRow, delta, pct, "all");
+        }
+
+        const delta = apt.annual_rent - rpiRow.rpi_value;
+        const pct = (delta / rpiRow.rpi_value) * 100;
+
+        return buildAssessment(apt, rpiRow, delta, pct, apt.apartment_type);
+    },
+});
+
+function buildAssessment(
+    apt: { id: string; ppid: string; title: string; annual_rent: number; city: string; lga: string; apartment_type: string; neighborhood: string },
+    rpiRow: { rpi_value: number; trend: string; trend_percent: number; year: number; month: number; sample_size_hist: number; sample_size_comp: number },
+    delta: number,
+    pct: number,
+    indexType: string,
+): Record<string, unknown> {
+    const totalSamples = rpiRow.sample_size_hist + rpiRow.sample_size_comp;
+    const confidence = totalSamples >= 30 ? "high" : totalSamples >= 12 ? "medium" : "low";
+
+    let verdict: string;
+    let explanation: string;
+
+    if (Math.abs(pct) <= 5) {
+        verdict = "fairly_priced";
+        explanation = `The asking rent of ${formatNaira(apt.annual_rent)} is within 5% of the ${apt.lga} LGA market index (${formatNaira(Math.round(rpiRow.rpi_value))}). This is a fair market price.`;
+    } else if (pct < -5 && pct >= -20) {
+        verdict = "good_value";
+        explanation = `The asking rent is ${Math.abs(pct).toFixed(0)}% below the ${apt.lga} LGA market index — this represents good value.`;
+    } else if (pct < -20) {
+        verdict = "exceptional_value";
+        explanation = `The asking rent is ${Math.abs(pct).toFixed(0)}% below the LGA market index — an exceptional deal. Verify conditions and lease terms carefully.`;
+    } else if (pct > 5 && pct <= 20) {
+        verdict = "slightly_above_market";
+        explanation = `The asking rent is ${pct.toFixed(0)}% above the ${apt.lga} LGA market index. This is slightly premium — may be justified by amenities or location within the LGA.`;
+    } else {
+        verdict = "significantly_overpriced";
+        explanation = `The asking rent is ${pct.toFixed(0)}% above the LGA market index. This is significantly above market rate — consider negotiating or looking at alternatives.`;
+    }
+
+    return {
+        found: true,
+        rpi_available: true,
+        apartment_title: apt.title,
+        ppid: apt.ppid,
+        annual_rent: apt.annual_rent,
+        annual_rent_formatted: formatNaira(apt.annual_rent),
+        lga_rpi_value: rpiRow.rpi_value,
+        lga_rpi_formatted: formatNaira(Math.round(rpiRow.rpi_value)),
+        index_type: indexType,
+        period: `${rpiRow.year}-${String(rpiRow.month).padStart(2, "0")}`,
+        difference: delta,
+        difference_formatted: `${delta >= 0 ? "+" : ""}${formatNaira(Math.round(Math.abs(delta)))}`,
+        percent_vs_market: `${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%`,
+        verdict,
+        explanation,
+        market_trend: rpiRow.trend,
+        market_trend_percent: rpiRow.trend_percent,
+        confidence,
+        recommendation: verdict === "fairly_priced" || verdict === "good_value" || verdict === "exceptional_value"
+            ? "Recommend proceeding if other criteria match."
+            : "Consider negotiating the rent or asking Victoria to find alternatives in the same LGA.",
+    };
+}
+
 export const agentTools = {
     searchApartments,
     semanticSearchApartments,
     semanticSearchKnowledge,
+    webSearch,
     getRentalPriceIndex,
+    compareRpiAcrossLgas,
+    assessRentVsMarket,
     getApartmentDetails,
     checkAffordability,
     getNeighborhoodInfo,
