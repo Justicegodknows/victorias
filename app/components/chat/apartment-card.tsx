@@ -1,6 +1,7 @@
 import { APARTMENT_TYPE_LABELS, AMENITY_LABELS } from "@/app/lib/data/neighborhoods";
 
 export type ApartmentCardData = {
+    ppid?: string;
     title: string;
     apartment_type: string;
     annual_rent: string | number;
@@ -52,6 +53,11 @@ export function ApartmentCard({ apartment }: ApartmentCardProps): React.ReactEle
                     <h4 className="font-[family-name:var(--font-geist-sans)] font-bold text-sm text-zinc-900 dark:text-zinc-50">
                         {apartment.title}
                     </h4>
+                    {apartment.ppid && (
+                        <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-400">
+                            {apartment.ppid}
+                        </p>
+                    )}
                     <p className="text-xs text-zinc-500 dark:text-zinc-400">
                         {apartment.neighborhood}, {apartment.city}
                     </p>

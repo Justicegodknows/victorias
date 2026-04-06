@@ -46,6 +46,7 @@ export type Profile = {
 
 export type Apartment = {
     id: string;
+    ppid: string;
     landlord_id: string;
     title: string;
     description: string;
@@ -147,6 +148,7 @@ export type Database = {
                 Insert: Omit<
                     Apartment,
                     | "id"
+                    | "ppid"
                     | "created_at"
                     | "updated_at"
                     | "total_upfront_cost"

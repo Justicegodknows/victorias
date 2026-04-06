@@ -11,6 +11,7 @@ export default async function LandlordDashboard(): Promise<React.ReactElement> {
 
     type LandlordListingRow = {
         id: string;
+        ppid: string;
         title: string;
         apartment_type: string;
         annual_rent: number;
@@ -25,7 +26,7 @@ export default async function LandlordDashboard(): Promise<React.ReactElement> {
     const { data: apartments } = await supabase
         .from("apartments")
         .select(`
-      id, title, apartment_type, annual_rent, city, neighborhood,
+            id, ppid, title, apartment_type, annual_rent, city, neighborhood,
       is_available, is_verified, created_at,
       apartment_images(image_url, is_primary)
     `)
@@ -103,6 +104,7 @@ export default async function LandlordDashboard(): Promise<React.ReactElement> {
                                             </span>
                                         </div>
                                         <h3 className="text-xl md:text-2xl font-bold tracking-tight text-[#1a1b22] dark:text-zinc-50 mb-1">{apt.title}</h3>
+                                        <p className="mb-1 text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-400">{apt.ppid}</p>
                                         <p className="text-zinc-500 flex items-center gap-1">
                                             📍 {apt.neighborhood}, {CITY_LABELS[apt.city as keyof typeof CITY_LABELS]}
                                         </p>

@@ -18,6 +18,7 @@ export default async function ApartmentDetailPage({
 
     type ApartmentDetail = {
         id: string;
+        ppid: string;
         title: string;
         description: string;
         apartment_type: string;
@@ -100,6 +101,7 @@ export default async function ApartmentDetailPage({
                             {APARTMENT_TYPE_LABELS[apartment.apartment_type as keyof typeof APARTMENT_TYPE_LABELS]}
                         </span>
                         <h1 className="font-[family-name:var(--font-manrope)] text-3xl font-bold text-[#1a1b22] dark:text-zinc-50 mt-2">{apartment.title}</h1>
+                        <p className="mt-1 text-[11px] font-mono uppercase tracking-[0.2em] text-zinc-400">{apartment.ppid}</p>
                         <p className="mt-2 text-[#3e4a3d] dark:text-zinc-400">
                             {apartment.neighborhood}, {apartment.lga}, {CITY_LABELS[apartment.city as keyof typeof CITY_LABELS]}
                         </p>

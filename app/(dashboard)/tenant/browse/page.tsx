@@ -21,6 +21,7 @@ export default async function BrowsePage({
 
     type BrowseApartment = {
         id: string;
+        ppid: string;
         title: string;
         apartment_type: string;
         annual_rent: number;
@@ -36,7 +37,7 @@ export default async function BrowsePage({
     let query = supabase
         .from("apartments")
         .select(`
-      id, title, apartment_type, annual_rent, total_upfront_cost,
+            id, ppid, title, apartment_type, annual_rent, total_upfront_cost,
       city, neighborhood, lga,
       apartment_images(image_url, is_primary),
       apartment_amenities(amenity),
@@ -151,6 +152,7 @@ export default async function BrowsePage({
                                     <h3 className="font-[family-name:var(--font-geist-sans)] font-bold text-[#1a1b22] dark:text-zinc-50 group-hover:text-[#006b2c] dark:group-hover:text-emerald-400 transition-colors">
                                         {apt.title}
                                     </h3>
+                                    <p className="mt-1 text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-400">{apt.ppid}</p>
                                     <p className="mt-1 text-sm text-[#3e4a3d] dark:text-zinc-400">
                                         {APARTMENT_TYPE_LABELS[apt.apartment_type as keyof typeof APARTMENT_TYPE_LABELS]} · {apt.neighborhood}, {CITY_LABELS[apt.city as keyof typeof CITY_LABELS]}
                                     </p>

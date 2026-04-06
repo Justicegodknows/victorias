@@ -17,6 +17,7 @@ export default async function ListingDetailPage({
 
     type LandlordApartmentDetail = {
         id: string;
+        ppid: string;
         title: string;
         description: string;
         apartment_type: string;
@@ -82,6 +83,7 @@ export default async function ListingDetailPage({
             <div className="flex items-start justify-between">
                 <div>
                     <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{apartment.title}</h1>
+                    <p className="mt-1 text-[11px] font-mono uppercase tracking-[0.2em] text-zinc-400">{apartment.ppid}</p>
                     <p className="mt-1 text-zinc-500 dark:text-zinc-400">
                         {APARTMENT_TYPE_LABELS[apartment.apartment_type as keyof typeof APARTMENT_TYPE_LABELS]} · {apartment.neighborhood}, {CITY_LABELS[apartment.city as keyof typeof CITY_LABELS]}
                     </p>

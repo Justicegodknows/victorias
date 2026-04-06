@@ -79,6 +79,7 @@ export const searchApartments = tool({
 
         const results = filtered.map((apt) => ({
             id: apt.id,
+            ppid: apt.ppid,
             title: apt.title,
             apartment_type: apt.apartment_type,
             annual_rent: formatNaira(apt.annual_rent),

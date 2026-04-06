@@ -11,9 +11,9 @@ export default async function InquiriesPage(): Promise<React.ReactElement> {
     // Get all apartments by this landlord
     const { data: apartments } = await supabase
         .from("apartments")
-        .select("id, title, city, neighborhood, apartment_type, annual_rent")
+        .select("id, ppid, title, city, neighborhood, apartment_type, annual_rent")
         .eq("landlord_id", user!.id)
-        .returns<Array<{ id: string; title: string; city: string; neighborhood: string; apartment_type: string; annual_rent: number }>>();
+        .returns<Array<{ id: string; ppid: string; title: string; city: string; neighborhood: string; apartment_type: string; annual_rent: number }>>();
 
     const apartmentIds = apartments?.map((a) => a.id) ?? [];
 
@@ -95,6 +95,9 @@ export default async function InquiriesPage(): Promise<React.ReactElement> {
                                                     <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
                                                         Re: <span className="text-[#006b2c] dark:text-emerald-400 font-semibold">{apt.title}</span> — {APARTMENT_TYPE_LABELS[apt.apartment_type as keyof typeof APARTMENT_TYPE_LABELS]}, {apt.neighborhood}, {CITY_LABELS[apt.city as keyof typeof CITY_LABELS]} ({formatNaira(apt.annual_rent)}/yr)
                                                     </p>
+                                                )}
+                                                {apt && (
+                                                    <p className="mt-0.5 text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-400">{apt.ppid}</p>
                                                 )}
                                             </div>
                                         </div>
