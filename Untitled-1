@@ -1,0 +1,3 @@
+Client (useChat) → POST /api/chat → getModel() → streamText() with 12 tools
+                                   → retrieveContext() → generateEmbedding() → Supabase RPCs
+                                   → SYSTEM_PROMPT with RAG context injection
