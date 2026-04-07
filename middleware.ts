@@ -1,7 +1,7 @@
 import { type NextRequest } from "next/server";
 import { updateSession } from "@/app/lib/supabase/middleware";
 
-export async function proxy(request: NextRequest): Promise<ReturnType<typeof updateSession>> {
+export async function middleware(request: NextRequest): Promise<ReturnType<typeof updateSession>> {
     return updateSession(request);
 }
 
