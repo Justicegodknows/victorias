@@ -71,8 +71,8 @@ export function ChatInterface(): React.ReactElement {
                         >
                             <div
                                 className={`max-w-[85%] md:max-w-[80%] text-sm leading-relaxed ${message.role === "user"
-                                        ? "bg-[#006b2c] px-6 py-4 rounded-2xl rounded-tr-none text-white shadow-lg"
-                                        : "flex flex-col gap-4"
+                                    ? "bg-[#006b2c] px-6 py-4 rounded-2xl rounded-tr-none text-white shadow-lg"
+                                    : "flex flex-col gap-4"
                                     }`}
                             >
                                 {message.parts.map((part, i) => {
@@ -107,8 +107,8 @@ export function ChatInterface(): React.ReactElement {
                                                 <div
                                                     key={i}
                                                     className={`rounded-2xl p-4 ${affordable
-                                                            ? "bg-[#baecbc] dark:bg-emerald-950 text-emerald-900 dark:text-emerald-300"
-                                                            : "bg-[#ffdad6] dark:bg-red-950 text-[#93000a] dark:text-red-300"
+                                                        ? "bg-[#baecbc] dark:bg-emerald-950 text-emerald-900 dark:text-emerald-300"
+                                                        : "bg-[#ffdad6] dark:bg-red-950 text-[#93000a] dark:text-red-300"
                                                         }`}
                                                 >
                                                     <div className="flex items-center gap-2 mb-1">
@@ -142,7 +142,7 @@ export function ChatInterface(): React.ReactElement {
 
                     {error && (
                         <div className="rounded-2xl bg-[#ffdad6] dark:bg-red-950 p-4 text-sm text-[#93000a] dark:text-red-300">
-                            Something went wrong. Please try again.
+                            <p>{error.message || "Something went wrong. Please try again."}</p>
                         </div>
                     )}
 

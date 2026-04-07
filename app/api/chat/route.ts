@@ -12,7 +12,7 @@ export async function POST(req: Request): Promise<Response> {
     } = await supabase.auth.getUser();
 
     if (!user) {
-        return new Response("Unauthorized", { status: 401 });
+        return new Response("Please sign in to use the chat.", { status: 401 });
     }
 
     const { messages } = (await req.json()) as { messages: UIMessage[] };
@@ -40,9 +40,20 @@ export async function POST(req: Request): Promise<Response> {
         ? `${SYSTEM_PROMPT}\n\n---\n\n# Retrieved Context\nThe following information was retrieved from the knowledge base based on the user's latest message. Use it to provide more accurate and relevant responses, but always verify with your tools before presenting listings.\n\n${ragContext}`
         : SYSTEM_PROMPT;
 
+    let model;
+    try {
+        model = getModel();
+    } catch (error) {
+        console.error("[Chat] No AI provider configured:", error);
+        return new Response(
+            "No AI provider is configured. Please set HUGGINGFACE_API_KEY in your environment.",
+            { status: 502 },
+        );
+    }
+
     try {
         const result = streamText({
-            model: getModel(),
+            model,
             system: systemPrompt,
             messages: modelMessages,
             tools: agentTools,
@@ -56,14 +67,18 @@ export async function POST(req: Request): Promise<Response> {
                     );
                 }
             },
+            onError({ error }) {
+                console.error("[Chat] Streaming error:", error);
+            },
         });
 
         return result.toUIMessageStreamResponse();
     } catch (error) {
         console.error("[Chat] streamText failed:", error);
+        const message = error instanceof Error ? error.message : "AI provider unavailable.";
         return new Response(
-            JSON.stringify({ error: "AI provider unavailable. Please try again later." }),
-            { status: 502, headers: { "Content-Type": "application/json" } },
+            `AI error: ${message}`,
+            { status: 502 },
         );
     }
 }
