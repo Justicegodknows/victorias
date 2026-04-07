@@ -154,7 +154,7 @@ export default async function ListingDetailPage({
             {images.length > 0 && (
                 <div className="mt-6 flex gap-2 overflow-x-auto rounded-xl">
                     {images.map((img, i) => (
-                        <div key={i} className="h-48 w-64 flex-shrink-0 overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-700">
+                        <div key={i} className="h-48 w-64 shrink-0 overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-700">
                             <img src={img.image_url} alt="" className="h-full w-full object-cover" />
                         </div>
                     ))}

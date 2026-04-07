@@ -257,7 +257,7 @@ export default function NewListingPage(): React.ReactElement {
     return (
         <div className="mx-auto w-full max-w-4xl">
             <div className="mb-12">
-                <h1 className="font-[family-name:var(--font-geist-sans)] text-4xl font-black tracking-tight text-[#1a1b22] dark:text-zinc-50 mb-2">Create New Listing</h1>
+                <h1 className="font-(family-name:--font-geist-sans) text-4xl font-black tracking-tight text-[#1a1b22] dark:text-zinc-50 mb-2">Create New Listing</h1>
                 <p className="text-[#3e4a3d] dark:text-zinc-400 font-medium">Curate your property for Victoria&apos;s premium audience.</p>
             </div>
 
@@ -294,15 +294,15 @@ export default function NewListingPage(): React.ReactElement {
                             <div className="w-10 h-10 rounded-xl bg-[#006b2c]/10 flex items-center justify-center text-[#006b2c]">
                                 📝
                             </div>
-                            <h3 className="text-xl font-[family-name:var(--font-geist-sans)] font-bold text-[#1a1b22] dark:text-zinc-50">Basic Information</h3>
+                            <h3 className="text-xl font-(family-name:--font-geist-sans) font-bold text-[#1a1b22] dark:text-zinc-50">Basic Information</h3>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-8 bg-[#f4f2fd] dark:bg-zinc-900 rounded-3xl">
                             <div className="md:col-span-2">
-                                <label htmlFor="title" className="block text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em] text-zinc-500 mb-2">Listing Title</label>
+                                <label htmlFor="title" className="block text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-500 mb-2">Listing Title</label>
                                 <input id="title" type="text" required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g., Minimalist Ocean View Villa" className="w-full bg-white dark:bg-zinc-800 border-0 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#006b2c] shadow-sm dark:text-zinc-50" />
                             </div>
                             <div>
-                                <label htmlFor="type" className="block text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em] text-zinc-500 mb-2">Property Type</label>
+                                <label htmlFor="type" className="block text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-500 mb-2">Property Type</label>
                                 <select id="type" value={apartmentType} onChange={(e) => setApartmentType(e.target.value as ApartmentType)} className="w-full bg-white dark:bg-zinc-800 border-0 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#006b2c] shadow-sm dark:text-zinc-50">
                                     {Object.entries(APARTMENT_TYPE_LABELS).map(([val, label]) => (
                                         <option key={val} value={val}>{label}</option>
@@ -310,19 +310,19 @@ export default function NewListingPage(): React.ReactElement {
                                 </select>
                             </div>
                             <div>
-                                <label htmlFor="rent" className="block text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em] text-zinc-500 mb-2">Annual Rent (₦)</label>
-                                <input id="rent" type="number" required value={annualRent} onChange={(e) => setAnnualRent(e.target.value)} placeholder="e.g., 1500000" className="w-full bg-white dark:bg-zinc-800 border-0 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#006b2c] shadow-sm font-[family-name:var(--font-geist-mono)] dark:text-zinc-50" />
+                                <label htmlFor="rent" className="block text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-500 mb-2">Annual Rent (₦)</label>
+                                <input id="rent" type="number" required value={annualRent} onChange={(e) => setAnnualRent(e.target.value)} placeholder="e.g., 1500000" className="w-full bg-white dark:bg-zinc-800 border-0 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#006b2c] shadow-sm font-mono dark:text-zinc-50" />
                             </div>
                             <div>
-                                <label htmlFor="deposit" className="block text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em] text-zinc-500 mb-2">Caution Deposit (₦)</label>
-                                <input id="deposit" type="number" value={deposit} onChange={(e) => setDeposit(e.target.value)} placeholder="0" className="w-full bg-white dark:bg-zinc-800 border-0 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#006b2c] shadow-sm font-[family-name:var(--font-geist-mono)] dark:text-zinc-50" />
+                                <label htmlFor="deposit" className="block text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-500 mb-2">Caution Deposit (₦)</label>
+                                <input id="deposit" type="number" value={deposit} onChange={(e) => setDeposit(e.target.value)} placeholder="0" className="w-full bg-white dark:bg-zinc-800 border-0 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#006b2c] shadow-sm font-mono dark:text-zinc-50" />
                             </div>
                             <div>
-                                <label htmlFor="agentFee" className="block text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em] text-zinc-500 mb-2">Agent Fee (₦)</label>
-                                <input id="agentFee" type="number" value={agentFee} onChange={(e) => setAgentFee(e.target.value)} placeholder="0" className="w-full bg-white dark:bg-zinc-800 border-0 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#006b2c] shadow-sm font-[family-name:var(--font-geist-mono)] dark:text-zinc-50" />
+                                <label htmlFor="agentFee" className="block text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-500 mb-2">Agent Fee (₦)</label>
+                                <input id="agentFee" type="number" value={agentFee} onChange={(e) => setAgentFee(e.target.value)} placeholder="0" className="w-full bg-white dark:bg-zinc-800 border-0 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#006b2c] shadow-sm font-mono dark:text-zinc-50" />
                             </div>
                             <div className="md:col-span-2">
-                                <label htmlFor="description" className="block text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em] text-zinc-500 mb-2">Editorial Description</label>
+                                <label htmlFor="description" className="block text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-500 mb-2">Editorial Description</label>
                                 <textarea id="description" rows={4} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe the soul of this property..." className="w-full bg-white dark:bg-zinc-800 border-0 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#006b2c] shadow-sm dark:text-zinc-50" />
                             </div>
 
@@ -372,11 +372,11 @@ export default function NewListingPage(): React.ReactElement {
                             <div className="w-10 h-10 rounded-xl bg-[#006b2c]/10 flex items-center justify-center text-[#006b2c]">
                                 📍
                             </div>
-                            <h3 className="text-xl font-[family-name:var(--font-geist-sans)] font-bold text-[#1a1b22] dark:text-zinc-50">Location Details</h3>
+                            <h3 className="text-xl font-(family-name:--font-geist-sans) font-bold text-[#1a1b22] dark:text-zinc-50">Location Details</h3>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-8 bg-[#f4f2fd] dark:bg-zinc-900 rounded-3xl">
                             <div>
-                                <label htmlFor="city" className="block text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em] text-zinc-500 mb-2">City</label>
+                                <label htmlFor="city" className="block text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-500 mb-2">City</label>
                                 <select id="city" value={city} onChange={(e) => setCity(e.target.value as City)} className="w-full bg-white dark:bg-zinc-800 border-0 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#006b2c] shadow-sm dark:text-zinc-50">
                                     {Object.entries(CITY_LABELS).map(([val, label]) => (
                                         <option key={val} value={val}>{label}</option>
@@ -384,15 +384,15 @@ export default function NewListingPage(): React.ReactElement {
                                 </select>
                             </div>
                             <div>
-                                <label htmlFor="lga" className="block text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em] text-zinc-500 mb-2">Local Government Area</label>
+                                <label htmlFor="lga" className="block text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-500 mb-2">Local Government Area</label>
                                 <input id="lga" type="text" value={lga} onChange={(e) => setLga(e.target.value)} placeholder="e.g., Eti-Osa" className="w-full bg-white dark:bg-zinc-800 border-0 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#006b2c] shadow-sm dark:text-zinc-50" />
                             </div>
                             <div>
-                                <label htmlFor="neighborhood" className="block text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em] text-zinc-500 mb-2">Neighborhood</label>
+                                <label htmlFor="neighborhood" className="block text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-500 mb-2">Neighborhood</label>
                                 <input id="neighborhood" type="text" value={neighborhood} onChange={(e) => setNeighborhood(e.target.value)} placeholder="e.g., Lekki Phase 1" className="w-full bg-white dark:bg-zinc-800 border-0 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#006b2c] shadow-sm dark:text-zinc-50" />
                             </div>
                             <div>
-                                <label htmlFor="address" className="block text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em] text-zinc-500 mb-2">Full Address</label>
+                                <label htmlFor="address" className="block text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-500 mb-2">Full Address</label>
                                 <input id="address" type="text" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="e.g., Banana Island, Road 3" className="w-full bg-white dark:bg-zinc-800 border-0 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#006b2c] shadow-sm dark:text-zinc-50" />
                             </div>
                         </div>
@@ -419,7 +419,7 @@ export default function NewListingPage(): React.ReactElement {
                             <div className="w-10 h-10 rounded-xl bg-[#006b2c]/10 flex items-center justify-center text-[#006b2c]">
                                 🏊
                             </div>
-                            <h3 className="text-xl font-[family-name:var(--font-geist-sans)] font-bold text-[#1a1b22] dark:text-zinc-50">Premium Amenities</h3>
+                            <h3 className="text-xl font-(family-name:--font-geist-sans) font-bold text-[#1a1b22] dark:text-zinc-50">Premium Amenities</h3>
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 p-8 bg-[#f4f2fd] dark:bg-zinc-900 rounded-3xl">
                             {(Object.entries(AMENITY_LABELS) as [Amenity, string][]).map(([key, label]) => (
@@ -447,11 +447,11 @@ export default function NewListingPage(): React.ReactElement {
                             <div className="w-10 h-10 rounded-xl bg-[#006b2c]/10 flex items-center justify-center text-[#006b2c]">
                                 🌿
                             </div>
-                            <h3 className="text-xl font-[family-name:var(--font-geist-sans)] font-bold text-[#1a1b22] dark:text-zinc-50">Environmental Integrity</h3>
+                            <h3 className="text-xl font-(family-name:--font-geist-sans) font-bold text-[#1a1b22] dark:text-zinc-50">Environmental Integrity</h3>
                         </div>
                         <div className="p-8 bg-[#f4f2fd] dark:bg-zinc-900 rounded-3xl space-y-6">
                             <div>
-                                <label className="block text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em] text-zinc-500 mb-3">Flood Risk</label>
+                                <label className="block text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-500 mb-3">Flood Risk</label>
                                 <div className="flex gap-3">
                                     {(["low", "medium", "high"] as FloodRisk[]).map((risk) => (
                                         <button key={risk} type="button" onClick={() => setFloodRisk(risk)} className={`flex-1 rounded-xl py-3 text-sm font-bold capitalize transition-all ${floodRisk === risk
@@ -472,7 +472,7 @@ export default function NewListingPage(): React.ReactElement {
                                 { label: "Road Condition", value: roadRating, setter: setRoadRating },
                             ].map(({ label, value, setter }) => (
                                 <div key={label}>
-                                    <label className="block text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em] text-zinc-500 mb-3">{label}</label>
+                                    <label className="block text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-500 mb-3">{label}</label>
                                     <div className="flex gap-2">
                                         {([1, 2, 3, 4, 5] as const).map((rating) => (
                                             <button key={rating} type="button" onClick={() => setter(rating)} className={`h-10 w-12 rounded-xl text-sm font-bold transition-all ${rating <= value ? "bg-[#006b2c] text-white shadow-sm" : "bg-white dark:bg-zinc-800 text-zinc-400"
@@ -485,19 +485,19 @@ export default function NewListingPage(): React.ReactElement {
                             ))}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
                                 <div>
-                                    <label htmlFor="busStop" className="block text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em] text-zinc-500 mb-2">Nearest Bus Stop</label>
+                                    <label htmlFor="busStop" className="block text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-500 mb-2">Nearest Bus Stop</label>
                                     <input id="busStop" type="text" value={nearestBusStop} onChange={(e) => setNearestBusStop(e.target.value)} className="w-full bg-white dark:bg-zinc-800 border-0 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#006b2c] shadow-sm dark:text-zinc-50" />
                                 </div>
                                 <div>
-                                    <label htmlFor="market" className="block text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em] text-zinc-500 mb-2">Nearest Market</label>
+                                    <label htmlFor="market" className="block text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-500 mb-2">Nearest Market</label>
                                     <input id="market" type="text" value={nearestMarket} onChange={(e) => setNearestMarket(e.target.value)} className="w-full bg-white dark:bg-zinc-800 border-0 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#006b2c] shadow-sm dark:text-zinc-50" />
                                 </div>
                                 <div>
-                                    <label htmlFor="hospital" className="block text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em] text-zinc-500 mb-2">Nearest Hospital</label>
+                                    <label htmlFor="hospital" className="block text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-500 mb-2">Nearest Hospital</label>
                                     <input id="hospital" type="text" value={nearestHospital} onChange={(e) => setNearestHospital(e.target.value)} className="w-full bg-white dark:bg-zinc-800 border-0 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#006b2c] shadow-sm dark:text-zinc-50" />
                                 </div>
                                 <div>
-                                    <label htmlFor="traffic" className="block text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.3em] text-zinc-500 mb-2">Traffic Notes</label>
+                                    <label htmlFor="traffic" className="block text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-500 mb-2">Traffic Notes</label>
                                     <input id="traffic" type="text" value={trafficNotes} onChange={(e) => setTrafficNotes(e.target.value)} placeholder="Any traffic-related info..." className="w-full bg-white dark:bg-zinc-800 border-0 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#006b2c] shadow-sm dark:text-zinc-50" />
                                 </div>
                             </div>
@@ -512,13 +512,13 @@ export default function NewListingPage(): React.ReactElement {
                             <div className="w-10 h-10 rounded-xl bg-[#006b2c]/10 flex items-center justify-center text-[#006b2c]">
                                 📸
                             </div>
-                            <h3 className="text-xl font-[family-name:var(--font-geist-sans)] font-bold text-[#1a1b22] dark:text-zinc-50">Visual Assets</h3>
+                            <h3 className="text-xl font-(family-name:--font-geist-sans) font-bold text-[#1a1b22] dark:text-zinc-50">Visual Assets</h3>
                         </div>
                         <label className="border-2 border-dashed border-[#bdcaba] dark:border-zinc-600 rounded-3xl p-12 flex flex-col items-center justify-center text-center group hover:border-[#006b2c] transition-colors cursor-pointer bg-white/50 dark:bg-zinc-800/50">
                             <div className="w-16 h-16 rounded-full bg-[#006b2c]/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                                 <span className="text-4xl">☁️</span>
                             </div>
-                            <p className="text-lg font-[family-name:var(--font-geist-sans)] font-bold text-[#1a1b22] dark:text-zinc-50 mb-1">Drag and drop your high-res gallery</p>
+                            <p className="text-lg font-(family-name:--font-geist-sans) font-bold text-[#1a1b22] dark:text-zinc-50 mb-1">Drag and drop your high-res gallery</p>
                             <p className="text-sm text-zinc-400">First photo will be the cover image. JPEG, PNG, or WebP. Max 5MB each.</p>
                             <input
                                 type="file"
@@ -561,7 +561,7 @@ export default function NewListingPage(): React.ReactElement {
                         <div />
                     )}
                     {step < 5 ? (
-                        <button type="button" onClick={() => setStep((step + 1) as Step)} className="bg-[#1a1b22] dark:bg-zinc-800 text-white px-8 py-3 rounded-xl font-[family-name:var(--font-geist-sans)] font-bold hover:opacity-90 transition-opacity">
+                        <button type="button" onClick={() => setStep((step + 1) as Step)} className="bg-[#1a1b22] dark:bg-zinc-800 text-white px-8 py-3 rounded-xl font-(family-name:--font-geist-sans) font-bold hover:opacity-90 transition-opacity">
                             Next →
                         </button>
                     ) : (
@@ -569,7 +569,7 @@ export default function NewListingPage(): React.ReactElement {
                             type="button"
                             onClick={handleSubmit}
                             disabled={loading || uploading || !title || !annualRent}
-                            className="btn-primary-gradient text-white px-8 py-3 rounded-xl font-[family-name:var(--font-geist-sans)] font-bold shadow-lg shadow-[#006b2c]/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
+                            className="btn-primary-gradient text-white px-8 py-3 rounded-xl font-(family-name:--font-geist-sans) font-bold shadow-lg shadow-[#006b2c]/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
                         >
                             {uploading ? "Uploading photos..." : loading ? "Publishing..." : "Publish to Victoria's"}
                         </button>

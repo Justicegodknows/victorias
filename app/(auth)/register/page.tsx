@@ -160,7 +160,7 @@ export default function RegisterPage(): React.ReactElement {
 
                 <form onSubmit={handleRegister} className="space-y-6">
                     <div>
-                        <label htmlFor="fullName" className="block text-xs font-(family-name:--font-geist-mono) uppercase tracking-[0.2em] text-[#3e4a3d] dark:text-zinc-400 mb-2 ml-1">
+                        <label htmlFor="fullName" className="block text-xs font-mono uppercase tracking-[0.2em] text-[#3e4a3d] dark:text-zinc-400 mb-2 ml-1">
                             Full Name
                         </label>
                         <input
@@ -175,7 +175,7 @@ export default function RegisterPage(): React.ReactElement {
                     </div>
 
                     <div>
-                        <label htmlFor="registerEmail" className="block text-xs font-(family-name:--font-geist-mono) uppercase tracking-[0.2em] text-[#3e4a3d] dark:text-zinc-400 mb-2 ml-1">
+                        <label htmlFor="registerEmail" className="block text-xs font-mono uppercase tracking-[0.2em] text-[#3e4a3d] dark:text-zinc-400 mb-2 ml-1">
                             Email Address
                         </label>
                         <input
@@ -190,7 +190,7 @@ export default function RegisterPage(): React.ReactElement {
                     </div>
 
                     <div>
-                        <label htmlFor="registerPassword" className="block text-xs font-(family-name:--font-geist-mono) uppercase tracking-[0.2em] text-[#3e4a3d] dark:text-zinc-400 mb-2 ml-1">
+                        <label htmlFor="registerPassword" className="block text-xs font-mono uppercase tracking-[0.2em] text-[#3e4a3d] dark:text-zinc-400 mb-2 ml-1">
                             Password
                         </label>
                         <input
@@ -209,7 +209,7 @@ export default function RegisterPage(): React.ReactElement {
                     {role === "tenant" && (
                         <>
                             <div>
-                                <label htmlFor="nin" className="block text-xs font-(family-name:--font-geist-mono) uppercase tracking-[0.2em] text-[#3e4a3d] dark:text-zinc-400 mb-2 ml-1">
+                                <label htmlFor="nin" className="block text-xs font-mono uppercase tracking-[0.2em] text-[#3e4a3d] dark:text-zinc-400 mb-2 ml-1">
                                     NIN (11 Digits)
                                 </label>
                                 <input
@@ -226,7 +226,7 @@ export default function RegisterPage(): React.ReactElement {
                             </div>
 
                             <div>
-                                <label htmlFor="bvn" className="block text-xs font-(family-name:--font-geist-mono) uppercase tracking-[0.2em] text-[#3e4a3d] dark:text-zinc-400 mb-2 ml-1">
+                                <label htmlFor="bvn" className="block text-xs font-mono uppercase tracking-[0.2em] text-[#3e4a3d] dark:text-zinc-400 mb-2 ml-1">
                                     BVN (11 Digits)
                                 </label>
                                 <input
@@ -243,7 +243,7 @@ export default function RegisterPage(): React.ReactElement {
                             </div>
 
                             <div>
-                                <label htmlFor="governmentIdType" className="block text-xs font-(family-name:--font-geist-mono) uppercase tracking-[0.2em] text-[#3e4a3d] dark:text-zinc-400 mb-2 ml-1">
+                                <label htmlFor="governmentIdType" className="block text-xs font-mono uppercase tracking-[0.2em] text-[#3e4a3d] dark:text-zinc-400 mb-2 ml-1">
                                     Government ID Type (Optional)
                                 </label>
                                 <select
@@ -259,7 +259,7 @@ export default function RegisterPage(): React.ReactElement {
                             </div>
 
                             <div>
-                                <label htmlFor="governmentIdNumber" className="block text-xs font-(family-name:--font-geist-mono) uppercase tracking-[0.2em] text-[#3e4a3d] dark:text-zinc-400 mb-2 ml-1">
+                                <label htmlFor="governmentIdNumber" className="block text-xs font-mono uppercase tracking-[0.2em] text-[#3e4a3d] dark:text-zinc-400 mb-2 ml-1">
                                     Government ID Number (Optional)
                                 </label>
                                 <input

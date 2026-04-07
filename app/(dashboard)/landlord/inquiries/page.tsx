@@ -42,7 +42,7 @@ export default async function InquiriesPage(): Promise<React.ReactElement> {
         <div className="mx-auto w-full max-w-6xl">
             {/* Header */}
             <div className="mb-12">
-                <h1 className="font-[family-name:var(--font-geist-sans)] text-4xl font-black tracking-tight text-[#1a1b22] dark:text-zinc-50 mb-2">Inquiries</h1>
+                <h1 className="font-(family-name:--font-geist-sans) text-4xl font-black tracking-tight text-[#1a1b22] dark:text-zinc-50 mb-2">Inquiries</h1>
                 <p className="text-zinc-500 dark:text-zinc-400 max-w-lg">Manage your property inquiries and tenant communication through Victoria&apos;s curated workspace.</p>
             </div>
 
@@ -50,19 +50,19 @@ export default async function InquiriesPage(): Promise<React.ReactElement> {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
                 <div className="bg-[#f4f2fd] dark:bg-zinc-900 p-6 rounded-3xl relative overflow-hidden group">
                     <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-zinc-500 mb-2">Pending</p>
-                    <h3 className="font-[family-name:var(--font-geist-sans)] text-3xl font-black text-[#1a1b22] dark:text-zinc-50">
+                    <h3 className="font-(family-name:--font-geist-sans) text-3xl font-black text-[#1a1b22] dark:text-zinc-50">
                         {inquiries?.filter((i) => i.status === "pending").length ?? 0}
                     </h3>
                 </div>
                 <div className="bg-[#f4f2fd] dark:bg-zinc-900 p-6 rounded-3xl relative overflow-hidden group">
                     <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-zinc-500 mb-2">Responded</p>
-                    <h3 className="font-[family-name:var(--font-geist-sans)] text-3xl font-black text-[#1a1b22] dark:text-zinc-50">
+                    <h3 className="font-(family-name:--font-geist-sans) text-3xl font-black text-[#1a1b22] dark:text-zinc-50">
                         {inquiries?.filter((i) => i.status === "responded").length ?? 0}
                     </h3>
                 </div>
                 <div className="bg-[#f4f2fd] dark:bg-zinc-900 p-6 rounded-3xl relative overflow-hidden group">
                     <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-zinc-500 mb-2">Total</p>
-                    <h3 className="font-[family-name:var(--font-geist-sans)] text-3xl font-black text-[#1a1b22] dark:text-zinc-50">
+                    <h3 className="font-(family-name:--font-geist-sans) text-3xl font-black text-[#1a1b22] dark:text-zinc-50">
                         {inquiries?.length ?? 0}
                     </h3>
                 </div>
@@ -71,7 +71,7 @@ export default async function InquiriesPage(): Promise<React.ReactElement> {
             {inquiries && inquiries.length > 0 ? (
                 <div className="bg-white dark:bg-zinc-900 rounded-3xl ambient-shadow overflow-hidden">
                     <div className="p-6 flex items-center justify-between bg-[#f4f2fd]/50 dark:bg-zinc-800/50">
-                        <span className="font-[family-name:var(--font-geist-mono)] text-[10px] text-zinc-400 uppercase tracking-[0.3em]">
+                        <span className="font-mono text-[10px] text-zinc-400 uppercase tracking-[0.3em]">
                             Showing {inquiries.length} inquir{inquiries.length !== 1 ? "ies" : "y"}
                         </span>
                     </div>
@@ -102,7 +102,7 @@ export default async function InquiriesPage(): Promise<React.ReactElement> {
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-3">
-                                            <span className="font-[family-name:var(--font-geist-mono)] text-[10px] text-zinc-400">
+                                            <span className="font-mono text-[10px] text-zinc-400">
                                                 {new Date(inq.created_at).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}
                                             </span>
                                             <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${inq.status === "pending"

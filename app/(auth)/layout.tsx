@@ -21,7 +21,7 @@ export default function AuthLayout({
 
             {/* Brand */}
             <div className="text-center mb-12">
-                <Link href="/" className="font-[family-name:var(--font-geist-sans)] text-4xl font-black tracking-tighter text-[#006b2c] dark:text-emerald-400">
+                <Link href="/" className="font-(family-name:--font-geist-sans) text-4xl font-black tracking-tighter text-[#006b2c] dark:text-emerald-400">
                     Victoria&apos;s
                 </Link>
                 <p className="text-[#3e4a3d] dark:text-zinc-400 font-medium tracking-tight mt-2">
@@ -35,20 +35,20 @@ export default function AuthLayout({
             <footer className="mt-20 w-full max-w-4xl border-t border-[#bdcaba]/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-6 opacity-60 hover:opacity-100 transition-opacity">
                 <div className="flex items-center gap-2">
                     <span className="text-[#006b2c]">🛡️</span>
-                    <span className="text-xs font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.2em]">Bank-Grade Security</span>
+                    <span className="text-xs font-mono uppercase tracking-[0.2em]">Bank-Grade Security</span>
                 </div>
                 <div className="flex items-center gap-2">
                     <span className="text-[#006b2c]">⚡</span>
-                    <span className="text-xs font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.2em]">AI Concierge Powered</span>
+                    <span className="text-xs font-mono uppercase tracking-[0.2em]">AI Concierge Powered</span>
                 </div>
                 <div className="flex items-center gap-2">
                     <span className="text-[#006b2c]">🏆</span>
-                    <span className="text-xs font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.2em]">Premium Curator Service</span>
+                    <span className="text-xs font-mono uppercase tracking-[0.2em]">Premium Curator Service</span>
                 </div>
             </footer>
 
             {/* Bottom gradient line */}
-            <div className="fixed bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#006b2c]/20 to-transparent" />
+            <div className="fixed bottom-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-[#006b2c]/20 to-transparent" />
         </div>
     );
 }

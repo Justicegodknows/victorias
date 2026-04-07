@@ -106,7 +106,7 @@ export default function LoginPage(): React.ReactElement {
                 {authMode === "email" ? (
                     <form onSubmit={handleEmailLogin} className="space-y-6">
                         <div>
-                            <label htmlFor="email" className="block text-xs font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.2em] text-[#3e4a3d] dark:text-zinc-400 mb-2 ml-1">
+                            <label htmlFor="email" className="block text-xs font-mono uppercase tracking-[0.2em] text-[#3e4a3d] dark:text-zinc-400 mb-2 ml-1">
                                 Email Address
                             </label>
                             <input
@@ -120,7 +120,7 @@ export default function LoginPage(): React.ReactElement {
                             />
                         </div>
                         <div>
-                            <label htmlFor="password" className="block text-xs font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.2em] text-[#3e4a3d] dark:text-zinc-400 mb-2 ml-1">
+                            <label htmlFor="password" className="block text-xs font-mono uppercase tracking-[0.2em] text-[#3e4a3d] dark:text-zinc-400 mb-2 ml-1">
                                 Password
                             </label>
                             <div className="relative">
@@ -158,7 +158,7 @@ export default function LoginPage(): React.ReactElement {
                 ) : !otpSent ? (
                     <div className="space-y-6">
                         <div>
-                            <label htmlFor="phone" className="block text-xs font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.2em] text-[#3e4a3d] dark:text-zinc-400 mb-2 ml-1">
+                            <label htmlFor="phone" className="block text-xs font-mono uppercase tracking-[0.2em] text-[#3e4a3d] dark:text-zinc-400 mb-2 ml-1">
                                 Phone Number
                             </label>
                             <input
@@ -190,10 +190,10 @@ export default function LoginPage(): React.ReactElement {
                             >
                                 ←
                             </button>
-                            <h3 className="font-[family-name:var(--font-manrope)] font-bold text-lg dark:text-zinc-50">Verify OTP</h3>
+                            <h3 className="font-(family-name:--font-manrope) font-bold text-lg dark:text-zinc-50">Verify OTP</h3>
                         </div>
                         <p className="text-sm text-[#3e4a3d] dark:text-zinc-400">
-                            We&apos;ve sent a code to <span className="font-[family-name:var(--font-geist-mono)] text-[#006b2c] dark:text-emerald-400">{phone}</span>
+                            We&apos;ve sent a code to <span className="font-mono text-[#006b2c] dark:text-emerald-400">{phone}</span>
                         </p>
                         <form onSubmit={handleVerifyOtp} className="space-y-6">
                             <input
@@ -205,7 +205,7 @@ export default function LoginPage(): React.ReactElement {
                                 maxLength={6}
                                 value={otp}
                                 onChange={(e) => setOtp(e.target.value)}
-                                className="w-full bg-white dark:bg-zinc-800 border-none rounded-xl px-4 py-4 text-center text-2xl font-[family-name:var(--font-geist-mono)] font-bold tracking-[0.5em] focus:ring-2 focus:ring-[#006b2c]/20 text-[#1a1b22] dark:text-zinc-50 transition-all"
+                                className="w-full bg-white dark:bg-zinc-800 border-none rounded-xl px-4 py-4 text-center text-2xl font-mono font-bold tracking-[0.5em] focus:ring-2 focus:ring-[#006b2c]/20 text-[#1a1b22] dark:text-zinc-50 transition-all"
                                 placeholder="000000"
                             />
                             <button
@@ -226,7 +226,7 @@ export default function LoginPage(): React.ReactElement {
                             <div className="absolute inset-0 flex items-center">
                                 <div className="w-full border-t border-[#bdcaba]/30" />
                             </div>
-                            <div className="relative flex justify-center text-xs uppercase font-[family-name:var(--font-geist-mono)] tracking-[0.2em]">
+                            <div className="relative flex justify-center text-xs uppercase font-mono tracking-[0.2em]">
                                 <span className="bg-[#f4f2fd] dark:bg-zinc-900 px-4 text-[#6e7b6c] dark:text-zinc-500">Or continue with</span>
                             </div>
                         </div>

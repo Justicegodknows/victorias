@@ -42,7 +42,7 @@ export function ApartmentCard({ apartment }: ApartmentCardProps): React.ReactEle
                     </div>
                 </div>
             ) : (
-                <div className="h-44 bg-gradient-to-br from-emerald-100 to-emerald-50 dark:from-zinc-800 dark:to-zinc-900 flex items-center justify-center">
+                <div className="h-44 bg-linear-to-br from-emerald-100 to-emerald-50 dark:from-zinc-800 dark:to-zinc-900 flex items-center justify-center">
                     <span className="text-4xl">🏠</span>
                 </div>
             )}
@@ -50,7 +50,7 @@ export function ApartmentCard({ apartment }: ApartmentCardProps): React.ReactEle
             <div className="p-4 flex flex-col gap-3">
                 {/* Title */}
                 <div>
-                    <h4 className="font-[family-name:var(--font-geist-sans)] font-bold text-sm text-zinc-900 dark:text-zinc-50">
+                    <h4 className="font-(family-name:--font-geist-sans) font-bold text-sm text-zinc-900 dark:text-zinc-50">
                         {apartment.title}
                     </h4>
                     {apartment.ppid && (
@@ -65,7 +65,7 @@ export function ApartmentCard({ apartment }: ApartmentCardProps): React.ReactEle
 
                 {/* Price */}
                 <div className="flex items-end justify-between">
-                    <div className="font-[family-name:var(--font-geist-mono)] text-lg font-black text-[#006b2c] dark:text-emerald-400">
+                    <div className="font-mono text-lg font-black text-[#006b2c] dark:text-emerald-400">
                         {apartment.annual_rent}<span className="text-[10px] font-normal text-zinc-400">/yr</span>
                     </div>
                     <div className="text-[10px] text-zinc-400">Upfront: {apartment.total_upfront_cost}</div>

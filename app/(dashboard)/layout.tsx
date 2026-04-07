@@ -33,10 +33,10 @@ export default async function DashboardLayout({
             <nav className="sticky top-0 w-full z-50 glass-nav shadow-[0px_20px_40px_rgba(26,27,34,0.06)]">
                 <div className="flex justify-between items-center px-8 h-20 w-full max-w-screen-2xl mx-auto">
                     <div className="flex items-center gap-8">
-                        <Link href="/" className="text-2xl font-black tracking-tighter text-emerald-900 dark:text-emerald-50 font-[family-name:var(--font-geist-sans)]">
+                        <Link href="/" className="text-2xl font-black tracking-tighter text-emerald-900 dark:text-emerald-50 font-(family-name:--font-geist-sans)">
                             Victoria&apos;s
                         </Link>
-                        <div className="hidden md:flex items-center gap-6 font-[family-name:var(--font-geist-sans)] font-semibold tracking-tight">
+                        <div className="hidden md:flex items-center gap-6 font-(family-name:--font-geist-sans) font-semibold tracking-tight">
                             <Link href="/tenant/browse" className="text-zinc-500 dark:text-zinc-400 hover:text-emerald-600 transition-colors">
                                 Listings
                             </Link>
@@ -51,7 +51,7 @@ export default async function DashboardLayout({
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-3 pl-4 border-l border-zinc-200/50 dark:border-zinc-700/50">
                             <div className="text-right hidden sm:block">
-                                <p className="text-[10px] font-[family-name:var(--font-geist-mono)] text-zinc-400 uppercase tracking-[0.2em]">
+                                <p className="text-[10px] font-mono text-zinc-400 uppercase tracking-[0.2em]">
                                     {role === "landlord" ? "Landlord" : "Tenant"}
                                 </p>
                                 <p className="text-sm font-bold text-[#1a1b22] dark:text-zinc-50">{name}</p>
@@ -77,7 +77,7 @@ export default async function DashboardLayout({
                 <aside className="h-[calc(100vh-5rem)] w-64 hidden md:flex flex-col sticky top-20 bg-zinc-50 dark:bg-zinc-950 py-8 px-4 gap-2 shrink-0">
                     {/* Tenant section */}
                     <div className="mb-6 px-4">
-                        <p className="text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.2em] text-zinc-400 mb-4">Tenant Portal</p>
+                        <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-400 mb-4">Tenant Portal</p>
                         <div className="space-y-1">
                             <Link href="/tenant" className="flex items-center gap-3 px-4 py-2.5 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all">
                                 <span>💬</span>
@@ -96,7 +96,7 @@ export default async function DashboardLayout({
 
                     {/* Landlord section */}
                     <div className="mb-6 px-4">
-                        <p className="text-[10px] font-[family-name:var(--font-geist-mono)] uppercase tracking-[0.2em] text-zinc-400 mb-4">Landlord Tools</p>
+                        <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-400 mb-4">Landlord Tools</p>
                         <div className="space-y-1">
                             <Link href="/landlord" className="flex items-center gap-3 px-4 py-2.5 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all">
                                 <span>🏢</span>
@@ -136,19 +136,19 @@ export default async function DashboardLayout({
                 <div className="flex justify-around items-center h-20 px-6">
                     <Link href="/tenant/browse" className="flex flex-col items-center justify-center text-zinc-400 dark:text-zinc-600 px-4 py-1">
                         <span>🔍</span>
-                        <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] mt-1">Explore</span>
+                        <span className="font-mono text-[10px] uppercase tracking-[0.2em] mt-1">Explore</span>
                     </Link>
                     <Link href="/tenant" className="flex flex-col items-center justify-center text-zinc-400 dark:text-zinc-600 px-4 py-1">
                         <span>✨</span>
-                        <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] mt-1">Curator</span>
+                        <span className="font-mono text-[10px] uppercase tracking-[0.2em] mt-1">Curator</span>
                     </Link>
                     <Link href="/tenant/saved" className="flex flex-col items-center justify-center text-zinc-400 dark:text-zinc-600 px-4 py-1">
                         <span>❤️</span>
-                        <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] mt-1">Saved</span>
+                        <span className="font-mono text-[10px] uppercase tracking-[0.2em] mt-1">Saved</span>
                     </Link>
                     <Link href={role === "landlord" ? "/landlord" : "/tenant"} className="flex flex-col items-center justify-center text-zinc-400 dark:text-zinc-600 px-4 py-1">
                         <span>👤</span>
-                        <span className="font-[family-name:var(--font-geist-mono)] text-[10px] uppercase tracking-[0.2em] mt-1">Profile</span>
+                        <span className="font-mono text-[10px] uppercase tracking-[0.2em] mt-1">Profile</span>
                     </Link>
                 </div>
             </nav>

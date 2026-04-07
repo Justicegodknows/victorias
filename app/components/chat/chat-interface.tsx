@@ -43,7 +43,7 @@ export function ChatInterface(): React.ReactElement {
                                 <span className="text-4xl">✨</span>
                                 <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-400 border-4 border-[#fbf8ff] dark:border-zinc-950 rounded-full" />
                             </div>
-                            <h3 className="text-2xl font-[family-name:var(--font-geist-sans)] font-bold text-[#1a1b22] dark:text-zinc-50 mb-2">
+                            <h3 className="text-2xl font-(family-name:--font-geist-sans) font-bold text-[#1a1b22] dark:text-zinc-50 mb-2">
                                 Hi! I&apos;m Victoria
                             </h3>
                             <p className="text-[#3e4a3d] dark:text-zinc-400 max-w-md text-sm leading-relaxed mb-10">
@@ -171,6 +171,7 @@ export function ChatInterface(): React.ReactElement {
                     <button
                         type="submit"
                         disabled={!input.trim() || status === "streaming"}
+                        aria-label="Send message"
                         className="w-12 h-12 bg-[#006b2c] hover:bg-[#00873a] text-white rounded-2xl flex items-center justify-center shadow-lg transition-transform active:scale-95 disabled:opacity-50"
                     >
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -179,7 +180,7 @@ export function ChatInterface(): React.ReactElement {
                         </svg>
                     </button>
                 </form>
-                <p className="text-[10px] text-zinc-400 text-center mt-3 uppercase tracking-[0.2em] font-[family-name:var(--font-geist-mono)]">
+                <p className="text-[10px] text-zinc-400 text-center mt-3 uppercase tracking-[0.2em] font-mono">
                     Victoria can occasionally provide estimates; verify critical info with landlords.
                 </p>
             </div>
