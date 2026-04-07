@@ -3,6 +3,10 @@
 		"supabase": {
 			"type": "http",
 			"url": "https://mcp.supabase.com/mcp?project_ref=lqvrzqryfjtsytcahnpb&read_only=true&features=docs,account,database,debugging,development,functions,branching"
+		},
+		"tavily": {
+			"type": "http",
+			"url": "https://mcp.tavily.com/mcp/?tavilyApiKey=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"
 		}
 	},
 	"inputs": []

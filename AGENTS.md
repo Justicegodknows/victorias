@@ -65,6 +65,8 @@ victorias/
 - Static files belong in `public/`. Do not serve assets from `app/`.
 - Do not add a `tailwind.config.js` — Tailwind v4 is configured in CSS only.
 - Do not add a `.eslintrc`, `.eslintrc.json`, or `.eslintrc.js` — ESLint 9 uses flat config exclusively.
+- Allication now runs in the cloud via Vercel.
+- Build this project like you are building in the cloud.
 
 ---
 
