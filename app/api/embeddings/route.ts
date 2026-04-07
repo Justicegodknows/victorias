@@ -29,21 +29,29 @@ export async function POST(req: Request): Promise<Response> {
         apartment_id?: string;
     };
 
-    const results: Record<string, unknown> = {};
+    try {
+        const results: Record<string, unknown> = {};
 
-    if (body.target === "apartment" && body.apartment_id) {
-        // Sync a single apartment
-        const success = await syncSingleApartmentEmbedding(body.apartment_id);
-        results.apartment = { apartment_id: body.apartment_id, success };
+        if (body.target === "apartment" && body.apartment_id) {
+            // Sync a single apartment
+            const success = await syncSingleApartmentEmbedding(body.apartment_id);
+            results.apartment = { apartment_id: body.apartment_id, success };
+        }
+
+        if (body.target === "all" || body.target === "apartments") {
+            results.apartments = await syncApartmentEmbeddings();
+        }
+
+        if (body.target === "all" || body.target === "knowledge") {
+            results.knowledge = await syncKnowledgeEmbeddings();
+        }
+
+        return NextResponse.json({ ok: true, results });
+    } catch (error) {
+        console.error("[Embeddings] Sync failed:", error);
+        return NextResponse.json(
+            { error: "Embedding sync failed. Check provider configuration." },
+            { status: 502 },
+        );
     }
-
-    if (body.target === "all" || body.target === "apartments") {
-        results.apartments = await syncApartmentEmbeddings();
-    }
-
-    if (body.target === "all" || body.target === "knowledge") {
-        results.knowledge = await syncKnowledgeEmbeddings();
-    }
-
-    return NextResponse.json({ ok: true, results });
 }

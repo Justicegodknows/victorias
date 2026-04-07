@@ -40,22 +40,30 @@ export async function POST(req: Request): Promise<Response> {
         ? `${SYSTEM_PROMPT}\n\n---\n\n# Retrieved Context\nThe following information was retrieved from the knowledge base based on the user's latest message. Use it to provide more accurate and relevant responses, but always verify with your tools before presenting listings.\n\n${ragContext}`
         : SYSTEM_PROMPT;
 
-    const result = streamText({
-        model: getModel(),
-        system: systemPrompt,
-        messages: modelMessages,
-        tools: agentTools,
-        stopWhen: stepCountIs(10),
-        onStepFinish({ toolCalls }) {
-            // Log tool usage for debugging (server-side only)
-            if (toolCalls && toolCalls.length > 0) {
-                console.log(
-                    "[AI Agent] Tools called:",
-                    toolCalls.map((tc: { toolName: string }) => tc.toolName).join(", "),
-                );
-            }
-        },
-    });
+    try {
+        const result = streamText({
+            model: getModel(),
+            system: systemPrompt,
+            messages: modelMessages,
+            tools: agentTools,
+            stopWhen: stepCountIs(10),
+            onStepFinish({ toolCalls }) {
+                // Log tool usage for debugging (server-side only)
+                if (toolCalls && toolCalls.length > 0) {
+                    console.log(
+                        "[AI Agent] Tools called:",
+                        toolCalls.map((tc: { toolName: string }) => tc.toolName).join(", "),
+                    );
+                }
+            },
+        });
 
-    return result.toUIMessageStreamResponse();
+        return result.toUIMessageStreamResponse();
+    } catch (error) {
+        console.error("[Chat] streamText failed:", error);
+        return new Response(
+            JSON.stringify({ error: "AI provider unavailable. Please try again later." }),
+            { status: 502, headers: { "Content-Type": "application/json" } },
+        );
+    }
 }

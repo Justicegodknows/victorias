@@ -18,8 +18,9 @@ function hasHuggingFace(): boolean {
 }
 
 function hasOllama(): boolean {
-    // Ollama is considered available when base URL is present or defaultable.
-    return Boolean(OLLAMA_BASE_URL && OLLAMA_BASE_URL.trim());
+    // Only treat Ollama as available when the env var is explicitly set.
+    // The hardcoded default URL should not signal availability in production.
+    return Boolean(process.env.OLLAMA_BASE_URL && process.env.OLLAMA_BASE_URL.trim());
 }
 
 function createOllamaProvider(): ReturnType<typeof createOpenAI> {
