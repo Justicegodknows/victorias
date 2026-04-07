@@ -17,9 +17,9 @@ type ProbeResult = {
 
 const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL ?? "http://127.0.0.1:11434/v1";
 const AI_PRIMARY_PROVIDER =
-    process.env.AI_PRIMARY_PROVIDER === "huggingface" ? "huggingface" : "ollama";
+    process.env.AI_PRIMARY_PROVIDER === "ollama" ? "ollama" : "huggingface";
 const EMBEDDING_PRIMARY_PROVIDER =
-    process.env.EMBEDDING_PRIMARY_PROVIDER === "huggingface" ? "huggingface" : "ollama";
+    process.env.EMBEDDING_PRIMARY_PROVIDER === "ollama" ? "ollama" : "huggingface";
 
 function getProviderOrder(primary: ProviderName, hasOllama: boolean, hasHuggingFace: boolean): ProviderName[] {
     const available: ProviderName[] = [];

@@ -3,15 +3,15 @@ import type { LanguageModel } from "ai";
 
 type AiProvider = "ollama" | "huggingface";
 
-// Ollama — primary provider (local, OpenAI-compatible API)
+// Ollama provider (local, OpenAI-compatible API)
 const OLLAMA_MODEL = "gpt-oss:20b-cloud";
 const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL ?? "http://127.0.0.1:11434/v1";
 
-// HuggingFace — fallback provider (OpenAI-compatible Inference API)
+// HuggingFace — default primary provider (OpenAI-compatible Inference API)
 const HF_MODEL = process.env.HF_MODEL ?? "meta-llama/Llama-3.1-70B-Instruct";
 const HF_BASE_URL = "https://api-inference.huggingface.co/v1";
-const AI_PRIMARY_PROVIDER =
-    process.env.AI_PRIMARY_PROVIDER === "huggingface" ? "huggingface" : "ollama";
+const AI_PRIMARY_PROVIDER: AiProvider =
+    process.env.AI_PRIMARY_PROVIDER === "ollama" ? "ollama" : "huggingface";
 
 function hasHuggingFace(): boolean {
     return Boolean(process.env.HUGGINGFACE_API_KEY && process.env.HUGGINGFACE_API_KEY.trim());
