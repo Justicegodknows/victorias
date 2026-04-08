@@ -920,6 +920,77 @@ function buildAssessment(
     };
 }
 
+type TenancyJurisdiction = "lagos" | "port-harcourt" | "abuja";
+
+const TENANCY_JURISDICTION_META: Record<TenancyJurisdiction, {
+    stateOrFct: string;
+    courtVenue: string;
+    addendumTitle: string;
+    governingLawLine: string;
+}> = {
+    lagos: {
+        stateOrFct: "Lagos State",
+        courtVenue: "courts of competent jurisdiction in Lagos State",
+        addendumTitle: "Lagos State Addendum",
+        governingLawLine:
+            "This Agreement is governed by laws applicable in Lagos State, including relevant tenancy and recovery of premises laws, together with applicable federal laws.",
+    },
+    "port-harcourt": {
+        stateOrFct: "Rivers State (Port Harcourt)",
+        courtVenue: "courts of competent jurisdiction in Rivers State",
+        addendumTitle: "Port Harcourt (Rivers State) Addendum",
+        governingLawLine:
+            "This Agreement is governed by laws applicable in Rivers State, including relevant tenancy and recovery of premises laws, together with applicable federal laws.",
+    },
+    abuja: {
+        stateOrFct: "Federal Capital Territory (Abuja)",
+        courtVenue: "courts of competent jurisdiction in the FCT, Abuja",
+        addendumTitle: "Abuja (FCT) Addendum",
+        governingLawLine:
+            "This Agreement is governed by laws applicable in the FCT, Abuja, including relevant tenancy and recovery of premises laws, together with applicable federal laws.",
+    },
+};
+
+export const generateTenancyAgreementTemplate = tool({
+    description:
+        "Generate a state-specific Nigerian residential tenancy agreement template for Lagos, Port Harcourt (Rivers), or Abuja (FCT). Includes compliance-oriented clauses, placeholders, and a jurisdiction-specific legal addendum.",
+    inputSchema: z.object({
+        jurisdiction: z
+            .enum(["lagos", "port-harcourt", "abuja"])
+            .describe("The target jurisdiction for the tenancy agreement template"),
+        fixed_term_months: z
+            .number()
+            .int()
+            .min(1)
+            .max(36)
+            .default(12)
+            .describe("Intended fixed term duration in months"),
+        include_inventory_schedule: z
+            .boolean()
+            .default(true)
+            .describe("Whether to include inventory and condition schedule section"),
+    }),
+    execute: async ({ jurisdiction, fixed_term_months, include_inventory_schedule }) => {
+        const meta = TENANCY_JURISDICTION_META[jurisdiction];
+
+        const inventorySection = include_inventory_schedule
+            ? `\nINVENTORY & CONDITION SCHEDULE (ATTACH)\n1. Keys issued: [LIST]\n2. Meter readings at move-in: [ELECTRICITY/WATER]\n3. Condition report/photos signed by both parties.\n`
+            : "";
+
+        const template = `NIGERIA RESIDENTIAL TENANCY AGREEMENT (${meta.stateOrFct.toUpperCase()} VERSION)\n\nThis Tenancy Agreement is made on [DATE]\n\nBetween:\n\nLandlord:\nName: [LANDLORD FULL NAME]\nAddress: [LANDLORD ADDRESS]\nPhone/Email: [CONTACT]\n\nAnd\n\nTenant:\nName: [TENANT FULL NAME]\nAddress: [TENANT CURRENT ADDRESS]\nPhone/Email: [CONTACT]\nID Type/No: [NIN/PASSPORT/DRIVER LICENSE]\n\nProperty:\nFull Address: [PROPERTY ADDRESS]\nState/FCT: ${meta.stateOrFct}\nUse: Residential only\n\n1. Term\nThis tenancy starts on [START DATE] and runs for ${fixed_term_months} month(s), ending on [END DATE], unless renewed or lawfully terminated earlier under this Agreement and applicable law.\n\n2. Rent\n1. Annual/Periodic Rent: NGN [AMOUNT]\n2. Payment Frequency: [MONTHLY/QUARTERLY/ANNUAL]\n3. Payment Due Date: [DATE]\n4. Payment Method: [BANK TRANSFER/OTHER]\n5. Landlord Account Details: [BANK/ACCOUNT NAME/NUMBER]\n\nTenant shall receive written or digital acknowledgment for each payment.\n\n3. Security Deposit (Caution Fee)\n1. Deposit Amount: NGN [AMOUNT]\n2. Purpose: Damage beyond fair wear and tear, unpaid utilities, or unpaid rent.\n3. Refund Timeline: Within [14/30] days after handover, less lawful deductions itemized in writing.\n\n4. Other Charges (If Any)\nThe following are payable only if lawful and agreed in writing:\n1. Service charge: NGN [AMOUNT]\n2. Waste disposal: NGN [AMOUNT]\n3. Estate/power backup dues: NGN [AMOUNT]\nNo hidden or undocumented charges shall be imposed.\n\n5. Use and Occupancy\n1. Tenant shall use the property solely for residential purposes.\n2. No unlawful activity, nuisance, or overcrowding.\n3. Subletting/assignment requires prior written consent of Landlord.\n\n6. Repairs and Maintenance\n1. Landlord handles structural repairs and major defects not caused by Tenant.\n2. Tenant handles minor day-to-day maintenance and keeps premises clean.\n3. Tenant must notify Landlord promptly of defects.\n4. Emergency repair contacts/procedure: [INSERT].\n\n7. Utilities\nResponsibility is as follows unless otherwise agreed in writing:\nWater: [TENANT/LANDLORD]\nElectricity: [TENANT/LANDLORD]\nGas/Internet: [TENANT/LANDLORD]\n\n8. Access and Inspection\nLandlord/agent may inspect with reasonable prior notice (except emergencies), at reasonable hours, and with respect for Tenant privacy.\n\n9. Alterations\nNo structural alterations without written Landlord consent. Approved improvements become part of the property unless otherwise agreed in writing.\n\n10. Default\nIf Tenant materially breaches this Agreement, Landlord may enforce remedies allowed by law, including statutory notices and court process where required. No self-help eviction, lockout, harassment, or unlawful utility disconnection.\n\n11. Termination\n1. Either party may terminate by lawful notice consistent with applicable law and tenancy type.\n2. Tenant shall hand over vacant possession on termination date.\n3. Outstanding bills and lawful damage deductions may be set off against deposit with statement.\n\n12. Dispute Resolution and Jurisdiction\nParties shall first attempt good-faith negotiation and mediation. If unresolved, disputes may be referred to ${meta.courtVenue}.\n\n13. Governing Law\n${meta.governingLawLine}\n\n14. Entire Agreement\nThis document and schedules contain the full agreement. Any change must be in writing and signed by both parties.\n\n${meta.addendumTitle}\n1. Statutory notices for termination/recovery of premises must follow applicable law and tenancy type.\n2. Possession recovery must follow due legal process, including court process where required.\n3. Parties should complete stamping/registration where required under applicable law.\n4. Parties should seek local legal review before execution for transaction-specific compliance.\n${inventorySection}\nEXECUTION\n\nLandlord Signature: __________________  Date: __________\n\nTenant Signature: ____________________  Date: __________\n\nWitness 1 Name/Signature: _____________ Date: __________\n\nWitness 2 Name/Signature: _____________ Date: __________`;
+
+        return {
+            success: true,
+            jurisdiction,
+            state_or_fct: meta.stateOrFct,
+            fixed_term_months,
+            legal_notice:
+                "Template is compliance-oriented and informational. Final document should be reviewed by a qualified Nigerian property lawyer in the target jurisdiction before signing.",
+            template,
+        };
+    },
+});
+
 export const agentTools = {
     searchApartments,
     semanticSearchApartments,
@@ -931,6 +1002,7 @@ export const agentTools = {
     getApartmentDetails,
     checkAffordability,
     getNeighborhoodInfo,
+    generateTenancyAgreementTemplate,
     saveApartment,
     createInquiry,
 };
