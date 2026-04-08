@@ -30,9 +30,33 @@ services:
       - sh
       - -c
       - |
-        if [ -z "$$SUPABASE_DB_URL" ]; then
+        RAW_DB_URL="$$SUPABASE_DB_URL"
+        DB_URL="$$(printf '%s' "$$RAW_DB_URL" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$$//' -e 's/^"//' -e 's/"$$//' -e "s/^'//" -e "s/'$$//")"
+
+        if [ -z "$$DB_URL" ]; then
           echo "SUPABASE_DB_URL is not set in .env.local";
           echo "Add SUPABASE_DB_URL and rerun: docker compose --profile seed run --rm seed";
           exit 1;
         fi
-        psql "$$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f /workspace/supabase/test-data/seed_dummy_listings.sql
+
+        case "$$DB_URL" in
+          postgresql://*|postgres://*|host=*)
+            ;;
+          *)
+            echo "SUPABASE_DB_URL format is invalid.";
+            echo "Use either postgresql://... URI or libpq connection string (e.g., host=... port=5432 dbname=postgres user=... password=... sslmode=require).";
+            exit 1;
+            ;;
+        esac
+
+        case "$$DB_URL" in
+          *db.*.supabase.co*)
+            echo "Detected direct Supabase DB host (db.<project-ref>.supabase.co).";
+            echo "This host is often not IPv4-compatible from local Docker networks.";
+            echo "Use the Session Pooler connection string from Supabase Dashboard instead.";
+            echo "Example format: postgresql://postgres.<project-ref>:[PASSWORD]@aws-0-<region>.pooler.supabase.com:5432/postgres?sslmode=require";
+            exit 1;
+            ;;
+        esac
+
+        psql "$$DB_URL" -v ON_ERROR_STOP=1 -f /workspace/supabase/test-data/seed_dummy_listings.sql
