@@ -9,8 +9,8 @@ begin;
 
 do $$
 begin
-  if not exists (select 1 from public.profiles) then
-    raise exception 'No rows found in public.profiles. Create at least one authenticated user/profile first.';
+  if (select count(*) from public.profiles) < 3 then
+    raise exception 'At least 3 profiles are required to seed 10 listings across 3 landlords.';
   end if;
 end $$;
 
@@ -63,13 +63,25 @@ create temporary table tmp_inserted_dummy (
   title text not null
 ) on commit drop;
 
-with profile_pool as (
-  select
-    id,
-    row_number() over (order by created_at, id) as rn,
-    count(*) over () as total_profiles
+create temporary table tmp_owner_pool (
+  id uuid not null,
+  rn integer not null,
+  total_owners integer not null
+) on commit drop;
+
+insert into tmp_owner_pool (id, rn, total_owners)
+select
+  p.id,
+  row_number() over (order by p.created_at, p.id) as rn,
+  3 as total_owners
+from (
+  select id, created_at
   from public.profiles
-),
+  order by created_at, id
+  limit 3
+) as p;
+
+with
 inserted_apartments as (
   insert into public.apartments (
     landlord_id,
@@ -90,9 +102,9 @@ inserted_apartments as (
   )
   select
     (
-      select p.id
-      from profile_pool p
-      where p.rn = ((s.seed_idx - 1) % (select max(total_profiles) from profile_pool)) + 1
+      select o.id
+      from tmp_owner_pool o
+      where o.rn = ((s.seed_idx - 1) % (select max(total_owners) from tmp_owner_pool)) + 1
     ) as landlord_id,
     s.title,
     s.description,

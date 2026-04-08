@@ -16,3 +16,23 @@ services:
       - /app/node_modules
       - /app/.next
     restart: unless-stopped
+
+  seed:
+    image: postgres:16-alpine
+    profiles:
+      - seed
+    env_file:
+      - .env.local
+    working_dir: /workspace
+    volumes:
+      - .:/workspace:ro
+    command:
+      - sh
+      - -c
+      - |
+        if [ -z "$$SUPABASE_DB_URL" ]; then
+          echo "SUPABASE_DB_URL is not set in .env.local";
+          echo "Add SUPABASE_DB_URL and rerun: docker compose --profile seed run --rm seed";
+          exit 1;
+        fi
+        psql "$$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f /workspace/supabase/test-data/seed_dummy_listings.sql

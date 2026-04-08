@@ -149,6 +149,14 @@ Notes:
 - The compose setup reads environment variables from `.env.local`.
 - File changes in this repository are mounted into the container for local development.
 
+Seed dummy listings (Docker):
+
+```bash
+docker compose --profile seed run --rm seed
+```
+
+This runs `supabase/test-data/seed_dummy_listings.sql` against `SUPABASE_DB_URL` from `.env.local`.
+
 ## AI Provider Configuration
 
 HuggingFace is the default primary provider for both chat and embeddings. To use Ollama instead (e.g., for local development):
