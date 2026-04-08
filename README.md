@@ -129,6 +129,26 @@ npm test             # Run all Playwright tests
 npm run test:smoke   # Run smoke tests only
 ```
 
+## Run with Docker (Local)
+
+Use Docker Compose to run the app locally with hot reload.
+
+```bash
+docker compose up --build
+```
+
+Then open [http://localhost:3000](http://localhost:3000).
+
+To stop the container:
+
+```bash
+docker compose down
+```
+
+Notes:
+- The compose setup reads environment variables from `.env.local`.
+- File changes in this repository are mounted into the container for local development.
+
 ## AI Provider Configuration
 
 HuggingFace is the default primary provider for both chat and embeddings. To use Ollama instead (e.g., for local development):

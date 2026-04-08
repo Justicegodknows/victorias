@@ -1,202 +1,228 @@
 import Link from "next/link";
 
-const features = [
+const featuredListings = [
   {
-    icon: "💬",
-    title: "Chat with AI",
-    description: "Describe your dream home in plain English. Victoria understands context, preferences, and lifestyle needs.",
+    title: "Luxury Villa in Maitama",
+    city: "Abuja",
+    price: "N12,500,000",
+    beds: 4,
+    baths: 5,
+    area: "620 sqm",
+    image:
+      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80",
   },
   {
-    icon: "💰",
-    title: "True Cost Breakdown",
-    description: "No hidden fees. We analyze legal, agency, and maintenance costs for every listing.",
+    title: "Modern Apartment in Lekki",
+    city: "Lagos",
+    price: "N3,600,000",
+    beds: 2,
+    baths: 2,
+    area: "180 sqm",
+    image:
+      "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1200&q=80",
   },
   {
-    icon: "📍",
-    title: "Neighborhood Intelligence",
-    description: "Insights on traffic patterns, electricity stability, and proximity to key amenities in any area.",
+    title: "Waterfront Home in GRA",
+    city: "Port Harcourt",
+    price: "N2,400,000",
+    beds: 3,
+    baths: 3,
+    area: "260 sqm",
+    image:
+      "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=1200&q=80",
   },
-  {
-    icon: "📊",
-    title: "Affordability Check",
-    description: "Smart financial tools to match properties with your income and long-term budget goals.",
-  },
-  {
-    icon: "🔍",
-    title: "Smart Search",
-    description: 'Advanced filtering that goes beyond bedrooms. Search by lighting, security, or "vibe".',
-  },
-  {
-    icon: "📲",
-    title: "WhatsApp Connect",
-    description: "Get instant alerts and chat with verified agents directly through your favorite messaging app.",
-  },
-];
-
-const cities = [
-  { name: "Lagos", neighborhoods: ["Ikoyi", "VI", "Lekki"], image: "/images/lagos.jpg" },
-  { name: "Abuja", neighborhoods: ["Maitama", "Asokoro", "Wuse"], image: "/images/abuja.jpg", offset: true },
-  { name: "Port Harcourt", neighborhoods: ["GRA Phase 1", "Odili Rd"], image: "/images/ph.jpg" },
 ];
 
 export default function Home(): React.ReactElement {
   return (
-    <div className="flex flex-1 flex-col">
-      {/* Top Nav */}
-      <nav className="sticky top-0 w-full z-50 glass-nav shadow-[0px_20px_40px_rgba(26,27,34,0.06)]">
-        <div className="flex justify-between items-center px-8 h-20 w-full max-w-screen-2xl mx-auto">
-          <div className="flex items-center gap-12">
-            <span className="text-2xl font-black tracking-tighter text-emerald-900 dark:text-emerald-50 font-(family-name:--font-geist-sans)">
+    <div className="min-h-screen bg-[#f5ebe2] text-[#1f1a16]">
+      <div className="relative overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.65)_0,rgba(255,255,255,0)_45%),radial-gradient(circle_at_82%_15%,rgba(190,137,93,0.18)_0,rgba(190,137,93,0)_36%)]" />
+
+        <nav className="relative z-10 mx-auto flex h-20 w-full max-w-6xl items-center justify-between px-6 sm:px-8">
+          <div className="flex items-center gap-8">
+            <span className="font-(family-name:--font-manrope) text-2xl font-black tracking-tight text-[#2a221d]">
               Victoria&apos;s
             </span>
-            <div className="hidden md:flex gap-8 items-center">
-              <Link href="/" className="font-(family-name:--font-geist-sans) font-semibold tracking-tight text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-700 dark:border-emerald-400 pb-1">
-                Discover
+            <div className="hidden items-center gap-7 md:flex">
+              <Link href="/" className="border-b-2 border-[#2a221d] pb-1 text-sm font-semibold text-[#2a221d]">
+                Home
               </Link>
-              <Link href="/tenant/browse" className="font-(family-name:--font-geist-sans) font-semibold tracking-tight text-zinc-500 dark:text-zinc-400 hover:text-emerald-600 transition-colors">
-                Listings
+              <Link href="/tenant/browse" className="text-sm font-medium text-[#5f554d] transition-colors hover:text-[#2a221d]">
+                Properties
               </Link>
-              <Link href="/tenant" className="font-(family-name:--font-geist-sans) font-semibold tracking-tight text-zinc-500 dark:text-zinc-400 hover:text-emerald-600 transition-colors">
+              <Link href="/tenant" className="text-sm font-medium text-[#5f554d] transition-colors hover:text-[#2a221d]">
                 Concierge
-              </Link>
-              <Link href="/tenant/saved" className="font-(family-name:--font-geist-sans) font-semibold tracking-tight text-zinc-500 dark:text-zinc-400 hover:text-emerald-600 transition-colors">
-                Saved
               </Link>
             </div>
           </div>
-          <div className="flex items-center gap-6">
-            <Link href="/register" className="btn-primary-gradient text-white px-6 py-2.5 rounded-full font-semibold active:scale-90 transition-transform">
+
+          <div className="flex items-center gap-3">
+            <Link
+              href="/login"
+              className="rounded-full border border-[#cdb8a5] px-5 py-2 text-sm font-semibold text-[#43372e] transition-colors hover:bg-[#efe0d2]"
+            >
+              Sign In
+            </Link>
+            <Link
+              href="/register"
+              className="rounded-full bg-[#d78f45] px-5 py-2 text-sm font-bold text-white shadow-[0_10px_25px_rgba(215,143,69,0.35)] transition-colors hover:bg-[#ca7f35]"
+            >
               Get Started
             </Link>
           </div>
-        </div>
-      </nav>
+        </nav>
 
-      {/* Hero */}
-      <section className="hero-gradient pt-24 pb-32 px-8 overflow-hidden">
-        <div className="max-w-screen-xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+        <section className="relative z-10 mx-auto grid w-full max-w-6xl gap-10 px-6 pb-16 pt-6 sm:px-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:pb-20 lg:pt-10">
           <div>
-            <h1 className="font-(family-name:--font-manrope) text-6xl md:text-7xl font-extrabold tracking-tight text-[#1a1b22] dark:text-zinc-50 mb-8 leading-[1.1]">
-              Find your perfect <br />
-              <span className="text-[#006b2c] dark:text-emerald-400">apartment</span> in Nigeria
+            <p className="mb-5 text-xs font-bold uppercase tracking-[0.24em] text-[#8c6e56]">
+              Trusted In Lagos, Abuja & Port Harcourt
+            </p>
+            <h1 className="font-(family-name:--font-manrope) text-5xl font-extrabold leading-[1.02] text-[#2a221d] sm:text-6xl lg:text-7xl">
+              Find a house
+              <br />
+              that suits you.
             </h1>
-            <div className="pl-[10%]">
-              <p className="text-xl text-[#3e4a3d] dark:text-zinc-400 max-w-lg mb-10 leading-relaxed">
-                Meet Victoria, your digital curator. Experience a bespoke property search powered by AI intelligence that understands the nuances of the Nigerian market.
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <Link href="/register" className="btn-primary-gradient text-white px-8 py-4 rounded-full font-bold text-lg shadow-lg hover:shadow-xl transition-all">
-                  Get Started — It&apos;s Free
-                </Link>
-                <Link href="/login" className="bg-[#e3e1ec] dark:bg-zinc-800 text-[#006b2c] dark:text-emerald-400 px-8 py-4 rounded-full font-bold text-lg hover:bg-[#e8e7f1] dark:hover:bg-zinc-700 transition-all">
-                  Sign In
-                </Link>
+            <p className="mt-6 max-w-xl text-base leading-relaxed text-[#6a5e54] sm:text-lg">
+              Browse verified homes, compare true annual move-in costs, and let Victoria match you with properties aligned to your budget and lifestyle.
+            </p>
+
+            <div className="mt-9 grid max-w-xl grid-cols-3 gap-3 rounded-3xl border border-[#decdbd] bg-white/75 p-4 shadow-[0_20px_45px_rgba(53,37,22,0.08)] backdrop-blur-sm">
+              <div className="rounded-2xl bg-[#f7eee6] p-3 text-center">
+                <p className="text-2xl font-black text-[#2a221d]">2.5k+</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#8d7a6c]">Listings</p>
+              </div>
+              <div className="rounded-2xl bg-[#f7eee6] p-3 text-center">
+                <p className="text-2xl font-black text-[#2a221d]">96%</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#8d7a6c]">Match Rate</p>
+              </div>
+              <div className="rounded-2xl bg-[#f7eee6] p-3 text-center">
+                <p className="text-2xl font-black text-[#2a221d]">24h</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#8d7a6c]">Avg Reply</p>
               </div>
             </div>
           </div>
-          <div className="relative hidden lg:block">
-            <div className="absolute -top-12 -right-12 w-64 h-64 bg-emerald-200/20 rounded-full blur-3xl" />
-            <div className="rounded-2xl shadow-2xl relative z-10 w-full aspect-square bg-linear-to-br from-emerald-100 to-emerald-50 dark:from-zinc-800 dark:to-zinc-900 flex items-center justify-center">
-              <span className="text-8xl">🏠</span>
+
+          <div className="relative">
+            <div className="absolute -right-3 -top-3 h-24 w-24 rounded-full bg-[#e6c9ad] blur-2xl" />
+            <div className="overflow-hidden rounded-[2rem] border border-[#d3bfad] bg-white shadow-[0_24px_60px_rgba(45,27,12,0.15)]">
+              <img
+                src="https://images.unsplash.com/photo-1600585152915-d208bec867a1?auto=format&fit=crop&w=1600&q=80"
+                alt="Elegant modern home exterior"
+                className="h-[420px] w-full object-cover"
+              />
+            </div>
+            <div className="absolute -bottom-6 -left-6 rounded-2xl border border-[#d3bfad] bg-white px-5 py-4 shadow-[0_20px_40px_rgba(45,27,12,0.18)]">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#8b7767]">Featured Area</p>
+              <p className="mt-1 font-(family-name:--font-manrope) text-lg font-extrabold text-[#2a221d]">Lekki Phase 1</p>
+              <p className="text-sm text-[#6a5e54]">From N1.8M / year</p>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Features */}
-      <section className="py-24 px-8 bg-[#fbf8ff] dark:bg-zinc-950">
-        <div className="max-w-screen-xl mx-auto">
-          <div className="mb-16">
-            <span className="font-mono text-[#006b2c] dark:text-emerald-400 uppercase tracking-[0.3em] font-bold text-sm">
-              Capabilities
-            </span>
-            <h2 className="font-(family-name:--font-manrope) text-4xl font-bold mt-4 dark:text-zinc-50">
-              Intelligent curation.
-            </h2>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature) => (
-              <div key={feature.title} className="bg-[#f4f2fd] dark:bg-zinc-900 p-8 rounded-2xl hover:bg-[#e3e1ec] dark:hover:bg-zinc-800 transition-colors group">
-                <div className="text-4xl mb-6 group-hover:scale-110 transition-transform">{feature.icon}</div>
-                <h3 className="font-(family-name:--font-manrope) text-xl font-bold mb-3 dark:text-zinc-50">
-                  {feature.title}
-                </h3>
-                <p className="text-[#3e4a3d] dark:text-zinc-400">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Cities */}
-      <section className="py-24 px-8 bg-[#f4f2fd] dark:bg-zinc-900 overflow-hidden">
-        <div className="max-w-screen-xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
-            <div>
-              <span className="font-mono text-[#006b2c] dark:text-emerald-400 uppercase tracking-[0.3em] font-bold text-sm">
-                Destinations
-              </span>
-              <h2 className="font-(family-name:--font-manrope) text-4xl font-bold mt-4 dark:text-zinc-50">
-                Nigeria&apos;s Finest Hubs
-              </h2>
+        <section className="relative z-10 mx-auto -mt-2 w-full max-w-6xl px-6 pb-16 sm:px-8">
+          <div className="grid gap-3 rounded-[1.75rem] border border-[#decdbd] bg-white/90 p-4 shadow-[0_25px_55px_rgba(53,37,22,0.12)] backdrop-blur-sm md:grid-cols-[1fr_1fr_1fr_auto] md:items-center">
+            <div className="rounded-2xl border border-[#e4d7cb] bg-[#fcfaf8] px-4 py-3">
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#9a8778]">Location</p>
+              <p className="text-sm font-semibold text-[#3c3128]">Lagos, Abuja, Port Harcourt</p>
             </div>
-            <Link href="/tenant/browse" className="text-[#006b2c] dark:text-emerald-400 font-bold flex items-center gap-2 hover:gap-4 transition-all">
-              View All Cities →
+            <div className="rounded-2xl border border-[#e4d7cb] bg-[#fcfaf8] px-4 py-3">
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#9a8778]">Property Type</p>
+              <p className="text-sm font-semibold text-[#3c3128]">Apartments, Duplex, Mini-flat</p>
+            </div>
+            <div className="rounded-2xl border border-[#e4d7cb] bg-[#fcfaf8] px-4 py-3">
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#9a8778]">Budget</p>
+              <p className="text-sm font-semibold text-[#3c3128]">N500,000 - N15,000,000</p>
+            </div>
+            <Link
+              href="/tenant/browse"
+              className="inline-flex h-12 items-center justify-center rounded-full bg-[#d78f45] px-7 text-sm font-bold text-white shadow-[0_14px_28px_rgba(215,143,69,0.35)] transition-colors hover:bg-[#ca7f35]"
+            >
+              Search Homes
             </Link>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {cities.map((city) => (
-              <div key={city.name} className={`relative group cursor-pointer overflow-hidden rounded-2xl shadow-xl ${city.offset ? "md:translate-y-12" : ""}`}>
-                <div className="w-full aspect-[3/4] bg-linear-to-br from-emerald-700 to-emerald-900 group-hover:scale-110 transition-transform duration-700" />
-                <div className="absolute inset-0 bg-linear-to-t from-zinc-950 via-transparent to-transparent opacity-80" />
-                <div className="absolute bottom-0 left-0 p-8">
-                  <h3 className="text-white font-(family-name:--font-manrope) text-3xl font-bold mb-2">{city.name}</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {city.neighborhoods.map((n) => (
-                      <span key={n} className="text-zinc-300 text-xs font-mono bg-white/10 backdrop-blur-md px-3 py-1 rounded-full">
-                        {n}
-                      </span>
-                    ))}
+        </section>
+      </div>
+
+      <section className="mx-auto w-full max-w-6xl px-6 pb-20 sm:px-8">
+        <div className="mb-8 flex items-end justify-between gap-4">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.24em] text-[#8c6e56]">Featured Properties</p>
+            <h2 className="mt-2 font-(family-name:--font-manrope) text-3xl font-extrabold text-[#2a221d] sm:text-4xl">
+              Handpicked for your lifestyle
+            </h2>
+          </div>
+          <Link href="/tenant/browse" className="text-sm font-bold text-[#7b5d43] hover:text-[#614832]">
+            View all →
+          </Link>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {featuredListings.map((listing) => (
+            <article
+              key={listing.title}
+              className="overflow-hidden rounded-[1.6rem] border border-[#ddcab8] bg-white shadow-[0_18px_38px_rgba(53,37,22,0.1)] transition-transform hover:-translate-y-1"
+            >
+              <img src={listing.image} alt={listing.title} className="h-52 w-full object-cover" />
+              <div className="p-5">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#9a8676]">{listing.city}</p>
+                <h3 className="mt-2 font-(family-name:--font-manrope) text-xl font-extrabold text-[#2a221d]">
+                  {listing.title}
+                </h3>
+                <p className="mt-2 text-sm font-semibold text-[#7c5d43]">{listing.price} / year</p>
+                <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+                  <div className="rounded-xl bg-[#f7eee6] px-2 py-2 text-[11px] font-semibold text-[#5d4b3f]">
+                    {listing.beds} Beds
+                  </div>
+                  <div className="rounded-xl bg-[#f7eee6] px-2 py-2 text-[11px] font-semibold text-[#5d4b3f]">
+                    {listing.baths} Baths
+                  </div>
+                  <div className="rounded-xl bg-[#f7eee6] px-2 py-2 text-[11px] font-semibold text-[#5d4b3f]">
+                    {listing.area}
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
+            </article>
+          ))}
         </div>
       </section>
 
-      {/* Landlord CTA */}
-      <section className="py-32 px-8 bg-[#fbf8ff] dark:bg-zinc-950">
-        <div className="max-w-screen-xl mx-auto">
-          <div className="bg-[#1a1b22] dark:bg-zinc-800 rounded-[2.5rem] p-12 md:p-20 relative overflow-hidden">
-            <div className="relative z-10 max-w-2xl">
-              <h2 className="font-(family-name:--font-manrope) text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
-                Are you a landlord?
-              </h2>
-              <p className="text-zinc-400 text-lg mb-10 leading-relaxed">
-                Connect with verified, high-quality tenants curated by our AI system. Reduce vacancy times and manage your properties with unprecedented transparency.
-              </p>
-              <Link href="/register" className="bg-[#006b2c] text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-[#00873a] transition-all inline-block">
-                List Your Property
+      <section className="pb-24">
+        <div className="mx-auto w-full max-w-6xl px-6 sm:px-8">
+          <div className="rounded-[2rem] border border-[#d8c6b7] bg-[#2f2620] px-8 py-12 sm:px-12 sm:py-14">
+            <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#c9ac93]">For Landlords</p>
+                <h3 className="mt-2 font-(family-name:--font-manrope) text-3xl font-extrabold text-white sm:text-4xl">
+                  List your property and reach verified tenants faster.
+                </h3>
+                <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[#d8c8bc] sm:text-base">
+                  Use Victoria&apos;s AI-assisted listing tools, neighborhood positioning, and fair-pricing insights to reduce vacancy and close faster.
+                </p>
+              </div>
+              <Link
+                href="/register"
+                className="inline-flex h-12 items-center justify-center rounded-full bg-[#d78f45] px-8 text-sm font-bold text-white transition-colors hover:bg-[#ca7f35]"
+              >
+                List Property
               </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-[#f4f2fd] dark:bg-zinc-900 py-12 px-8">
-        <div className="max-w-screen-xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex flex-col items-center md:items-start gap-4">
-            <span className="text-2xl font-black tracking-tighter text-emerald-900 dark:text-emerald-50 font-(family-name:--font-geist-sans)">
+      <footer className="border-t border-[#dcc9b8] bg-[#f8efe7] py-8">
+        <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-5 px-6 text-center sm:px-8 md:flex-row md:text-left">
+          <div>
+            <span className="font-(family-name:--font-manrope) text-2xl font-black tracking-tight text-[#2a221d]">
               Victoria&apos;s
             </span>
-            <p className="text-[#3e4a3d] dark:text-zinc-400 text-sm">© {new Date().getFullYear()} Victoria&apos;s Shell. All rights reserved.</p>
+            <p className="text-sm text-[#7f7065]">© {new Date().getFullYear()} Victoria&apos;s Shell. All rights reserved.</p>
           </div>
-          <div className="flex gap-8 text-sm font-medium text-[#3e4a3d] dark:text-zinc-400">
-            <Link href="#" className="hover:text-[#006b2c] dark:hover:text-emerald-400 transition-colors">Privacy</Link>
-            <Link href="#" className="hover:text-[#006b2c] dark:hover:text-emerald-400 transition-colors">Terms</Link>
-            <Link href="#" className="hover:text-[#006b2c] dark:hover:text-emerald-400 transition-colors">Contact</Link>
+          <div className="flex gap-7 text-sm font-semibold text-[#6d5f54]">
+            <Link href="#" className="hover:text-[#2a221d]">Privacy</Link>
+            <Link href="#" className="hover:text-[#2a221d]">Terms</Link>
+            <Link href="#" className="hover:text-[#2a221d]">Contact</Link>
           </div>
         </div>
       </footer>
