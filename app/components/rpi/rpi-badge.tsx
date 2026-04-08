@@ -54,7 +54,7 @@ function TrendArrow({
     const isUp = trend === "up";
     const colorClass = isUp
         ? "text-red-500 dark:text-red-400"
-        : "text-emerald-600 dark:text-emerald-400";
+        : "text-amber-600 dark:text-amber-400";
     const arrow = isUp ? "↑" : "↓";
     const label = `${arrow} ${Math.abs(trend_percent).toFixed(1)}%`;
 
@@ -89,7 +89,7 @@ function ComponentBar({
                 <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500 dark:text-zinc-400">
                     {label}
                 </span>
-                <span className="text-[11px] font-black text-[#1a1b22] dark:text-zinc-100">
+                <span className="text-[11px] font-black text-[#2a221d] dark:text-zinc-100">
                     {formatNaira(value)}
                 </span>
             </div>
@@ -110,7 +110,7 @@ export function RpiBadge({ data }: { data: RpiBadgeData }): React.ReactElement {
         totalSamples >= 30 ? "high" : totalSamples >= 12 ? "medium" : "low";
     const confidenceColor =
         confidence === "high"
-            ? "text-emerald-600 dark:text-emerald-400"
+            ? "text-amber-600 dark:text-amber-400"
             : confidence === "medium"
                 ? "text-amber-600 dark:text-amber-400"
                 : "text-zinc-400";
@@ -126,7 +126,7 @@ export function RpiBadge({ data }: { data: RpiBadgeData }): React.ReactElement {
                 render={
                     <button
                         type="button"
-                        className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors cursor-pointer"
+                        className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 dark:bg-amber-900/30 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors cursor-pointer"
                         title="View RPI details"
                     />
                 }
@@ -138,21 +138,21 @@ export function RpiBadge({ data }: { data: RpiBadgeData }): React.ReactElement {
             </DialogTrigger>
             <DialogContent className="max-w-sm">
                 <DialogHeader>
-                    <DialogTitle className="text-base font-black text-[#1a1b22] dark:text-zinc-50">
+                    <DialogTitle className="text-base font-black text-[#2a221d] dark:text-zinc-50">
                         {data.lga} — Rental Price Index
                     </DialogTitle>
                 </DialogHeader>
 
                 {/* Hero value */}
-                <div className="rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/40 p-4 flex items-start justify-between">
+                <div className="rounded-2xl bg-amber-50/80 dark:bg-amber-950/40 border border-amber-100 dark:border-amber-900/40 p-4 flex items-start justify-between">
                     <div>
-                        <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-emerald-700 dark:text-emerald-400">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-amber-700 dark:text-amber-400">
                             Market RPI
                         </p>
-                        <p className="mt-1 text-2xl font-black text-emerald-800 dark:text-emerald-300">
+                        <p className="mt-1 text-2xl font-black text-amber-800 dark:text-amber-300">
                             {formatNaira(data.rpi_value)}
                         </p>
-                        <p className="text-[10px] text-emerald-700/70 dark:text-emerald-400/70 mt-0.5">
+                        <p className="text-[10px] text-amber-700/70 dark:text-amber-400/70 mt-0.5">
                             {period} · all apartment types
                         </p>
                     </div>
@@ -173,7 +173,7 @@ export function RpiBadge({ data }: { data: RpiBadgeData }): React.ReactElement {
                         label={`Historical median (${data.sample_size_hist} txns)`}
                         value={data.hist_component}
                         total={maxComponent}
-                        colorClass="bg-emerald-500"
+                        colorClass="bg-amber-500"
                     />
                     <ComponentBar
                         label={`Current comparables (${data.sample_size_comp} listings)`}
@@ -185,7 +185,7 @@ export function RpiBadge({ data }: { data: RpiBadgeData }): React.ReactElement {
                         <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400">
                             Monthly inflation factor
                         </span>
-                        <span className="text-[11px] font-black text-[#1a1b22] dark:text-zinc-100">
+                        <span className="text-[11px] font-black text-[#2a221d] dark:text-zinc-100">
                             {(data.inflation_component * 100).toFixed(3)}%
                         </span>
                     </div>
@@ -197,7 +197,7 @@ export function RpiBadge({ data }: { data: RpiBadgeData }): React.ReactElement {
                         Formula Weights
                     </p>
                     {[
-                        { label: "Historical transactions", weight: "60%", color: "bg-emerald-500" },
+                        { label: "Historical transactions", weight: "60%", color: "bg-amber-500" },
                         { label: "Comparable listings", weight: "30%", color: "bg-violet-500" },
                         { label: "Prior month smoothing", weight: "10%", color: "bg-zinc-300 dark:bg-zinc-600" },
                     ].map((w) => (

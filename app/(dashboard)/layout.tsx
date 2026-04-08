@@ -33,17 +33,17 @@ export default async function DashboardLayout({
             <nav className="sticky top-0 w-full z-50 glass-nav shadow-[0px_20px_40px_rgba(26,27,34,0.06)]">
                 <div className="flex justify-between items-center px-8 h-20 w-full max-w-screen-2xl mx-auto">
                     <div className="flex items-center gap-8">
-                        <Link href="/" className="text-2xl font-black tracking-tighter text-emerald-900 dark:text-emerald-50 font-(family-name:--font-geist-sans)">
+                        <Link href="/" className="text-2xl font-black tracking-tighter text-amber-900 dark:text-amber-50 font-(family-name:--font-geist-sans)">
                             Victoria&apos;s
                         </Link>
                         <div className="hidden md:flex items-center gap-6 font-(family-name:--font-geist-sans) font-semibold tracking-tight">
-                            <Link href="/tenant/browse" className="text-zinc-500 dark:text-zinc-400 hover:text-emerald-600 transition-colors">
+                            <Link href="/tenant/browse" className="text-zinc-500 dark:text-zinc-400 hover:text-amber-600 transition-colors">
                                 Listings
                             </Link>
-                            <Link href="/tenant" className="text-zinc-500 dark:text-zinc-400 hover:text-emerald-600 transition-colors">
+                            <Link href="/tenant" className="text-zinc-500 dark:text-zinc-400 hover:text-amber-600 transition-colors">
                                 Concierge
                             </Link>
-                            <Link href="/tenant/saved" className="text-zinc-500 dark:text-zinc-400 hover:text-emerald-600 transition-colors">
+                            <Link href="/tenant/saved" className="text-zinc-500 dark:text-zinc-400 hover:text-amber-600 transition-colors">
                                 Saved
                             </Link>
                         </div>
@@ -54,9 +54,9 @@ export default async function DashboardLayout({
                                 <p className="text-[10px] font-mono text-zinc-400 uppercase tracking-[0.2em]">
                                     {role === "landlord" ? "Landlord" : "Tenant"}
                                 </p>
-                                <p className="text-sm font-bold text-[#1a1b22] dark:text-zinc-50">{name}</p>
+                                <p className="text-sm font-bold text-[#2a221d] dark:text-zinc-50">{name}</p>
                             </div>
-                            <div className="w-10 h-10 rounded-full bg-[#00873a] flex items-center justify-center text-white font-bold text-sm">
+                            <div className="w-10 h-10 rounded-full bg-[#d78f45] flex items-center justify-center text-white font-bold text-sm">
                                 {firstName[0]?.toUpperCase() ?? "U"}
                             </div>
                             <form action="/api/auth/signout" method="POST">
@@ -115,10 +115,10 @@ export default async function DashboardLayout({
 
                     {/* Upgrade card */}
                     <div className="mt-auto px-4 pb-12">
-                        <div className="p-4 bg-emerald-50 dark:bg-emerald-950 rounded-2xl">
-                            <p className="text-xs font-bold text-emerald-900 dark:text-emerald-300 mb-1">Victoria AI</p>
-                            <p className="text-[11px] text-emerald-700 dark:text-emerald-400 leading-relaxed mb-3">Get personalized insights on your property performance.</p>
-                            <button type="button" className="w-full py-2 bg-[#006b2c] text-white text-xs font-bold rounded-lg hover:opacity-90 transition-opacity">
+                        <div className="p-4 bg-amber-50 dark:bg-amber-950 rounded-2xl">
+                            <p className="text-xs font-bold text-amber-900 dark:text-amber-300 mb-1">Victoria AI</p>
+                            <p className="text-[11px] text-amber-700 dark:text-amber-400 leading-relaxed mb-3">Get personalized insights on your property performance.</p>
+                            <button type="button" className="w-full py-2 bg-[#7b5d43] text-white text-xs font-bold rounded-lg hover:opacity-90 transition-opacity">
                                 Upgrade to Pro
                             </button>
                         </div>

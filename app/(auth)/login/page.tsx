@@ -72,15 +72,15 @@ export default function LoginPage(): React.ReactElement {
     return (
         <div className="space-y-6">
             {/* Login Card */}
-            <div className="bg-[#f4f2fd] dark:bg-zinc-900 rounded-[2rem] p-8 md:p-12 ambient-shadow relative overflow-hidden">
+            <div className="bg-[#f8efe7] dark:bg-zinc-900 rounded-[2rem] p-8 md:p-12 ambient-shadow relative overflow-hidden">
                 {/* Tab Switcher */}
-                <div className="flex gap-1 bg-[#e3e1ec] dark:bg-zinc-800 p-1 rounded-2xl mb-10 w-fit mx-auto">
+                <div className="flex gap-1 bg-[#efe0d2] dark:bg-zinc-800 p-1 rounded-2xl mb-10 w-fit mx-auto">
                     <button
                         type="button"
                         onClick={() => { setAuthMode("email"); setError(null); }}
                         className={`px-6 py-2 rounded-xl text-sm font-semibold transition-all ${authMode === "email"
-                                ? "bg-white dark:bg-zinc-700 text-[#006b2c] dark:text-emerald-400 shadow-sm"
-                                : "text-[#3e4a3d] dark:text-zinc-400 hover:text-[#1a1b22] dark:hover:text-zinc-200"
+                                ? "bg-white dark:bg-zinc-700 text-[#7b5d43] dark:text-amber-400 shadow-sm"
+                                : "text-[#6a5e54] dark:text-zinc-400 hover:text-[#2a221d] dark:hover:text-zinc-200"
                             }`}
                     >
                         Email
@@ -89,8 +89,8 @@ export default function LoginPage(): React.ReactElement {
                         type="button"
                         onClick={() => { setAuthMode("phone"); setError(null); }}
                         className={`px-6 py-2 rounded-xl text-sm font-semibold transition-all ${authMode === "phone"
-                                ? "bg-white dark:bg-zinc-700 text-[#006b2c] dark:text-emerald-400 shadow-sm"
-                                : "text-[#3e4a3d] dark:text-zinc-400 hover:text-[#1a1b22] dark:hover:text-zinc-200"
+                                ? "bg-white dark:bg-zinc-700 text-[#7b5d43] dark:text-amber-400 shadow-sm"
+                                : "text-[#6a5e54] dark:text-zinc-400 hover:text-[#2a221d] dark:hover:text-zinc-200"
                             }`}
                     >
                         Phone OTP
@@ -106,7 +106,7 @@ export default function LoginPage(): React.ReactElement {
                 {authMode === "email" ? (
                     <form onSubmit={handleEmailLogin} className="space-y-6">
                         <div>
-                            <label htmlFor="email" className="block text-xs font-mono uppercase tracking-[0.2em] text-[#3e4a3d] dark:text-zinc-400 mb-2 ml-1">
+                            <label htmlFor="email" className="block text-xs font-mono uppercase tracking-[0.2em] text-[#6a5e54] dark:text-zinc-400 mb-2 ml-1">
                                 Email Address
                             </label>
                             <input
@@ -115,12 +115,12 @@ export default function LoginPage(): React.ReactElement {
                                 required
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full bg-white dark:bg-zinc-800 border-none rounded-xl px-4 py-4 focus:ring-2 focus:ring-[#006b2c]/20 text-[#1a1b22] dark:text-zinc-50 placeholder:text-[#6e7b6c] dark:placeholder:text-zinc-500 transition-all"
+                                className="w-full bg-white dark:bg-zinc-800 border-none rounded-xl px-4 py-4 focus:ring-2 focus:ring-[#7b5d43]/20 text-[#2a221d] dark:text-zinc-50 placeholder:text-[#6e7b6c] dark:placeholder:text-zinc-500 transition-all"
                                 placeholder="curator@victorias.luxury"
                             />
                         </div>
                         <div>
-                            <label htmlFor="password" className="block text-xs font-mono uppercase tracking-[0.2em] text-[#3e4a3d] dark:text-zinc-400 mb-2 ml-1">
+                            <label htmlFor="password" className="block text-xs font-mono uppercase tracking-[0.2em] text-[#6a5e54] dark:text-zinc-400 mb-2 ml-1">
                                 Password
                             </label>
                             <div className="relative">
@@ -130,27 +130,27 @@ export default function LoginPage(): React.ReactElement {
                                     required
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full bg-white dark:bg-zinc-800 border-none rounded-xl px-4 py-4 pr-12 focus:ring-2 focus:ring-[#006b2c]/20 text-[#1a1b22] dark:text-zinc-50 placeholder:text-[#6e7b6c] dark:placeholder:text-zinc-500 transition-all"
+                                    className="w-full bg-white dark:bg-zinc-800 border-none rounded-xl px-4 py-4 pr-12 focus:ring-2 focus:ring-[#7b5d43]/20 text-[#2a221d] dark:text-zinc-50 placeholder:text-[#6e7b6c] dark:placeholder:text-zinc-500 transition-all"
                                     placeholder="••••••••"
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6e7b6c] dark:text-zinc-500 hover:text-[#1a1b22] dark:hover:text-zinc-300 transition-colors"
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6e7b6c] dark:text-zinc-500 hover:text-[#2a221d] dark:hover:text-zinc-300 transition-colors"
                                 >
                                     {showPassword ? "🙈" : "👁"}
                                 </button>
                             </div>
                         </div>
                         <div className="flex justify-end">
-                            <button type="button" className="text-sm font-medium text-[#006b2c] dark:text-emerald-400 hover:underline underline-offset-4">
+                            <button type="button" className="text-sm font-medium text-[#7b5d43] dark:text-amber-400 hover:underline underline-offset-4">
                                 Forgot password?
                             </button>
                         </div>
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full py-4 rounded-xl btn-primary-gradient text-white font-bold tracking-tight shadow-lg shadow-[#006b2c]/10 hover:scale-[1.01] active:scale-[0.98] transition-all disabled:opacity-50"
+                            className="w-full py-4 rounded-xl btn-primary-gradient text-white font-bold tracking-tight shadow-lg shadow-[#7b5d43]/10 hover:scale-[1.01] active:scale-[0.98] transition-all disabled:opacity-50"
                         >
                             {loading ? "Signing in..." : "Sign In"}
                         </button>
@@ -158,7 +158,7 @@ export default function LoginPage(): React.ReactElement {
                 ) : !otpSent ? (
                     <div className="space-y-6">
                         <div>
-                            <label htmlFor="phone" className="block text-xs font-mono uppercase tracking-[0.2em] text-[#3e4a3d] dark:text-zinc-400 mb-2 ml-1">
+                            <label htmlFor="phone" className="block text-xs font-mono uppercase tracking-[0.2em] text-[#6a5e54] dark:text-zinc-400 mb-2 ml-1">
                                 Phone Number
                             </label>
                             <input
@@ -167,7 +167,7 @@ export default function LoginPage(): React.ReactElement {
                                 required
                                 value={phone}
                                 onChange={(e) => setPhone(e.target.value)}
-                                className="w-full bg-white dark:bg-zinc-800 border-none rounded-xl px-4 py-4 focus:ring-2 focus:ring-[#006b2c]/20 text-[#1a1b22] dark:text-zinc-50 placeholder:text-[#6e7b6c] dark:placeholder:text-zinc-500 transition-all"
+                                className="w-full bg-white dark:bg-zinc-800 border-none rounded-xl px-4 py-4 focus:ring-2 focus:ring-[#7b5d43]/20 text-[#2a221d] dark:text-zinc-50 placeholder:text-[#6e7b6c] dark:placeholder:text-zinc-500 transition-all"
                                 placeholder="+234 800 000 0000"
                             />
                         </div>
@@ -175,7 +175,7 @@ export default function LoginPage(): React.ReactElement {
                             type="button"
                             onClick={handleSendOtp}
                             disabled={loading || !phone}
-                            className="w-full py-4 rounded-xl btn-primary-gradient text-white font-bold tracking-tight shadow-lg shadow-[#006b2c]/10 hover:scale-[1.01] active:scale-[0.98] transition-all disabled:opacity-50"
+                            className="w-full py-4 rounded-xl btn-primary-gradient text-white font-bold tracking-tight shadow-lg shadow-[#7b5d43]/10 hover:scale-[1.01] active:scale-[0.98] transition-all disabled:opacity-50"
                         >
                             {loading ? "Sending..." : "Send OTP"}
                         </button>
@@ -186,14 +186,14 @@ export default function LoginPage(): React.ReactElement {
                             <button
                                 type="button"
                                 onClick={() => setOtpSent(false)}
-                                className="w-10 h-10 rounded-full bg-[#e3e1ec] dark:bg-zinc-800 flex items-center justify-center text-[#1a1b22] dark:text-zinc-50 hover:bg-[#dad9e3] transition-colors"
+                                className="w-10 h-10 rounded-full bg-[#efe0d2] dark:bg-zinc-800 flex items-center justify-center text-[#2a221d] dark:text-zinc-50 hover:bg-[#dad9e3] transition-colors"
                             >
                                 ←
                             </button>
                             <h3 className="font-(family-name:--font-manrope) font-bold text-lg dark:text-zinc-50">Verify OTP</h3>
                         </div>
-                        <p className="text-sm text-[#3e4a3d] dark:text-zinc-400">
-                            We&apos;ve sent a code to <span className="font-mono text-[#006b2c] dark:text-emerald-400">{phone}</span>
+                        <p className="text-sm text-[#6a5e54] dark:text-zinc-400">
+                            We&apos;ve sent a code to <span className="font-mono text-[#7b5d43] dark:text-amber-400">{phone}</span>
                         </p>
                         <form onSubmit={handleVerifyOtp} className="space-y-6">
                             <input
@@ -205,13 +205,13 @@ export default function LoginPage(): React.ReactElement {
                                 maxLength={6}
                                 value={otp}
                                 onChange={(e) => setOtp(e.target.value)}
-                                className="w-full bg-white dark:bg-zinc-800 border-none rounded-xl px-4 py-4 text-center text-2xl font-mono font-bold tracking-[0.5em] focus:ring-2 focus:ring-[#006b2c]/20 text-[#1a1b22] dark:text-zinc-50 transition-all"
+                                className="w-full bg-white dark:bg-zinc-800 border-none rounded-xl px-4 py-4 text-center text-2xl font-mono font-bold tracking-[0.5em] focus:ring-2 focus:ring-[#7b5d43]/20 text-[#2a221d] dark:text-zinc-50 transition-all"
                                 placeholder="000000"
                             />
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full py-4 rounded-xl bg-[#006b2c] text-white font-bold shadow-lg shadow-[#006b2c]/20 hover:bg-[#00873a] transition-all disabled:opacity-50"
+                                className="w-full py-4 rounded-xl bg-[#7b5d43] text-white font-bold shadow-lg shadow-[#7b5d43]/20 hover:bg-[#d78f45] transition-all disabled:opacity-50"
                             >
                                 {loading ? "Verifying..." : "Verify & Continue"}
                             </button>
@@ -227,24 +227,24 @@ export default function LoginPage(): React.ReactElement {
                                 <div className="w-full border-t border-[#bdcaba]/30" />
                             </div>
                             <div className="relative flex justify-center text-xs uppercase font-mono tracking-[0.2em]">
-                                <span className="bg-[#f4f2fd] dark:bg-zinc-900 px-4 text-[#6e7b6c] dark:text-zinc-500">Or continue with</span>
+                                <span className="bg-[#f8efe7] dark:bg-zinc-900 px-4 text-[#6e7b6c] dark:text-zinc-500">Or continue with</span>
                             </div>
                         </div>
 
                         {/* Social */}
                         <div className="grid grid-cols-2 gap-4">
-                            <button type="button" className="flex items-center justify-center gap-3 py-3 rounded-xl bg-[#e3e1ec] dark:bg-zinc-800 text-[#3e4a3d] dark:text-zinc-400 font-medium hover:bg-[#e8e7f1] dark:hover:bg-zinc-700 transition-colors">
+                            <button type="button" className="flex items-center justify-center gap-3 py-3 rounded-xl bg-[#efe0d2] dark:bg-zinc-800 text-[#6a5e54] dark:text-zinc-400 font-medium hover:bg-[#e8e7f1] dark:hover:bg-zinc-700 transition-colors">
                                 Google
                             </button>
-                            <button type="button" className="flex items-center justify-center gap-3 py-3 rounded-xl bg-[#e3e1ec] dark:bg-zinc-800 text-[#3e4a3d] dark:text-zinc-400 font-medium hover:bg-[#e8e7f1] dark:hover:bg-zinc-700 transition-colors">
+                            <button type="button" className="flex items-center justify-center gap-3 py-3 rounded-xl bg-[#efe0d2] dark:bg-zinc-800 text-[#6a5e54] dark:text-zinc-400 font-medium hover:bg-[#e8e7f1] dark:hover:bg-zinc-700 transition-colors">
                                 Facebook
                             </button>
                         </div>
 
                         {/* Footer link */}
-                        <p className="text-center mt-10 text-[#3e4a3d] dark:text-zinc-400 text-sm">
+                        <p className="text-center mt-10 text-[#6a5e54] dark:text-zinc-400 text-sm">
                             Don&apos;t have an account?
-                            <Link href="/register" className="text-[#006b2c] dark:text-emerald-400 font-bold ml-1 hover:underline underline-offset-4">
+                            <Link href="/register" className="text-[#7b5d43] dark:text-amber-400 font-bold ml-1 hover:underline underline-offset-4">
                                 Create an account
                             </Link>
                         </p>

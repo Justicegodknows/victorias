@@ -33,20 +33,20 @@ export function ChatInterface(): React.ReactElement {
     }
 
     return (
-        <div className="flex h-full flex-col bg-[#fbf8ff] dark:bg-zinc-950">
+        <div className="flex h-full flex-col bg-[#f5ebe2] dark:bg-zinc-950">
             {/* Messages area */}
             <div className="flex-1 overflow-y-auto no-scrollbar px-4 py-8">
                 <div className="mx-auto max-w-4xl w-full flex flex-col gap-8">
                     {messages.length === 0 && (
                         <div className="flex flex-col items-center justify-center text-center py-12">
-                            <div className="w-20 h-20 rounded-full bg-[#006b2c] flex items-center justify-center text-white shadow-2xl mb-6 relative">
+                            <div className="w-20 h-20 rounded-full bg-[#7b5d43] flex items-center justify-center text-white shadow-2xl mb-6 relative">
                                 <span className="text-4xl">✨</span>
-                                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-400 border-4 border-[#fbf8ff] dark:border-zinc-950 rounded-full" />
+                                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-amber-400 border-4 border-[#f5ebe2] dark:border-zinc-950 rounded-full" />
                             </div>
-                            <h3 className="text-2xl font-(family-name:--font-geist-sans) font-bold text-[#1a1b22] dark:text-zinc-50 mb-2">
+                            <h3 className="text-2xl font-(family-name:--font-geist-sans) font-bold text-[#2a221d] dark:text-zinc-50 mb-2">
                                 Hi! I&apos;m Victoria
                             </h3>
-                            <p className="text-[#3e4a3d] dark:text-zinc-400 max-w-md text-sm leading-relaxed mb-10">
+                            <p className="text-[#6a5e54] dark:text-zinc-400 max-w-md text-sm leading-relaxed mb-10">
                                 Your premium AI apartment curator for the Nigerian market. How can I help you find your dream home today?
                             </p>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-2xl px-4">
@@ -55,7 +55,7 @@ export function ChatInterface(): React.ReactElement {
                                         key={suggestion}
                                         type="button"
                                         onClick={() => handleSuggestion(suggestion)}
-                                        className="px-5 py-4 bg-[#f4f2fd] dark:bg-zinc-900 text-left text-sm font-medium text-emerald-800 dark:text-emerald-400 rounded-2xl hover:bg-[#e3e1ec] dark:hover:bg-zinc-800 transition-colors shadow-sm"
+                                        className="px-5 py-4 bg-[#f8efe7] dark:bg-zinc-900 text-left text-sm font-medium text-amber-800 dark:text-amber-400 rounded-2xl hover:bg-[#efe0d2] dark:hover:bg-zinc-800 transition-colors shadow-sm"
                                     >
                                         {suggestion}
                                     </button>
@@ -71,7 +71,7 @@ export function ChatInterface(): React.ReactElement {
                         >
                             <div
                                 className={`max-w-[85%] md:max-w-[80%] text-sm leading-relaxed ${message.role === "user"
-                                    ? "bg-[#006b2c] px-6 py-4 rounded-2xl rounded-tr-none text-white shadow-lg"
+                                    ? "bg-[#7b5d43] px-6 py-4 rounded-2xl rounded-tr-none text-white shadow-lg"
                                     : "flex flex-col gap-4"
                                     }`}
                             >
@@ -81,7 +81,7 @@ export function ChatInterface(): React.ReactElement {
                                             return <p key={i} className="whitespace-pre-wrap">{part.text}</p>;
                                         }
                                         return (
-                                            <div key={i} className="bg-zinc-100 dark:bg-zinc-800 px-6 py-4 rounded-2xl rounded-tl-none text-[#1a1b22] dark:text-zinc-50 shadow-sm">
+                                            <div key={i} className="bg-zinc-100 dark:bg-zinc-800 px-6 py-4 rounded-2xl rounded-tl-none text-[#2a221d] dark:text-zinc-50 shadow-sm">
                                                 <p className="whitespace-pre-wrap">{part.text}</p>
                                             </div>
                                         );
@@ -107,7 +107,7 @@ export function ChatInterface(): React.ReactElement {
                                                 <div
                                                     key={i}
                                                     className={`rounded-2xl p-4 ${affordable
-                                                        ? "bg-[#baecbc] dark:bg-emerald-950 text-emerald-900 dark:text-emerald-300"
+                                                        ? "bg-[#f3ddc8] dark:bg-amber-950 text-amber-900 dark:text-amber-300"
                                                         : "bg-[#ffdad6] dark:bg-red-950 text-[#93000a] dark:text-red-300"
                                                         }`}
                                                 >
@@ -133,9 +133,9 @@ export function ChatInterface(): React.ReactElement {
                     {status === "streaming" && (
                         <div className="flex justify-start w-full">
                             <div className="bg-zinc-100 dark:bg-zinc-800 px-4 py-3 rounded-2xl rounded-tl-none flex items-center gap-1">
-                                <div className="w-1.5 h-1.5 rounded-full bg-[#006b2c] dot-1" />
-                                <div className="w-1.5 h-1.5 rounded-full bg-[#006b2c] dot-2" />
-                                <div className="w-1.5 h-1.5 rounded-full bg-[#006b2c] dot-3" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-[#7b5d43] dot-1" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-[#7b5d43] dot-2" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-[#7b5d43] dot-3" />
                             </div>
                         </div>
                     )}
@@ -151,7 +151,7 @@ export function ChatInterface(): React.ReactElement {
             </div>
 
             {/* Input area */}
-            <div className="p-6 bg-[#f4f2fd]/50 dark:bg-zinc-900/50 backdrop-blur-md">
+            <div className="p-6 bg-[#f8efe7]/50 dark:bg-zinc-900/50 backdrop-blur-md">
                 <form onSubmit={handleSubmit} className="mx-auto flex max-w-4xl gap-3 items-end">
                     <div className="flex-1 bg-white dark:bg-zinc-900 rounded-2xl shadow-sm px-4 py-3 flex items-center gap-3">
                         <textarea
@@ -164,7 +164,7 @@ export function ChatInterface(): React.ReactElement {
                                 }
                             }}
                             placeholder="Message Victoria..."
-                            className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-1 resize-none h-6 no-scrollbar leading-tight placeholder:text-zinc-400 dark:placeholder:text-zinc-500 text-[#1a1b22] dark:text-zinc-50"
+                            className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-1 resize-none h-6 no-scrollbar leading-tight placeholder:text-zinc-400 dark:placeholder:text-zinc-500 text-[#2a221d] dark:text-zinc-50"
                             rows={1}
                         />
                     </div>
@@ -172,7 +172,7 @@ export function ChatInterface(): React.ReactElement {
                         type="submit"
                         disabled={!input.trim() || status === "streaming"}
                         aria-label="Send message"
-                        className="w-12 h-12 bg-[#006b2c] hover:bg-[#00873a] text-white rounded-2xl flex items-center justify-center shadow-lg transition-transform active:scale-95 disabled:opacity-50"
+                        className="w-12 h-12 bg-[#7b5d43] hover:bg-[#d78f45] text-white rounded-2xl flex items-center justify-center shadow-lg transition-transform active:scale-95 disabled:opacity-50"
                     >
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <line x1="22" y1="2" x2="11" y2="13" />

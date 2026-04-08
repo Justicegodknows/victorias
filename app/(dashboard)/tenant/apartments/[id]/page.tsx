@@ -126,7 +126,7 @@ export default async function ApartmentDetailPage({
 
     return (
         <div className="mx-auto w-full max-w-6xl">
-            <Link href="/tenant/browse" className="mb-6 inline-flex items-center gap-2 text-sm text-[#3e4a3d] dark:text-zinc-400 hover:text-[#006b2c] dark:hover:text-emerald-400 transition-colors font-medium">
+            <Link href="/tenant/browse" className="mb-6 inline-flex items-center gap-2 text-sm text-[#6a5e54] dark:text-zinc-400 hover:text-[#7b5d43] dark:hover:text-amber-400 transition-colors font-medium">
                 ← Back to browse
             </Link>
 
@@ -152,20 +152,20 @@ export default async function ApartmentDetailPage({
                 {/* Main info */}
                 <div className="lg:col-span-2 space-y-8">
                     <div>
-                        <span className="font-mono text-[#006b2c] dark:text-emerald-400 uppercase tracking-[0.3em] font-bold text-[10px]">
+                        <span className="font-mono text-[#7b5d43] dark:text-amber-400 uppercase tracking-[0.3em] font-bold text-[10px]">
                             {APARTMENT_TYPE_LABELS[apartment.apartment_type as keyof typeof APARTMENT_TYPE_LABELS]}
                         </span>
-                        <h1 className="font-(family-name:--font-manrope) text-3xl font-bold text-[#1a1b22] dark:text-zinc-50 mt-2">{apartment.title}</h1>
+                        <h1 className="font-(family-name:--font-manrope) text-3xl font-bold text-[#2a221d] dark:text-zinc-50 mt-2">{apartment.title}</h1>
                         <p className="mt-1 text-[11px] font-mono uppercase tracking-[0.2em] text-zinc-400">{apartment.ppid}</p>
-                        <p className="mt-2 text-[#3e4a3d] dark:text-zinc-400">
+                        <p className="mt-2 text-[#6a5e54] dark:text-zinc-400">
                             {apartment.neighborhood}, {apartment.lga}, {CITY_LABELS[apartment.city as keyof typeof CITY_LABELS]}
                         </p>
                     </div>
 
                     {apartment.description && (
-                        <div className="bg-[#f4f2fd] dark:bg-zinc-900 rounded-2xl p-6">
-                            <h2 className="font-(family-name:--font-geist-sans) font-bold text-[#1a1b22] dark:text-zinc-50 mb-3">About this property</h2>
-                            <p className="text-sm leading-relaxed text-[#3e4a3d] dark:text-zinc-400">
+                        <div className="bg-[#f8efe7] dark:bg-zinc-900 rounded-2xl p-6">
+                            <h2 className="font-(family-name:--font-geist-sans) font-bold text-[#2a221d] dark:text-zinc-50 mb-3">About this property</h2>
+                            <p className="text-sm leading-relaxed text-[#6a5e54] dark:text-zinc-400">
                                 {apartment.description}
                             </p>
                         </div>
@@ -174,11 +174,11 @@ export default async function ApartmentDetailPage({
                     {/* Amenities */}
                     {amenities.length > 0 && (
                         <div>
-                            <h2 className="font-(family-name:--font-geist-sans) font-bold text-[#1a1b22] dark:text-zinc-50 mb-4">Amenities</h2>
+                            <h2 className="font-(family-name:--font-geist-sans) font-bold text-[#2a221d] dark:text-zinc-50 mb-4">Amenities</h2>
                             <div className="grid grid-cols-2 gap-3">
                                 {amenities.map((amenity) => (
-                                    <div key={amenity} className="flex items-center gap-3 bg-[#f4f2fd] dark:bg-zinc-900 rounded-xl px-4 py-3 text-sm text-[#1a1b22] dark:text-zinc-50">
-                                        <span className="text-[#006b2c] dark:text-emerald-400">✓</span>
+                                    <div key={amenity} className="flex items-center gap-3 bg-[#f8efe7] dark:bg-zinc-900 rounded-xl px-4 py-3 text-sm text-[#2a221d] dark:text-zinc-50">
+                                        <span className="text-[#7b5d43] dark:text-amber-400">✓</span>
                                         {AMENITY_LABELS[amenity] ?? amenity}
                                     </div>
                                 ))}
@@ -189,7 +189,7 @@ export default async function ApartmentDetailPage({
                     {/* Environmental factors */}
                     {env && (
                         <div>
-                            <h2 className="font-(family-name:--font-geist-sans) font-bold text-[#1a1b22] dark:text-zinc-50 mb-4">Lifestyle Metrics</h2>
+                            <h2 className="font-(family-name:--font-geist-sans) font-bold text-[#2a221d] dark:text-zinc-50 mb-4">Lifestyle Metrics</h2>
                             <div className="grid gap-4 sm:grid-cols-2">
                                 {[
                                     { label: "Power Supply", rating: env.power_supply_rating, color: "emerald", icon: "⚡" },
@@ -204,7 +204,7 @@ export default async function ApartmentDetailPage({
                                         </div>
                                         <div className="flex gap-1">
                                             {Array.from({ length: 5 }).map((_, i) => (
-                                                <div key={i} className={`h-2 flex-1 rounded-full ${i < metric.rating ? "bg-[#006b2c]" : "bg-zinc-200 dark:bg-zinc-700"}`} />
+                                                <div key={i} className={`h-2 flex-1 rounded-full ${i < metric.rating ? "bg-[#7b5d43]" : "bg-zinc-200 dark:bg-zinc-700"}`} />
                                             ))}
                                         </div>
                                     </div>
@@ -214,7 +214,7 @@ export default async function ApartmentDetailPage({
                                         <span>🌊</span>
                                         <p className="text-xs font-mono uppercase tracking-[0.2em] text-zinc-400">Flood Risk</p>
                                     </div>
-                                    <p className={`text-sm font-bold capitalize ${env.flood_risk === "low" ? "text-emerald-600" :
+                                    <p className={`text-sm font-bold capitalize ${env.flood_risk === "low" ? "text-amber-600" :
                                         env.flood_risk === "medium" ? "text-amber-600" : "text-red-600"
                                         }`}>
                                         {env.flood_risk}
@@ -222,7 +222,7 @@ export default async function ApartmentDetailPage({
                                 </div>
                             </div>
                             {(env.nearest_bus_stop || env.nearest_market || env.nearest_hospital) && (
-                                <div className="mt-4 bg-[#f4f2fd] dark:bg-zinc-900 rounded-2xl p-5 space-y-2 text-sm text-[#3e4a3d] dark:text-zinc-400">
+                                <div className="mt-4 bg-[#f8efe7] dark:bg-zinc-900 rounded-2xl p-5 space-y-2 text-sm text-[#6a5e54] dark:text-zinc-400">
                                     {env.nearest_bus_stop && <p>🚌 Nearest bus stop: {env.nearest_bus_stop}</p>}
                                     {env.nearest_market && <p>🛒 Nearest market: {env.nearest_market}</p>}
                                     {env.nearest_hospital && <p>🏥 Nearest hospital: {env.nearest_hospital}</p>}
@@ -236,23 +236,23 @@ export default async function ApartmentDetailPage({
                 {/* Sidebar — pricing + contact */}
                 <div className="space-y-4 lg:sticky lg:top-28 h-fit">
                     <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 ambient-shadow">
-                        <p className="font-mono text-3xl font-black text-[#006b2c] dark:text-emerald-400">{formatNaira(apartment.annual_rent)}</p>
+                        <p className="font-mono text-3xl font-black text-[#7b5d43] dark:text-amber-400">{formatNaira(apartment.annual_rent)}</p>
                         <p className="text-xs text-zinc-400 font-mono uppercase tracking-[0.2em] mt-1">per year</p>
 
                         <div className="mt-6 space-y-3 text-sm">
-                            <div className="flex justify-between text-[#3e4a3d] dark:text-zinc-400">
+                            <div className="flex justify-between text-[#6a5e54] dark:text-zinc-400">
                                 <span>Annual Rent</span>
                                 <span className="font-medium">{formatNaira(apartment.annual_rent)}</span>
                             </div>
-                            <div className="flex justify-between text-[#3e4a3d] dark:text-zinc-400">
+                            <div className="flex justify-between text-[#6a5e54] dark:text-zinc-400">
                                 <span>Caution Deposit</span>
                                 <span className="font-medium">{formatNaira(apartment.deposit)}</span>
                             </div>
-                            <div className="flex justify-between text-[#3e4a3d] dark:text-zinc-400">
+                            <div className="flex justify-between text-[#6a5e54] dark:text-zinc-400">
                                 <span>Agent Fee</span>
                                 <span className="font-medium">{formatNaira(apartment.agent_fee)}</span>
                             </div>
-                            <div className="flex justify-between pt-3 border-t border-zinc-100 dark:border-zinc-800 font-bold text-[#1a1b22] dark:text-zinc-50">
+                            <div className="flex justify-between pt-3 border-t border-zinc-100 dark:border-zinc-800 font-bold text-[#2a221d] dark:text-zinc-50">
                                 <span>Total Upfront</span>
                                 <span>{formatNaira(apartment.total_upfront_cost)}</span>
                             </div>
@@ -260,7 +260,7 @@ export default async function ApartmentDetailPage({
 
                         <Link
                             href={`/tenant?ask=Tell me more about the apartment "${apartment.title}" in ${apartment.neighborhood}`}
-                            className="mt-6 block w-full btn-primary-gradient text-white py-3 rounded-xl text-center font-bold shadow-lg shadow-[#006b2c]/10 hover:scale-[1.01] active:scale-[0.98] transition-all"
+                            className="mt-6 block w-full btn-primary-gradient text-white py-3 rounded-xl text-center font-bold shadow-lg shadow-[#7b5d43]/10 hover:scale-[1.01] active:scale-[0.98] transition-all"
                         >
                             Ask Victoria about this
                         </Link>
@@ -283,7 +283,7 @@ export default async function ApartmentDetailPage({
                                 const isBelow = delta < 0;
                                 return (
                                     <p className={`mt-2 text-[10px] font-bold ${isBelow
-                                        ? "text-emerald-700 dark:text-emerald-400"
+                                        ? "text-amber-700 dark:text-amber-400"
                                         : "text-amber-600 dark:text-amber-400"
                                         }`}>
                                         {isBelow
@@ -297,14 +297,14 @@ export default async function ApartmentDetailPage({
 
                     {landlord && (
                         <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 ambient-shadow">
-                            <h3 className="font-(family-name:--font-geist-sans) font-bold text-[#1a1b22] dark:text-zinc-50 mb-2">Listed by</h3>
-                            <p className="text-sm text-[#3e4a3d] dark:text-zinc-400">{landlord.full_name}</p>
+                            <h3 className="font-(family-name:--font-geist-sans) font-bold text-[#2a221d] dark:text-zinc-50 mb-2">Listed by</h3>
+                            <p className="text-sm text-[#6a5e54] dark:text-zinc-400">{landlord.full_name}</p>
                             {landlord.phone && (
                                 <a
                                     href={`https://wa.me/${landlord.phone.replace(/\D/g, "")}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="mt-4 inline-flex items-center gap-2 bg-[#baecbc] dark:bg-emerald-900 px-4 py-2.5 rounded-xl text-sm font-bold text-emerald-900 dark:text-emerald-300 hover:bg-[#a1d3a4] dark:hover:bg-emerald-800 transition-colors"
+                                    className="mt-4 inline-flex items-center gap-2 bg-[#f3ddc8] dark:bg-amber-900 px-4 py-2.5 rounded-xl text-sm font-bold text-amber-900 dark:text-amber-300 hover:bg-[#a1d3a4] dark:hover:bg-amber-800 transition-colors"
                                 >
                                     💬 Chat on WhatsApp
                                 </a>

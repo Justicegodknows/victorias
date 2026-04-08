@@ -37,12 +37,12 @@ export function ApartmentCard({ apartment }: ApartmentCardProps): React.ReactEle
                         alt={apartment.title}
                         className="w-full h-full object-cover"
                     />
-                    <div className="absolute top-3 right-3 bg-[#006b2c] text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-tighter">
+                    <div className="absolute top-3 right-3 bg-[#7b5d43] text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-tighter">
                         Verified
                     </div>
                 </div>
             ) : (
-                <div className="h-44 bg-linear-to-br from-emerald-100 to-emerald-50 dark:from-zinc-800 dark:to-zinc-900 flex items-center justify-center">
+                <div className="h-44 bg-linear-to-br from-amber-100 to-amber-50 dark:from-zinc-800 dark:to-zinc-900 flex items-center justify-center">
                     <span className="text-4xl">🏠</span>
                 </div>
             )}
@@ -65,7 +65,7 @@ export function ApartmentCard({ apartment }: ApartmentCardProps): React.ReactEle
 
                 {/* Price */}
                 <div className="flex items-end justify-between">
-                    <div className="font-mono text-lg font-black text-[#006b2c] dark:text-emerald-400">
+                    <div className="font-mono text-lg font-black text-[#7b5d43] dark:text-amber-400">
                         {apartment.annual_rent}<span className="text-[10px] font-normal text-zinc-400">/yr</span>
                     </div>
                     <div className="text-[10px] text-zinc-400">Upfront: {apartment.total_upfront_cost}</div>
@@ -89,15 +89,15 @@ export function ApartmentCard({ apartment }: ApartmentCardProps): React.ReactEle
                 {envFactors && (
                     <div className="grid grid-cols-3 gap-1 pt-2 border-t border-zinc-100 dark:border-zinc-800">
                         <div className="flex flex-col items-center">
-                            <span className="text-xs text-emerald-500">⚡</span>
+                            <span className="text-xs text-amber-500">⚡</span>
                             <span className="text-[8px] uppercase font-bold text-zinc-400">{envFactors.power_supply_rating}/5 Power</span>
                         </div>
                         <div className="flex flex-col items-center border-x border-zinc-100 dark:border-zinc-800">
-                            <span className="text-xs text-emerald-500">🛡️</span>
+                            <span className="text-xs text-amber-500">🛡️</span>
                             <span className="text-[8px] uppercase font-bold text-zinc-400">{envFactors.security_rating}/5 Sec</span>
                         </div>
                         <div className="flex flex-col items-center">
-                            <span className="text-xs text-emerald-500">🌊</span>
+                            <span className="text-xs text-amber-500">🌊</span>
                             <span className="text-[8px] uppercase font-bold text-zinc-400">{envFactors.flood_risk}</span>
                         </div>
                     </div>

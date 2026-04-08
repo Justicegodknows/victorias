@@ -142,16 +142,16 @@ export default async function BrowsePage({
         <div className="mx-auto w-full max-w-6xl">
             {/* Editorial header */}
             <div className="mb-10">
-                <span className="font-mono text-[#006b2c] dark:text-emerald-400 uppercase tracking-[0.3em] font-bold text-[10px]">
+                <span className="font-mono text-[#7b5d43] dark:text-amber-400 uppercase tracking-[0.3em] font-bold text-[10px]">
                     Curated Collection
                 </span>
                 <div className="flex items-end justify-between mt-2">
-                    <h1 className="font-(family-name:--font-manrope) text-3xl font-bold text-[#1a1b22] dark:text-zinc-50">
+                    <h1 className="font-(family-name:--font-manrope) text-3xl font-bold text-[#2a221d] dark:text-zinc-50">
                         Browse Apartments
                     </h1>
                     <Link
                         href="/tenant"
-                        className="text-[#006b2c] dark:text-emerald-400 font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all"
+                        className="text-[#7b5d43] dark:text-amber-400 font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all"
                     >
                         Ask Victoria AI →
                     </Link>
@@ -164,7 +164,7 @@ export default async function BrowsePage({
                     name="city"
                     defaultValue={city ?? ""}
                     aria-label="Filter by city"
-                    className="bg-[#f4f2fd] dark:bg-zinc-900 border-none rounded-xl px-4 py-3 text-sm font-medium text-[#1a1b22] dark:text-zinc-50 focus:ring-2 focus:ring-[#006b2c]/20"
+                    className="bg-[#f8efe7] dark:bg-zinc-900 border-none rounded-xl px-4 py-3 text-sm font-medium text-[#2a221d] dark:text-zinc-50 focus:ring-2 focus:ring-[#7b5d43]/20"
                 >
                     <option value="">All Cities</option>
                     {Object.entries(CITY_LABELS).map(([value, label]) => (
@@ -176,7 +176,7 @@ export default async function BrowsePage({
                     name="type"
                     defaultValue={type ?? ""}
                     aria-label="Filter by apartment type"
-                    className="bg-[#f4f2fd] dark:bg-zinc-900 border-none rounded-xl px-4 py-3 text-sm font-medium text-[#1a1b22] dark:text-zinc-50 focus:ring-2 focus:ring-[#006b2c]/20"
+                    className="bg-[#f8efe7] dark:bg-zinc-900 border-none rounded-xl px-4 py-3 text-sm font-medium text-[#2a221d] dark:text-zinc-50 focus:ring-2 focus:ring-[#7b5d43]/20"
                 >
                     <option value="">All Types</option>
                     {Object.entries(APARTMENT_TYPE_LABELS).map(([value, label]) => (
@@ -188,7 +188,7 @@ export default async function BrowsePage({
                     name="max_rent"
                     defaultValue={maxRent?.toString() ?? ""}
                     aria-label="Filter by maximum rent"
-                    className="bg-[#f4f2fd] dark:bg-zinc-900 border-none rounded-xl px-4 py-3 text-sm font-medium text-[#1a1b22] dark:text-zinc-50 focus:ring-2 focus:ring-[#006b2c]/20"
+                    className="bg-[#f8efe7] dark:bg-zinc-900 border-none rounded-xl px-4 py-3 text-sm font-medium text-[#2a221d] dark:text-zinc-50 focus:ring-2 focus:ring-[#7b5d43]/20"
                 >
                     <option value="">Any Budget</option>
                     <option value="500000">Up to ₦500,000</option>
@@ -201,7 +201,7 @@ export default async function BrowsePage({
 
                 <button
                     type="submit"
-                    className="bg-[#006b2c] text-white px-6 py-3 rounded-xl text-sm font-bold hover:bg-[#00873a] transition-colors"
+                    className="bg-[#7b5d43] text-white px-6 py-3 rounded-xl text-sm font-bold hover:bg-[#d78f45] transition-colors"
                 >
                     Filter
                 </button>
@@ -209,11 +209,11 @@ export default async function BrowsePage({
 
             {/* Results grid */}
             {averageRpi !== null && (
-                <div className="mb-6 rounded-2xl border border-emerald-100 bg-emerald-50/60 px-5 py-4 dark:border-emerald-900/40 dark:bg-emerald-950/30">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-emerald-700 dark:text-emerald-400">Market Index Snapshot</p>
+                <div className="mb-6 rounded-2xl border border-amber-100 bg-amber-50/60 px-5 py-4 dark:border-amber-900/40 dark:bg-amber-950/30">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-amber-700 dark:text-amber-400">Market Index Snapshot</p>
                     <div className="mt-2 flex flex-wrap items-baseline gap-4">
-                        <p className="text-2xl font-black text-emerald-800 dark:text-emerald-300">{formatNaira(Math.round(averageRpi))}</p>
-                        <p className="text-xs text-emerald-700/80 dark:text-emerald-400/80">Average RPI across shown LGAs</p>
+                        <p className="text-2xl font-black text-amber-800 dark:text-amber-300">{formatNaira(Math.round(averageRpi))}</p>
+                        <p className="text-xs text-amber-700/80 dark:text-amber-400/80">Average RPI across shown LGAs</p>
                     </div>
                     {(risingLgaCount > 0 || fallingLgaCount > 0) && (
                         <div className="mt-2 flex flex-wrap gap-3">
@@ -223,7 +223,7 @@ export default async function BrowsePage({
                                 </span>
                             )}
                             {fallingLgaCount > 0 && (
-                                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                                <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400">
                                     ↓ {fallingLgaCount} LGA{fallingLgaCount > 1 ? "s" : ""} trending down — potential value
                                 </span>
                             )}
@@ -250,20 +250,20 @@ export default async function BrowsePage({
                                     {primaryImage ? (
                                         <img src={primaryImage} alt={apt.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" />
                                     ) : (
-                                        <div className="h-full bg-linear-to-br from-emerald-100 to-emerald-50 dark:from-zinc-800 dark:to-zinc-900 flex items-center justify-center">
+                                        <div className="h-full bg-linear-to-br from-amber-100 to-amber-50 dark:from-zinc-800 dark:to-zinc-900 flex items-center justify-center">
                                             <span className="text-4xl">🏠</span>
                                         </div>
                                     )}
-                                    <div className="absolute top-3 right-3 bg-[#006b2c] text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-tighter">
+                                    <div className="absolute top-3 right-3 bg-[#7b5d43] text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-tighter">
                                         Verified
                                     </div>
                                 </div>
                                 <div className="p-5">
-                                    <h3 className="font-(family-name:--font-geist-sans) font-bold text-[#1a1b22] dark:text-zinc-50 group-hover:text-[#006b2c] dark:group-hover:text-emerald-400 transition-colors">
+                                    <h3 className="font-(family-name:--font-geist-sans) font-bold text-[#2a221d] dark:text-zinc-50 group-hover:text-[#7b5d43] dark:group-hover:text-amber-400 transition-colors">
                                         {apt.title}
                                     </h3>
                                     <p className="mt-1 text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-400">{apt.ppid}</p>
-                                    <p className="mt-1 text-sm text-[#3e4a3d] dark:text-zinc-400">
+                                    <p className="mt-1 text-sm text-[#6a5e54] dark:text-zinc-400">
                                         {APARTMENT_TYPE_LABELS[apt.apartment_type as keyof typeof APARTMENT_TYPE_LABELS]} · {apt.neighborhood}, {CITY_LABELS[apt.city as keyof typeof CITY_LABELS]}
                                     </p>
                                     {areaRpi && (
@@ -272,7 +272,7 @@ export default async function BrowsePage({
                                         </div>
                                     )}
                                     <div className="mt-3 flex items-baseline justify-between">
-                                        <span className="font-mono text-lg font-black text-[#006b2c] dark:text-emerald-400">
+                                        <span className="font-mono text-lg font-black text-[#7b5d43] dark:text-amber-400">
                                             {formatNaira(apt.annual_rent)}<span className="text-xs font-normal text-zinc-400">/yr</span>
                                         </span>
                                         <span className="text-[10px] text-zinc-400">
@@ -282,7 +282,7 @@ export default async function BrowsePage({
                                     {amenities.length > 0 && (
                                         <div className="mt-3 flex flex-wrap gap-1">
                                             {amenities.slice(0, 3).map((a) => (
-                                                <span key={a} className="px-2 py-1 bg-[#f4f2fd] dark:bg-zinc-800 rounded-full text-[9px] font-semibold text-zinc-600 dark:text-zinc-400">
+                                                <span key={a} className="px-2 py-1 bg-[#f8efe7] dark:bg-zinc-800 rounded-full text-[9px] font-semibold text-zinc-600 dark:text-zinc-400">
                                                     {a}
                                                 </span>
                                             ))}
@@ -291,15 +291,15 @@ export default async function BrowsePage({
                                     {env && (
                                         <div className="mt-3 grid grid-cols-3 gap-1 pt-3 border-t border-zinc-100 dark:border-zinc-800">
                                             <div className="flex flex-col items-center">
-                                                <span className="text-xs text-emerald-500">⚡</span>
+                                                <span className="text-xs text-amber-500">⚡</span>
                                                 <span className="text-[8px] uppercase font-bold text-zinc-400">{env.power_supply_rating}/5</span>
                                             </div>
                                             <div className="flex flex-col items-center border-x border-zinc-100 dark:border-zinc-800">
-                                                <span className="text-xs text-emerald-500">🛡️</span>
+                                                <span className="text-xs text-amber-500">🛡️</span>
                                                 <span className="text-[8px] uppercase font-bold text-zinc-400">{env.security_rating}/5</span>
                                             </div>
                                             <div className="flex flex-col items-center">
-                                                <span className="text-xs text-emerald-500">🌊</span>
+                                                <span className="text-xs text-amber-500">🌊</span>
                                                 <span className="text-[8px] uppercase font-bold text-zinc-400">{env.flood_risk}</span>
                                             </div>
                                         </div>
@@ -310,8 +310,8 @@ export default async function BrowsePage({
                     })
                 ) : (
                     <div className="col-span-full py-20 text-center">
-                        <p className="text-[#3e4a3d] dark:text-zinc-400">No apartments found. Try adjusting your filters.</p>
-                        <Link href="/tenant" className="mt-3 inline-block text-sm font-bold text-[#006b2c] dark:text-emerald-400 hover:underline underline-offset-4">
+                        <p className="text-[#6a5e54] dark:text-zinc-400">No apartments found. Try adjusting your filters.</p>
+                        <Link href="/tenant" className="mt-3 inline-block text-sm font-bold text-[#7b5d43] dark:text-amber-400 hover:underline underline-offset-4">
                             Ask Victoria AI for help
                         </Link>
                     </div>

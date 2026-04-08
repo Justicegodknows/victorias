@@ -42,11 +42,11 @@ export default async function SavedApartmentsPage(): Promise<React.ReactElement>
     return (
         <div className="mx-auto w-full max-w-6xl">
             <div className="mb-10">
-                <span className="font-mono text-[#006b2c] dark:text-emerald-400 uppercase tracking-[0.3em] font-bold text-[10px]">
+                <span className="font-mono text-[#7b5d43] dark:text-amber-400 uppercase tracking-[0.3em] font-bold text-[10px]">
                     Your Collection
                 </span>
-                <h1 className="font-(family-name:--font-manrope) text-3xl font-bold text-[#1a1b22] dark:text-zinc-50 mt-2">Saved Apartments</h1>
-                <p className="mt-2 text-sm text-[#3e4a3d] dark:text-zinc-400">
+                <h1 className="font-(family-name:--font-manrope) text-3xl font-bold text-[#2a221d] dark:text-zinc-50 mt-2">Saved Apartments</h1>
+                <p className="mt-2 text-sm text-[#6a5e54] dark:text-zinc-400">
                     {apartments.length} apartment{apartments.length !== 1 ? "s" : ""} bookmarked for later
                 </p>
             </div>
@@ -66,23 +66,23 @@ export default async function SavedApartmentsPage(): Promise<React.ReactElement>
                                     {primaryImage ? (
                                         <img src={primaryImage} alt={apt.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" />
                                     ) : (
-                                        <div className="h-full bg-linear-to-br from-emerald-100 to-emerald-50 dark:from-zinc-800 dark:to-zinc-900 flex items-center justify-center">
+                                        <div className="h-full bg-linear-to-br from-amber-100 to-amber-50 dark:from-zinc-800 dark:to-zinc-900 flex items-center justify-center">
                                             <span className="text-4xl">🏠</span>
                                         </div>
                                     )}
-                                    <div className="absolute top-3 left-3 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm text-[#006b2c] dark:text-emerald-400 text-[10px] font-bold px-2 py-1 rounded-full">
+                                    <div className="absolute top-3 left-3 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm text-[#7b5d43] dark:text-amber-400 text-[10px] font-bold px-2 py-1 rounded-full">
                                         ❤️ Saved
                                     </div>
                                 </div>
                                 <div className="p-5">
-                                    <h3 className="font-(family-name:--font-geist-sans) font-bold text-[#1a1b22] dark:text-zinc-50 group-hover:text-[#006b2c] dark:group-hover:text-emerald-400 transition-colors">
+                                    <h3 className="font-(family-name:--font-geist-sans) font-bold text-[#2a221d] dark:text-zinc-50 group-hover:text-[#7b5d43] dark:group-hover:text-amber-400 transition-colors">
                                         {apt.title}
                                     </h3>
-                                    <p className="mt-1 text-sm text-[#3e4a3d] dark:text-zinc-400">
+                                    <p className="mt-1 text-sm text-[#6a5e54] dark:text-zinc-400">
                                         {APARTMENT_TYPE_LABELS[apt.apartment_type as keyof typeof APARTMENT_TYPE_LABELS]} · {apt.neighborhood}, {CITY_LABELS[apt.city as keyof typeof CITY_LABELS]}
                                     </p>
                                     <div className="mt-3 flex items-baseline justify-between">
-                                        <span className="font-mono text-lg font-black text-[#006b2c] dark:text-emerald-400">
+                                        <span className="font-mono text-lg font-black text-[#7b5d43] dark:text-amber-400">
                                             {formatNaira(apt.annual_rent)}<span className="text-xs font-normal text-zinc-400">/yr</span>
                                         </span>
                                         <span className="text-[10px] text-zinc-400">
@@ -96,12 +96,12 @@ export default async function SavedApartmentsPage(): Promise<React.ReactElement>
                 </div>
             ) : (
                 <div className="mt-20 text-center">
-                    <div className="w-20 h-20 rounded-full bg-[#f4f2fd] dark:bg-zinc-900 flex items-center justify-center mx-auto mb-6">
+                    <div className="w-20 h-20 rounded-full bg-[#f8efe7] dark:bg-zinc-900 flex items-center justify-center mx-auto mb-6">
                         <span className="text-4xl">❤️</span>
                     </div>
-                    <p className="text-[#3e4a3d] dark:text-zinc-400 mb-6">You haven&apos;t saved any apartments yet.</p>
+                    <p className="text-[#6a5e54] dark:text-zinc-400 mb-6">You haven&apos;t saved any apartments yet.</p>
                     <div className="flex justify-center gap-3">
-                        <Link href="/tenant/browse" className="bg-[#1a1b22] dark:bg-zinc-800 text-white px-6 py-3 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity">
+                        <Link href="/tenant/browse" className="bg-[#2a221d] dark:bg-zinc-800 text-white px-6 py-3 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity">
                             Browse apartments
                         </Link>
                         <Link href="/tenant" className="btn-primary-gradient text-white px-6 py-3 rounded-xl text-sm font-bold">

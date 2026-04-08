@@ -42,27 +42,27 @@ export default async function InquiriesPage(): Promise<React.ReactElement> {
         <div className="mx-auto w-full max-w-6xl">
             {/* Header */}
             <div className="mb-12">
-                <h1 className="font-(family-name:--font-geist-sans) text-4xl font-black tracking-tight text-[#1a1b22] dark:text-zinc-50 mb-2">Inquiries</h1>
+                <h1 className="font-(family-name:--font-geist-sans) text-4xl font-black tracking-tight text-[#2a221d] dark:text-zinc-50 mb-2">Inquiries</h1>
                 <p className="text-zinc-500 dark:text-zinc-400 max-w-lg">Manage your property inquiries and tenant communication through Victoria&apos;s curated workspace.</p>
             </div>
 
             {/* Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                <div className="bg-[#f4f2fd] dark:bg-zinc-900 p-6 rounded-3xl relative overflow-hidden group">
+                <div className="bg-[#f8efe7] dark:bg-zinc-900 p-6 rounded-3xl relative overflow-hidden group">
                     <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-zinc-500 mb-2">Pending</p>
-                    <h3 className="font-(family-name:--font-geist-sans) text-3xl font-black text-[#1a1b22] dark:text-zinc-50">
+                    <h3 className="font-(family-name:--font-geist-sans) text-3xl font-black text-[#2a221d] dark:text-zinc-50">
                         {inquiries?.filter((i) => i.status === "pending").length ?? 0}
                     </h3>
                 </div>
-                <div className="bg-[#f4f2fd] dark:bg-zinc-900 p-6 rounded-3xl relative overflow-hidden group">
+                <div className="bg-[#f8efe7] dark:bg-zinc-900 p-6 rounded-3xl relative overflow-hidden group">
                     <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-zinc-500 mb-2">Responded</p>
-                    <h3 className="font-(family-name:--font-geist-sans) text-3xl font-black text-[#1a1b22] dark:text-zinc-50">
+                    <h3 className="font-(family-name:--font-geist-sans) text-3xl font-black text-[#2a221d] dark:text-zinc-50">
                         {inquiries?.filter((i) => i.status === "responded").length ?? 0}
                     </h3>
                 </div>
-                <div className="bg-[#f4f2fd] dark:bg-zinc-900 p-6 rounded-3xl relative overflow-hidden group">
+                <div className="bg-[#f8efe7] dark:bg-zinc-900 p-6 rounded-3xl relative overflow-hidden group">
                     <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-zinc-500 mb-2">Total</p>
-                    <h3 className="font-(family-name:--font-geist-sans) text-3xl font-black text-[#1a1b22] dark:text-zinc-50">
+                    <h3 className="font-(family-name:--font-geist-sans) text-3xl font-black text-[#2a221d] dark:text-zinc-50">
                         {inquiries?.length ?? 0}
                     </h3>
                 </div>
@@ -70,7 +70,7 @@ export default async function InquiriesPage(): Promise<React.ReactElement> {
 
             {inquiries && inquiries.length > 0 ? (
                 <div className="bg-white dark:bg-zinc-900 rounded-3xl ambient-shadow overflow-hidden">
-                    <div className="p-6 flex items-center justify-between bg-[#f4f2fd]/50 dark:bg-zinc-800/50">
+                    <div className="p-6 flex items-center justify-between bg-[#f8efe7]/50 dark:bg-zinc-800/50">
                         <span className="font-mono text-[10px] text-zinc-400 uppercase tracking-[0.3em]">
                             Showing {inquiries.length} inquir{inquiries.length !== 1 ? "ies" : "y"}
                         </span>
@@ -84,16 +84,16 @@ export default async function InquiriesPage(): Promise<React.ReactElement> {
                                 <div key={inq.id} className="p-6 hover:bg-zinc-50/50 dark:hover:bg-zinc-800/50 transition-colors">
                                     <div className="flex items-start justify-between gap-4">
                                         <div className="flex items-start gap-4">
-                                            <div className="w-10 h-10 rounded-full bg-[#e8e7f1] dark:bg-zinc-800 flex items-center justify-center text-sm font-bold text-[#006b2c]">
+                                            <div className="w-10 h-10 rounded-full bg-[#e8e7f1] dark:bg-zinc-800 flex items-center justify-center text-sm font-bold text-[#7b5d43]">
                                                 {(tenant?.full_name ?? "?")[0].toUpperCase()}
                                             </div>
                                             <div>
-                                                <p className="font-bold text-[#1a1b22] dark:text-zinc-50">
+                                                <p className="font-bold text-[#2a221d] dark:text-zinc-50">
                                                     {tenant?.full_name ?? "Unknown tenant"}
                                                 </p>
                                                 {apt && (
                                                     <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
-                                                        Re: <span className="text-[#006b2c] dark:text-emerald-400 font-semibold">{apt.title}</span> — {APARTMENT_TYPE_LABELS[apt.apartment_type as keyof typeof APARTMENT_TYPE_LABELS]}, {apt.neighborhood}, {CITY_LABELS[apt.city as keyof typeof CITY_LABELS]} ({formatNaira(apt.annual_rent)}/yr)
+                                                        Re: <span className="text-[#7b5d43] dark:text-amber-400 font-semibold">{apt.title}</span> — {APARTMENT_TYPE_LABELS[apt.apartment_type as keyof typeof APARTMENT_TYPE_LABELS]}, {apt.neighborhood}, {CITY_LABELS[apt.city as keyof typeof CITY_LABELS]} ({formatNaira(apt.annual_rent)}/yr)
                                                     </p>
                                                 )}
                                                 {apt && (
@@ -108,7 +108,7 @@ export default async function InquiriesPage(): Promise<React.ReactElement> {
                                             <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${inq.status === "pending"
                                                 ? "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400"
                                                 : inq.status === "responded"
-                                                    ? "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
+                                                    ? "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400"
                                                     : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500"
                                                 }`}>
                                                 {inq.status}
@@ -116,13 +116,13 @@ export default async function InquiriesPage(): Promise<React.ReactElement> {
                                         </div>
                                     </div>
                                     <div className="mt-4 ml-14">
-                                        <p className="text-sm leading-relaxed text-[#3e4a3d] dark:text-zinc-300">{inq.message}</p>
+                                        <p className="text-sm leading-relaxed text-[#6a5e54] dark:text-zinc-300">{inq.message}</p>
                                         {tenant?.phone && (
                                             <a
                                                 href={`https://wa.me/${tenant.phone.replace(/\D/g, "")}`}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="inline-flex items-center gap-2 mt-4 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-4 py-2 rounded-xl text-xs font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors"
+                                                className="inline-flex items-center gap-2 mt-4 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-4 py-2 rounded-xl text-xs font-bold hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors"
                                             >
                                                 💬 Reply on WhatsApp
                                             </a>
@@ -134,7 +134,7 @@ export default async function InquiriesPage(): Promise<React.ReactElement> {
                     </div>
                 </div>
             ) : (
-                <div className="mt-12 py-20 bg-[#f4f2fd] dark:bg-zinc-900 rounded-[2rem] flex flex-col items-center justify-center text-center px-6">
+                <div className="mt-12 py-20 bg-[#f8efe7] dark:bg-zinc-900 rounded-[2rem] flex flex-col items-center justify-center text-center px-6">
                     <div className="w-20 h-20 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-6">
                         <span className="text-4xl">📬</span>
                     </div>

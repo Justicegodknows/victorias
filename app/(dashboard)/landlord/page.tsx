@@ -123,16 +123,16 @@ export default async function LandlordDashboard(): Promise<React.ReactElement> {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
                 <div>
-                    <h1 className="font-(family-name:--font-geist-sans) text-4xl md:text-5xl font-black tracking-tighter text-[#1a1b22] dark:text-zinc-50 mb-3">My Listings</h1>
+                    <h1 className="font-(family-name:--font-geist-sans) text-4xl md:text-5xl font-black tracking-tighter text-[#2a221d] dark:text-zinc-50 mb-3">My Listings</h1>
                     <div className="flex gap-6 items-center">
                         <div className="flex flex-col">
                             <span className="font-mono text-[10px] text-zinc-400 uppercase tracking-[0.3em]">Total Properties</span>
-                            <span className="font-(family-name:--font-geist-sans) text-2xl font-bold text-[#006b2c] dark:text-emerald-400">{apartments?.length ?? 0}</span>
+                            <span className="font-(family-name:--font-geist-sans) text-2xl font-bold text-[#7b5d43] dark:text-amber-400">{apartments?.length ?? 0}</span>
                         </div>
                         <div className="w-px h-8 bg-zinc-200 dark:bg-zinc-700" />
                         <div className="flex flex-col">
                             <span className="font-mono text-[10px] text-zinc-400 uppercase tracking-[0.3em]">Active Inquiries</span>
-                            <span className="font-(family-name:--font-geist-sans) text-2xl font-bold text-[#006b2c] dark:text-emerald-400">{inquiryCount ?? 0}</span>
+                            <span className="font-(family-name:--font-geist-sans) text-2xl font-bold text-[#7b5d43] dark:text-amber-400">{inquiryCount ?? 0}</span>
                         </div>
                     </div>
                 </div>
@@ -145,22 +145,22 @@ export default async function LandlordDashboard(): Promise<React.ReactElement> {
             </div>
 
             {marketRows.length > 0 && (
-                <div className="mb-8 rounded-2xl border border-emerald-100 bg-emerald-50/60 p-5 dark:border-emerald-900/40 dark:bg-emerald-950/30">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-emerald-700 dark:text-emerald-400">Rental Price Index</p>
+                <div className="mb-8 rounded-2xl border border-amber-100 bg-amber-50/60 p-5 dark:border-amber-900/40 dark:bg-amber-950/30">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-amber-700 dark:text-amber-400">Rental Price Index</p>
                     <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                         {marketRows.map((row) => {
                             const trendColor =
                                 row.trend === "up"
                                     ? "text-red-500"
                                     : row.trend === "down"
-                                        ? "text-emerald-600 dark:text-emerald-400"
+                                        ? "text-amber-600 dark:text-amber-400"
                                         : "text-zinc-400";
                             const arrow =
                                 row.trend === "up" ? "↑" : row.trend === "down" ? "↓" : "—";
                             return (
                                 <div key={`${row.city}:${row.lga}`} className="rounded-xl bg-white/80 px-3 py-2 dark:bg-zinc-900/60">
                                     <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">{row.lga}</p>
-                                    <p className="mt-1 text-lg font-black text-emerald-700 dark:text-emerald-300">{formatNaira(Math.round(row.rpi_value))}</p>
+                                    <p className="mt-1 text-lg font-black text-amber-700 dark:text-amber-300">{formatNaira(Math.round(row.rpi_value))}</p>
                                     <div className="flex items-center gap-2 mt-0.5">
                                         <p className="text-[10px] text-zinc-500">{String(row.month).padStart(2, "0")}/{row.year}</p>
                                         {row.trend !== "stable" && (
@@ -186,19 +186,19 @@ export default async function LandlordDashboard(): Promise<React.ReactElement> {
                             <Link
                                 key={apt.id}
                                 href={`/landlord/listings/${apt.id}`}
-                                className="group bg-[#f4f2fd] dark:bg-zinc-900 rounded-2xl p-4 flex flex-col md:flex-row gap-6 hover:bg-[#e3e1ec] dark:hover:bg-zinc-800 transition-all duration-300 ambient-shadow"
+                                className="group bg-[#f8efe7] dark:bg-zinc-900 rounded-2xl p-4 flex flex-col md:flex-row gap-6 hover:bg-[#efe0d2] dark:hover:bg-zinc-800 transition-all duration-300 ambient-shadow"
                             >
                                 <div className="relative w-full md:w-64 h-48 rounded-xl overflow-hidden shrink-0">
                                     {primaryImage ? (
                                         <img src={primaryImage} alt={apt.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                                     ) : (
-                                        <div className="w-full h-full bg-linear-to-br from-emerald-100 to-emerald-50 dark:from-zinc-800 dark:to-zinc-900 flex items-center justify-center">
+                                        <div className="w-full h-full bg-linear-to-br from-amber-100 to-amber-50 dark:from-zinc-800 dark:to-zinc-900 flex items-center justify-center">
                                             <span className="text-4xl">🏠</span>
                                         </div>
                                     )}
                                     {apt.is_verified && (
                                         <div className="absolute top-3 left-3">
-                                            <span className="bg-[#006b2c]/90 text-white text-[10px] px-3 py-1 rounded-full font-mono uppercase tracking-wider backdrop-blur-md">
+                                            <span className="bg-[#7b5d43]/90 text-white text-[10px] px-3 py-1 rounded-full font-mono uppercase tracking-wider backdrop-blur-md">
                                                 ✅ Verified
                                             </span>
                                         </div>
@@ -207,11 +207,11 @@ export default async function LandlordDashboard(): Promise<React.ReactElement> {
                                 <div className="flex-1 flex flex-col justify-between py-2">
                                     <div>
                                         <div className="flex items-center gap-2 mb-2">
-                                            <span className="bg-[#baecbc] dark:bg-emerald-900 text-[#406c46] dark:text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">
+                                            <span className="bg-[#f3ddc8] dark:bg-amber-900 text-[#406c46] dark:text-amber-400 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">
                                                 {APARTMENT_TYPE_LABELS[apt.apartment_type as keyof typeof APARTMENT_TYPE_LABELS]}
                                             </span>
                                         </div>
-                                        <h3 className="text-xl md:text-2xl font-bold tracking-tight text-[#1a1b22] dark:text-zinc-50 mb-1">{apt.title}</h3>
+                                        <h3 className="text-xl md:text-2xl font-bold tracking-tight text-[#2a221d] dark:text-zinc-50 mb-1">{apt.title}</h3>
                                         <p className="mb-1 text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-400">{apt.ppid}</p>
                                         <p className="text-zinc-500 flex items-center gap-1">
                                             📍 {apt.neighborhood}, {CITY_LABELS[apt.city as keyof typeof CITY_LABELS]}
@@ -226,11 +226,11 @@ export default async function LandlordDashboard(): Promise<React.ReactElement> {
                                 <div className="md:w-48 flex flex-col items-end justify-between py-2 text-right">
                                     <div>
                                         <p className="text-[10px] text-zinc-400 font-mono uppercase tracking-[0.3em] mb-1">Annual Rent</p>
-                                        <p className="text-2xl md:text-3xl font-black text-[#006b2c] dark:text-emerald-400 font-mono tracking-tighter">{formatNaira(apt.annual_rent)}</p>
+                                        <p className="text-2xl md:text-3xl font-black text-[#7b5d43] dark:text-amber-400 font-mono tracking-tighter">{formatNaira(apt.annual_rent)}</p>
                                     </div>
-                                    <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${apt.is_available ? "bg-emerald-50 dark:bg-emerald-900/30" : "bg-zinc-100 dark:bg-zinc-800"}`}>
-                                        <span className={`w-2 h-2 rounded-full ${apt.is_available ? "bg-emerald-500 animate-pulse" : "bg-zinc-400"}`} />
-                                        <span className={`text-[10px] font-bold uppercase tracking-widest ${apt.is_available ? "text-emerald-800 dark:text-emerald-400" : "text-zinc-500"}`}>
+                                    <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${apt.is_available ? "bg-amber-50 dark:bg-amber-900/30" : "bg-zinc-100 dark:bg-zinc-800"}`}>
+                                        <span className={`w-2 h-2 rounded-full ${apt.is_available ? "bg-amber-500 animate-pulse" : "bg-zinc-400"}`} />
+                                        <span className={`text-[10px] font-bold uppercase tracking-widest ${apt.is_available ? "text-amber-800 dark:text-amber-400" : "text-zinc-500"}`}>
                                             {apt.is_available ? "Available" : "Unavailable"}
                                         </span>
                                     </div>
@@ -240,13 +240,13 @@ export default async function LandlordDashboard(): Promise<React.ReactElement> {
                     })}
                 </div>
             ) : (
-                <div className="mt-12 py-20 bg-[#f4f2fd] dark:bg-zinc-900 rounded-[2rem] border-2 border-dashed border-zinc-200 dark:border-zinc-700 flex flex-col items-center justify-center text-center px-6">
+                <div className="mt-12 py-20 bg-[#f8efe7] dark:bg-zinc-900 rounded-[2rem] border-2 border-dashed border-zinc-200 dark:border-zinc-700 flex flex-col items-center justify-center text-center px-6">
                     <div className="w-24 h-24 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-6">
                         <span className="text-5xl">🏘️</span>
                     </div>
-                    <h2 className="font-(family-name:--font-geist-sans) text-3xl font-bold tracking-tight text-[#1a1b22] dark:text-zinc-50 mb-2">No listings yet</h2>
+                    <h2 className="font-(family-name:--font-geist-sans) text-3xl font-bold tracking-tight text-[#2a221d] dark:text-zinc-50 mb-2">No listings yet</h2>
                     <p className="text-zinc-500 max-w-md mb-8">Start your journey as a premier landlord. Create your first property listing and let our AI concierge handle the inquiries.</p>
-                    <Link href="/landlord/listings/new" className="bg-[#006b2c] text-white px-8 py-3 rounded-full font-(family-name:--font-geist-sans) font-bold flex items-center gap-2 hover:opacity-90 transition-opacity">
+                    <Link href="/landlord/listings/new" className="bg-[#7b5d43] text-white px-8 py-3 rounded-full font-(family-name:--font-geist-sans) font-bold flex items-center gap-2 hover:opacity-90 transition-opacity">
                         ➕ Create first listing
                     </Link>
                 </div>

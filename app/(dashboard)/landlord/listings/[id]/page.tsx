@@ -183,19 +183,19 @@ export default async function ListingDetailPage({
                 </div>
 
                 {marketRecommendation && (
-                    <div className="mt-5 rounded-xl border border-emerald-100 bg-emerald-50/70 px-4 py-3 dark:border-emerald-900/40 dark:bg-emerald-950/30">
-                        <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-emerald-700 dark:text-emerald-400">Recommended Market Range</p>
-                        <p className="mt-1 text-sm font-semibold text-emerald-900 dark:text-emerald-300">
+                    <div className="mt-5 rounded-xl border border-amber-100 bg-amber-50/70 px-4 py-3 dark:border-amber-900/40 dark:bg-amber-950/30">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-amber-700 dark:text-amber-400">Recommended Market Range</p>
+                        <p className="mt-1 text-sm font-semibold text-amber-900 dark:text-amber-300">
                             {APARTMENT_TYPE_LABELS[apartment.apartment_type as keyof typeof APARTMENT_TYPE_LABELS]} in {apartment.lga}, {CITY_LABELS[apartment.city as keyof typeof CITY_LABELS]}: {formatNaira(marketRecommendation.minRent)}-{formatNaira(marketRecommendation.maxRent)}/year
                         </p>
-                        <p className="mt-1 text-[10px] text-emerald-700/80 dark:text-emerald-400/80">
+                        <p className="mt-1 text-[10px] text-amber-700/80 dark:text-amber-400/80">
                             Confidence: {marketRecommendation.confidence} · Based on {marketRecommendation.source === "comparables" ? "comparable listings" : "LGA RPI"}
                         </p>
                         <p className={`mt-2 text-[11px] font-bold ${apartment.annual_rent < marketRecommendation.minRent
-                                ? "text-emerald-700 dark:text-emerald-400"
+                                ? "text-amber-700 dark:text-amber-400"
                                 : apartment.annual_rent > marketRecommendation.maxRent
                                     ? "text-amber-700 dark:text-amber-400"
-                                    : "text-emerald-700 dark:text-emerald-400"
+                                    : "text-amber-700 dark:text-amber-400"
                             }`}>
                             {apartment.annual_rent < marketRecommendation.minRent
                                 ? "Current rent is below recommended market band."
