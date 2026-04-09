@@ -1,12 +1,16 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { createSupabaseServer } from "@/app/lib/supabase/server";
+import {
+    getSupabaseServiceRoleKey,
+    getSupabaseUrl,
+} from "@/app/lib/supabase/server-env";
 import type { Database } from "@/app/lib/types";
 
 function getServiceClient(): ReturnType<typeof createClient<Database>> {
     return createClient<Database>(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        getSupabaseUrl(),
+        getSupabaseServiceRoleKey(),
     );
 }
 

@@ -3,11 +3,15 @@ import type { Database } from "@/app/lib/types";
 import { NEIGHBORHOODS, CITY_LABELS, APARTMENT_TYPE_LABELS } from "@/app/lib/data/neighborhoods";
 import type { NeighborhoodInfo } from "@/app/lib/data/neighborhoods";
 import { formatNaira } from "@/app/lib/ai/affordability";
+import {
+    getSupabaseServiceRoleKey,
+    getSupabaseUrl,
+} from "@/app/lib/supabase/server-env";
 
 function getServiceClient(): ReturnType<typeof createClient<Database>> {
     return createClient<Database>(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        getSupabaseUrl(),
+        getSupabaseServiceRoleKey(),
     );
 }
 

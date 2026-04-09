@@ -5,6 +5,10 @@ import type { Database, ApartmentWithDetails } from "@/app/lib/types";
 import { calculateAffordability, formatNaira } from "@/app/lib/ai/affordability";
 import { NEIGHBORHOODS } from "@/app/lib/data/neighborhoods";
 import { searchApartmentsBySemantic, searchKnowledge } from "@/app/lib/ai/rag";
+import {
+    getSupabaseServiceRoleKey,
+    getSupabaseUrl,
+} from "@/app/lib/supabase/server-env";
 
 type TavilySearchResponse = {
     query: string;
@@ -205,8 +209,8 @@ async function braveWebSearch(params: {
 // Service-role client for AI agent operations (bypasses RLS)
 function getServiceClient(): ReturnType<typeof createClient<Database>> {
     return createClient<Database>(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        getSupabaseUrl(),
+        getSupabaseServiceRoleKey(),
     );
 }
 

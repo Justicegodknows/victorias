@@ -6,12 +6,16 @@ import {
     fetchApartmentDocument,
     buildNeighborhoodDocuments,
 } from "@/app/lib/ai/documents";
+import {
+    getSupabaseServiceRoleKey,
+    getSupabaseUrl,
+} from "@/app/lib/supabase/server-env";
 
 // Typed client for known tables
 function getServiceClient(): ReturnType<typeof createClient<Database>> {
     return createClient<Database>(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        getSupabaseUrl(),
+        getSupabaseServiceRoleKey(),
     );
 }
 
@@ -19,8 +23,8 @@ function getServiceClient(): ReturnType<typeof createClient<Database>> {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- RPC functions added via migration, not in codegen types
 function getUntypedServiceClient(): any {
     return createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        getSupabaseUrl(),
+        getSupabaseServiceRoleKey(),
     );
 }
 

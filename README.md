@@ -91,7 +91,7 @@ Edit `.env.local` and fill in your credentials:
 ```bash
 # Required
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your-anon-key
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 HUGGINGFACE_API_KEY=hf_your-key
 

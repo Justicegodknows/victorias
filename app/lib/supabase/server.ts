@@ -1,6 +1,10 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import type { Database } from "@/app/lib/types";
+import {
+    getSupabasePublishableKey,
+    getSupabaseUrl,
+} from "@/app/lib/supabase/public-env";
 
 export async function createSupabaseServer(): Promise<
     ReturnType<typeof createServerClient<Database>>
@@ -8,8 +12,8 @@ export async function createSupabaseServer(): Promise<
     const cookieStore = await cookies();
 
     return createServerClient<Database>(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY!,
+        getSupabaseUrl(),
+        getSupabasePublishableKey(),
         {
             cookies: {
                 getAll() {
