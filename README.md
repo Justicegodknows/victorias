@@ -99,6 +99,7 @@ HUGGINGFACE_API_KEY=hf_your-key
 TAVILY_API_KEY=              # For AI web search
 BRAVE_SEARCH_API_KEY=        # Fallback web search
 AI_HEALTH_KEY=               # Protect /api/ai/health
+AUTH_HEALTH_KEY=             # Protect /api/auth/health
 RPI_RECOMPUTE_KEY=           # Protect RPI recompute endpoint
 ```
 
@@ -177,6 +178,34 @@ The system supports automatic fallback: if the primary provider is unreachable, 
 2. Next.js is auto-detected — no build config changes needed
 3. Add all environment variables from `.env.example` in Project Settings → Environment Variables
 4. Deploy
+
+## Health Checks
+
+- `GET /api/ai/health` checks AI provider availability. Send `x-ai-health-key: $AI_HEALTH_KEY` for machine access.
+- `GET /api/auth/health` checks auth-related deployment config. Send `x-auth-health-key: $AUTH_HEALTH_KEY`.
+
+Example:
+
+```bash
+curl -H "x-auth-health-key: $AUTH_HEALTH_KEY" \
+	https://your-app.vercel.app/api/auth/health
+```
+
+Expected response:
+
+```json
+{
+	"ok": true,
+	"authConfigured": true,
+	"missing": [],
+	"checks": {
+		"supabaseUrl": true,
+		"supabasePublishableKey": true,
+		"supabaseServiceRoleKey": true,
+		"appUrl": true
+	}
+}
+```
 
 ### DigitalOcean App Platform
 

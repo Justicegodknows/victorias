@@ -5,33 +5,38 @@ test.describe("Public pages", () => {
         await page.goto("/");
         await expect(page).toHaveTitle(/Victoria/i);
         await expect(page.getByRole("heading", { level: 1 })).toContainText(
-            "Find your perfect apartment"
+            "Find a house"
         );
-        await expect(page.getByText("AI-Powered Apartment Finder", { exact: true })).toBeVisible();
+        await expect(
+            page.getByText("Trusted In Lagos, Abuja & Port Harcourt", {
+                exact: true,
+            }),
+        ).toBeVisible();
         await expect(page.getByRole("link", { name: /get started/i })).toBeVisible();
         await expect(page.getByRole("link", { name: /sign in/i })).toBeVisible();
     });
 
-    test("landing page shows feature cards", async ({ page }) => {
+    test("landing page shows featured property cards", async ({ page }) => {
         await page.goto("/");
-        await expect(page.getByText("How Victoria helps you")).toBeVisible();
-        await expect(page.getByText("Chat with AI")).toBeVisible();
-        await expect(page.getByText("True Cost Breakdown")).toBeVisible();
-        await expect(page.getByText("Neighborhood Intelligence")).toBeVisible();
+        await expect(page.getByText("Handpicked for your lifestyle")).toBeVisible();
+        await expect(page.getByText("Luxury Villa in Maitama")).toBeVisible();
+        await expect(page.getByText("Modern Apartment in Lekki")).toBeVisible();
+        await expect(page.getByText("Waterfront Home in GRA")).toBeVisible();
     });
 
-    test("landing page shows city section", async ({ page }) => {
+    test("landing page shows search summary", async ({ page }) => {
         await page.goto("/");
-        await expect(page.getByText("Available in 3 major cities")).toBeVisible();
-        await expect(page.getByRole("heading", { name: "Lagos" })).toBeVisible();
-        await expect(page.getByRole("heading", { name: "Abuja" })).toBeVisible();
-        await expect(page.getByRole("heading", { name: "Port Harcourt" })).toBeVisible();
+        await expect(page.getByText("Lagos, Abuja, Port Harcourt")).toBeVisible();
+        await expect(page.getByText("Apartments, Duplex, Mini-flat")).toBeVisible();
+        await expect(page.getByText("N500,000 - N15,000,000")).toBeVisible();
     });
 
     test("landing page shows landlord CTA", async ({ page }) => {
         await page.goto("/");
         await expect(
-            page.getByRole("heading", { name: /are you a landlord/i })
+            page.getByRole("heading", {
+                name: /list your property and reach verified tenants faster/i,
+            })
         ).toBeVisible();
     });
 });
@@ -39,23 +44,20 @@ test.describe("Public pages", () => {
 test.describe("Auth pages", () => {
     test("login page loads with form", async ({ page }) => {
         await page.goto("/login");
-        await expect(
-            page.getByRole("heading", { name: /welcome back/i })
-        ).toBeVisible();
-        await expect(page.getByText("Sign in to find your perfect apartment")).toBeVisible();
         await expect(page.getByRole("button", { name: /email/i })).toBeVisible();
-        await expect(page.getByRole("button", { name: /phone/i })).toBeVisible();
-        await expect(page.getByLabel(/email/i)).toBeVisible();
-        await expect(page.getByLabel(/password/i)).toBeVisible();
+        await expect(page.getByRole("button", { name: /phone otp/i })).toBeVisible();
+        await expect(page.getByLabel("Email Address")).toBeVisible();
+        await expect(page.getByLabel("Password")).toBeVisible();
+        await expect(page.getByRole("button", { name: /sign in/i })).toBeVisible();
     });
 
     test("register page loads with form", async ({ page }) => {
         await page.goto("/register");
-        await expect(
-            page.getByRole("heading", { name: /create your account/i })
-        ).toBeVisible();
-        await expect(page.getByText("Find an apartment")).toBeVisible();
-        await expect(page.getByText("List apartments", { exact: true })).toBeVisible();
+        await expect(page.getByRole("heading", { name: /choose your role/i })).toBeVisible();
+        await expect(page.getByRole("heading", { name: "Tenant" })).toBeVisible();
+        await expect(page.getByRole("heading", { name: "Landlord" })).toBeVisible();
+        await expect(page.getByLabel("Full Name")).toBeVisible();
+        await expect(page.getByLabel("Email Address")).toBeVisible();
     });
 
     test("login page has link to register", async ({ page }) => {
@@ -119,8 +121,9 @@ test.describe("API routes", () => {
     });
 
     test("signout API route exists", async ({ request }) => {
-        const response = await request.post("/api/auth/signout");
-        // Should not 404 — it may redirect or return success
+        const response = await request.post("/api/auth/signout", {
+            maxRedirects: 0,
+        });
         expect(response.status()).not.toBe(404);
     });
 });
