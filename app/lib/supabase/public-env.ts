@@ -1,26 +1,28 @@
-function readRequiredEnv(names: readonly string[], label: string): string {
-    for (const name of names) {
-        const value = process.env[name]?.trim();
+export function getSupabaseUrl(): string {
+    // Keep this as a static property access so Next.js inlines it for client code.
+    const value = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
 
-        if (value) {
-            return value;
-        }
+    if (value) {
+        return value;
     }
 
-    throw new Error(`Missing ${label}. Set one of: ${names.join(", ")}`);
-}
-
-export function getSupabaseUrl(): string {
-    return readRequiredEnv(["NEXT_PUBLIC_SUPABASE_URL"], "Supabase project URL");
+    throw new Error("Missing Supabase project URL. Set NEXT_PUBLIC_SUPABASE_URL");
 }
 
 export function getSupabasePublishableKey(): string {
-    return readRequiredEnv(
-        [
-            "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
-            "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY",
-        ],
-        "Supabase publishable key",
+    // Keep these as static property accesses so Next.js inlines them for client code.
+    const primaryValue = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim();
+    if (primaryValue) {
+        return primaryValue;
+    }
+
+    const legacyValue = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY?.trim();
+    if (legacyValue) {
+        return legacyValue;
+    }
+
+    throw new Error(
+        "Missing Supabase publishable key. Set one of: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY",
     );
 }
 
