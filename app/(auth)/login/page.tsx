@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { tryCreateSupabaseBrowser } from "@/app/lib/supabase/client";
@@ -17,7 +17,7 @@ function getCallbackErrorMessage(errorCode: string | null): string | null {
     return "Authentication could not be completed.";
 }
 
-export default function LoginPage(): React.ReactElement {
+function LoginPageContent(): React.ReactElement {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [phone, setPhone] = useState("");
@@ -185,7 +185,7 @@ export default function LoginPage(): React.ReactElement {
                                 id="email"
                                 type="email"
                                 required
-                                    disabled={authUnavailable || loading}
+                                disabled={authUnavailable || loading}
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 className="w-full bg-white dark:bg-zinc-800 border-none rounded-xl px-4 py-4 focus:ring-2 focus:ring-[#7b5d43]/20 text-[#2a221d] dark:text-zinc-50 placeholder:text-[#6e7b6c] dark:placeholder:text-zinc-500 transition-all"
@@ -358,5 +358,21 @@ export default function LoginPage(): React.ReactElement {
                 )}
             </div>
         </div>
+    );
+}
+
+function LoginPageFallback(): React.ReactElement {
+    return (
+        <div className="space-y-6">
+            <div className="bg-[#f8efe7] dark:bg-zinc-900 rounded-[2rem] p-8 md:p-12 ambient-shadow relative overflow-hidden min-h-[32rem]" />
+        </div>
+    );
+}
+
+export default function LoginPage(): React.ReactElement {
+    return (
+        <Suspense fallback={<LoginPageFallback />}>
+            <LoginPageContent />
+        </Suspense>
     );
 }
