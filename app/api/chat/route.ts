@@ -1,5 +1,5 @@
 import { streamText, stepCountIs, convertToModelMessages, type UIMessage } from "ai";
-import { getModel } from "@/app/lib/ai/provider";
+import { getModelWithFallback } from "@/app/lib/ai/provider";
 import { SYSTEM_PROMPT } from "@/app/lib/ai/system-prompt";
 import { agentTools } from "@/app/lib/ai/tools";
 import { createSupabaseServer } from "@/app/lib/supabase/server";
@@ -42,7 +42,7 @@ export async function POST(req: Request): Promise<Response> {
 
     let model;
     try {
-        model = getModel();
+        model = await getModelWithFallback();
     } catch (error) {
         console.error("[Chat] No AI provider configured:", error);
         return new Response(

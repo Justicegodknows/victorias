@@ -7,19 +7,22 @@ type EmbeddingProvider = "ollama" | "huggingface";
 const OLLAMA_EMBEDDING_MODEL = process.env.OLLAMA_EMBEDDING_MODEL ?? "nomic-embed-text";
 const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL ?? "http://127.0.0.1:11434/v1";
 
-// HuggingFace embedding model (default primary)
+// HuggingFace embedding model (fallback)
 const HF_EMBEDDING_MODEL =
     process.env.HF_EMBEDDING_MODEL ?? "sentence-transformers/all-MiniLM-L6-v2";
 const HF_BASE_URL = "https://api-inference.huggingface.co/v1";
+
+// Ollama is the default primary; set EMBEDDING_PRIMARY_PROVIDER=huggingface to override.
 const EMBEDDING_PRIMARY_PROVIDER =
-    process.env.EMBEDDING_PRIMARY_PROVIDER === "ollama" ? "ollama" : "huggingface";
+    process.env.EMBEDDING_PRIMARY_PROVIDER === "huggingface" ? "huggingface" : "ollama";
 
 function hasHuggingFaceEmbeddings(): boolean {
     return Boolean(process.env.HUGGINGFACE_API_KEY && process.env.HUGGINGFACE_API_KEY.trim());
 }
 
+// Ollama is always considered configured — it runs locally with no key required.
 function hasOllamaEmbeddings(): boolean {
-    return Boolean(OLLAMA_BASE_URL && OLLAMA_BASE_URL.trim());
+    return true;
 }
 
 function getEmbeddingProviderOrder(): EmbeddingProvider[] {

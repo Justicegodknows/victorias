@@ -16,10 +16,12 @@ type ProbeResult = {
 };
 
 const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL ?? "http://127.0.0.1:11434/v1";
+// Ollama is primary by default; set AI_PRIMARY_PROVIDER=huggingface to override.
 const AI_PRIMARY_PROVIDER =
-    process.env.AI_PRIMARY_PROVIDER === "ollama" ? "ollama" : "huggingface";
+    process.env.AI_PRIMARY_PROVIDER === "huggingface" ? "huggingface" : "ollama";
+// Ollama is primary by default; set EMBEDDING_PRIMARY_PROVIDER=huggingface to override.
 const EMBEDDING_PRIMARY_PROVIDER =
-    process.env.EMBEDDING_PRIMARY_PROVIDER === "ollama" ? "ollama" : "huggingface";
+    process.env.EMBEDDING_PRIMARY_PROVIDER === "huggingface" ? "huggingface" : "ollama";
 
 function getProviderOrder(primary: ProviderName, hasOllama: boolean, hasHuggingFace: boolean): ProviderName[] {
     const available: ProviderName[] = [];
@@ -64,18 +66,6 @@ async function probeWithTimeout(url: string, init: RequestInit, timeoutMs: numbe
 }
 
 async function probeOllama(): Promise<ProviderProbe> {
-    const configured = Boolean(OLLAMA_BASE_URL && OLLAMA_BASE_URL.trim());
-    if (!configured) {
-        return {
-            provider: "ollama",
-            configured: false,
-            reachable: false,
-            latency_ms: null,
-            status: "not_configured",
-            message: "OLLAMA_BASE_URL is not configured.",
-        };
-    }
-
     const base = OLLAMA_BASE_URL.replace(/\/$/, "");
     const probe = await probeWithTimeout(`${base}/models`, { method: "GET" }, 4000);
 
