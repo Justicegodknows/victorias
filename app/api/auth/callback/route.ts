@@ -9,7 +9,7 @@ import {
 export async function GET(request: Request): Promise<NextResponse> {
     const { searchParams, origin } = new URL(request.url);
     const code = searchParams.get("code");
-    const next = searchParams.get("next") ?? "/tenant";
+    const next = searchParams.get("next");
 
     if (code) {
         const cookieStore = await cookies();
@@ -34,7 +34,27 @@ export async function GET(request: Request): Promise<NextResponse> {
         const { error } = await supabase.auth.exchangeCodeForSession(code);
 
         if (!error) {
-            return NextResponse.redirect(`${origin}${next}`);
+            if (next?.startsWith("/") && !next.startsWith("//")) {
+                return NextResponse.redirect(`${origin}${next}`);
+            }
+
+            const {
+                data: { user },
+            } = await supabase.auth.getUser();
+
+            if (!user) {
+                return NextResponse.redirect(`${origin}/tenant/browse`);
+            }
+
+            const { data: profile } = await supabase
+                .from("profiles")
+                .select("role")
+                .eq("id", user.id)
+                .maybeSingle()
+                .overrideTypes<{ role: "tenant" | "landlord" }, { merge: false }>();
+
+            const redirectPath = profile?.role === "landlord" ? "/landlord" : "/tenant/browse";
+            return NextResponse.redirect(`${origin}${redirectPath}`);
         }
     }
 

@@ -47,8 +47,15 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
 
     // Redirect authenticated users away from auth routes
     if (user && isAuthRoute) {
+        const { data: profile } = await supabase
+            .from("profiles")
+            .select("role")
+            .eq("id", user.id)
+            .maybeSingle()
+            .overrideTypes<{ role: "tenant" | "landlord" }, { merge: false }>();
+
         const url = request.nextUrl.clone();
-        url.pathname = "/tenant";
+        url.pathname = profile?.role === "landlord" ? "/landlord" : "/tenant/browse";
         return NextResponse.redirect(url);
     }
 

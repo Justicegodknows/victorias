@@ -35,6 +35,21 @@ function LoginPageContent(): React.ReactElement {
     const activeError = error ?? callbackError ?? supabaseError;
     const authUnavailable = !supabase;
 
+    async function resolvePostLoginPath(userId: string): Promise<string> {
+        if (!supabase) {
+            return "/tenant/browse";
+        }
+
+        const { data: profile } = await supabase
+            .from("profiles")
+            .select("role")
+            .eq("id", userId)
+            .maybeSingle()
+            .overrideTypes<{ role: "tenant" | "landlord" }, { merge: false }>();
+
+        return profile?.role === "landlord" ? "/landlord" : "/tenant/browse";
+    }
+
     async function handleGoogleSignIn(): Promise<void> {
         if (!supabase) {
             setError(supabaseError ?? "Supabase auth is unavailable.");
@@ -72,7 +87,10 @@ function LoginPageContent(): React.ReactElement {
         setError(null);
         setLoading(true);
 
-        const { error } = await supabase.auth.signInWithPassword({
+        const {
+            data: { user },
+            error,
+        } = await supabase.auth.signInWithPassword({
             email,
             password,
         });
@@ -83,7 +101,13 @@ function LoginPageContent(): React.ReactElement {
             return;
         }
 
-        window.location.href = "/tenant";
+        if (!user) {
+            setError("Sign-in succeeded but no user session was returned.");
+            setLoading(false);
+            return;
+        }
+
+        window.location.href = await resolvePostLoginPath(user.id);
     }
 
     async function handleSendOtp(): Promise<void> {
@@ -118,7 +142,10 @@ function LoginPageContent(): React.ReactElement {
         setError(null);
         setLoading(true);
 
-        const { error } = await supabase.auth.verifyOtp({
+        const {
+            data: { user },
+            error,
+        } = await supabase.auth.verifyOtp({
             phone,
             token: otp,
             type: "sms",
@@ -130,7 +157,13 @@ function LoginPageContent(): React.ReactElement {
             return;
         }
 
-        window.location.href = "/tenant";
+        if (!user) {
+            setError("Verification succeeded but no user session was returned.");
+            setLoading(false);
+            return;
+        }
+
+        window.location.href = await resolvePostLoginPath(user.id);
     }
 
     return (
