@@ -58,6 +58,7 @@ test.describe("Auth pages", () => {
         await expect(page.getByRole("heading", { name: "Landlord" })).toBeVisible();
         await expect(page.getByLabel("Full Name")).toBeVisible();
         await expect(page.getByLabel("Email Address")).toBeVisible();
+        await expect(page.getByLabel("Phone Number")).toBeVisible();
     });
 
     test("login page has link to register", async ({ page }) => {

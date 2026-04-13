@@ -12,9 +12,29 @@ const GOVERNMENT_ID_LABELS: Record<GovernmentIdType, string> = {
     "voters-card": "Voter's Card",
 };
 
+function normalizePhoneNumber(value: string): string | null {
+    const trimmed = value.trim();
+    const digits = trimmed.replace(/\D/g, "");
+
+    if (digits.length < 10 || digits.length > 15) {
+        return null;
+    }
+
+    if (trimmed.startsWith("+")) {
+        return `+${digits}`;
+    }
+
+    if (digits.length === 11 && digits.startsWith("0")) {
+        return `+234${digits.slice(1)}`;
+    }
+
+    return `+${digits}`;
+}
+
 export default function RegisterPage(): React.ReactElement {
     const [fullName, setFullName] = useState("");
     const [email, setEmail] = useState("");
+    const [phone, setPhone] = useState("");
     const [password, setPassword] = useState("");
     const [role, setRole] = useState<UserRole>("tenant");
     const [nin, setNin] = useState("");
@@ -31,30 +51,8 @@ export default function RegisterPage(): React.ReactElement {
     const activeError = error ?? supabaseError;
     const authUnavailable = !supabase;
 
-    async function handleGoogleSignUp(): Promise<void> {
-        if (!supabase) {
-            setError(supabaseError ?? "Supabase auth is unavailable.");
-            return;
-        }
-
-        setError(null);
-        setLoading(true);
-
-        const { error } = await supabase.auth.signInWithOAuth({
-            provider: "google",
-            options: {
-                redirectTo: `${window.location.origin}/api/auth/callback`,
-                queryParams: {
-                    access_type: "offline",
-                    prompt: "consent",
-                },
-            },
-        });
-
-        if (error) {
-            setError(error.message);
-            setLoading(false);
-        }
+    function handleGoogleSignUp(): void {
+        setError("Phone number is mandatory for registration. Use the form above to continue.");
     }
 
 
@@ -67,6 +65,12 @@ export default function RegisterPage(): React.ReactElement {
         }
 
         setError(null);
+
+        const normalizedPhone = normalizePhoneNumber(phone);
+        if (!normalizedPhone) {
+            setError("Enter a valid phone number with 10 to 15 digits.");
+            return;
+        }
 
         const sanitizedNin = nin.replace(/\D/g, "");
         const sanitizedBvn = bvn.replace(/\D/g, "");
@@ -90,6 +94,7 @@ export default function RegisterPage(): React.ReactElement {
             options: {
                 data: {
                     full_name: fullName,
+                    phone: normalizedPhone,
                     role,
                     nin: role === "tenant" ? sanitizedNin : null,
                     bvn: role === "tenant" ? sanitizedBvn : null,
@@ -226,6 +231,23 @@ export default function RegisterPage(): React.ReactElement {
                             className="w-full bg-white dark:bg-zinc-800 border-none rounded-xl px-4 py-4 focus:ring-2 focus:ring-[#7b5d43]/20 text-[#2a221d] dark:text-zinc-50 placeholder:text-[#6e7b6c] dark:placeholder:text-zinc-500 transition-all"
                             placeholder="curator@victorias.luxury"
                         />
+                    </div>
+
+                    <div>
+                        <label htmlFor="phone" className="block text-xs font-mono uppercase tracking-[0.2em] text-[#6a5e54] dark:text-zinc-400 mb-2 ml-1">
+                            Phone Number
+                        </label>
+                        <input
+                            id="phone"
+                            type="tel"
+                            required
+                            disabled={authUnavailable || loading}
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            className="w-full bg-white dark:bg-zinc-800 border-none rounded-xl px-4 py-4 focus:ring-2 focus:ring-[#7b5d43]/20 text-[#2a221d] dark:text-zinc-50 placeholder:text-[#6e7b6c] dark:placeholder:text-zinc-500 transition-all"
+                            placeholder="+2348012345678"
+                        />
+                        <p className="mt-2 text-xs text-[#6e7b6c] dark:text-zinc-500 ml-1">Use your active number for account verification and contact.</p>
                     </div>
 
                     <div>

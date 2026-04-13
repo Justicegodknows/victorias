@@ -10,6 +10,24 @@
 				"build"
 			],
 			"isBackground": false
+		},
+		{
+			"label": "dev:debug",
+			"type": "shell",
+			"command": "npm",
+			"args": ["run", "dev:debug"],
+			"isBackground": true,
+			"problemMatcher": {
+				"owner": "custom",
+				"pattern": {
+					"regexp": "^"
+				},
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": "Starting\\.",
+					"endsPattern": "Ready in"
+				}
+			}
 		}
 	]
 }

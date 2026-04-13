@@ -7,7 +7,7 @@
 create table public.profiles (
   id uuid references auth.users on delete cascade primary key,
   full_name text not null,
-  phone text,
+  phone text not null check (phone ~ '^\\+[1-9][0-9]{9,14}$'),
   role text not null check (role in ('landlord', 'tenant')),
   nin text,
   bvn text,
@@ -53,6 +53,7 @@ begin
   insert into public.profiles (
     id,
     full_name,
+    phone,
     role,
     nin,
     bvn,
@@ -62,6 +63,7 @@ begin
   values (
     new.id,
     coalesce(new.raw_user_meta_data->>'full_name', ''),
+    nullif(trim(coalesce(new.raw_user_meta_data->>'phone', new.phone, '')), ''),
     coalesce(new.raw_user_meta_data->>'role', 'tenant'),
     nullif(trim(coalesce(new.raw_user_meta_data->>'nin', '')), ''),
     nullif(trim(coalesce(new.raw_user_meta_data->>'bvn', '')), ''),

@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Emit source maps in production builds so stack traces point to original TS source.
+  productionBrowserSourceMaps: true,
   turbopack: {
     root: process.cwd(),
   },

@@ -1,0 +1,63 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Next.js: server-side",
+            "type": "node",
+            "request": "attach",
+            "port": 9229,
+            "skipFiles": ["<node_internals>/**"],
+            "sourceMaps": true,
+            "resolveSourceMapLocations": [
+                "${workspaceFolder}/**",
+                "!**/node_modules/**"
+            ],
+            // Start the server first with `npm run dev:debug`, then attach.
+            "restart": true
+        },
+        {
+            "name": "Next.js: client-side (Chrome)",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:3000",
+            "webRoot": "${workspaceFolder}",
+            "sourceMapPathOverrides": {
+                "webpack://_N_E/*": "${workspaceFolder}/*"
+            }
+        },
+        {
+            "name": "Playwright: debug current file",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceFolder}/node_modules/.bin/playwright",
+            "args": ["test", "${file}", "--headed", "--timeout=0"],
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PWDEBUG": "1"
+            },
+            "console": "integratedTerminal",
+            "skipFiles": ["<node_internals>/**"]
+        },
+        {
+            "name": "Playwright: smoke tests (headed)",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceFolder}/node_modules/.bin/playwright",
+            "args": ["test", "tests/smoke.spec.ts", "--headed", "--timeout=0"],
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PWDEBUG": "1"
+            },
+            "console": "integratedTerminal",
+            "skipFiles": ["<node_internals>/**"]
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Next.js: full-stack",
+            "configurations": ["Next.js: server-side", "Next.js: client-side (Chrome)"],
+            "stopAll": true,
+            "preLaunchTask": "dev:debug"
+        }
+    ]
+}

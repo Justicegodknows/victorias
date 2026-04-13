@@ -4,7 +4,7 @@ import type { LanguageModel } from "ai";
 type AiProvider = "ollama" | "huggingface";
 
 // Ollama — primary provider. Uses OLLAMA_BASE_URL if set, otherwise the local default.
-const OLLAMA_MODEL = process.env.OLLAMA_MODEL ?? "llama3.2";
+const OLLAMA_MODEL = process.env.OLLAMA_MODEL ?? "qwen3-vl:30b";
 const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL ?? "http://127.0.0.1:11434/v1";
 const OLLAMA_PROBE_TIMEOUT_MS = 2500;
 
