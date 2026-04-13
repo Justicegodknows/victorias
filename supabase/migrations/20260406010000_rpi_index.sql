@@ -197,18 +197,16 @@ begin
     union
     select * from hist_keys
   ),
-  hist_adjusted as (
+  hist_adjusted_source as (
     select
       k.city,
       k.state_code,
       k.lga,
       k.apartment_type,
-      percentile_cont(0.5) within group (
-        order by (
-          rt.annual_rent * exp(coalesce(sum(ln(1 + ir.monthly_rate)), 0))
-        )
-      )::numeric(12, 2) as hist_component,
-      count(*)::integer as sample_size_hist
+      rt.id as rental_transaction_id,
+      (
+        rt.annual_rent * exp(coalesce(sum(ln(1 + ir.monthly_rate)), 0))
+      )::numeric(12, 2) as adjusted_rent
     from keys k
     join public.rental_transactions rt
       on rt.city = k.city
@@ -223,7 +221,18 @@ begin
       on ir.state_code = k.state_code
       and make_date(ir.year, ir.month, 1) >= date_trunc('month', rt.lease_start_date)::date
       and make_date(ir.year, ir.month, 1) < period_start
-    group by k.city, k.state_code, k.lga, k.apartment_type
+    group by k.city, k.state_code, k.lga, k.apartment_type, rt.id, rt.annual_rent
+  ),
+  hist_adjusted as (
+    select
+      has.city,
+      has.state_code,
+      has.lga,
+      has.apartment_type,
+      percentile_cont(0.5) within group (order by has.adjusted_rent)::numeric(12, 2) as hist_component,
+      count(*)::integer as sample_size_hist
+    from hist_adjusted_source has
+    group by has.city, has.state_code, has.lga, has.apartment_type
   ),
   comp_current as (
     select

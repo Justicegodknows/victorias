@@ -61,6 +61,30 @@ test.describe("Auth pages", () => {
         await expect(page.getByLabel("Phone Number")).toBeVisible();
     });
 
+    test("register requires phone before submit", async ({ page }) => {
+        await page.goto("/register");
+
+        await page.getByRole("button", { name: "Landlord" }).click();
+        await page.getByLabel("Full Name").fill("Test Landlord");
+        await page.getByLabel("Email Address").fill("test.landlord@example.com");
+        await page.getByLabel("Password").fill("securepassword123");
+
+        await page.getByRole("button", { name: /create account/i }).click();
+
+        const phoneInput = page.getByLabel("Phone Number");
+        await expect(phoneInput).toBeFocused();
+
+        const isValid = await phoneInput.evaluate((el) =>
+            (el as HTMLInputElement).checkValidity()
+        );
+        expect(isValid).toBe(false);
+
+        const validationMessage = await phoneInput.evaluate((el) =>
+            (el as HTMLInputElement).validationMessage
+        );
+        expect(validationMessage.length).toBeGreaterThan(0);
+    });
+
     test("login page has link to register", async ({ page }) => {
         await page.goto("/login");
         const registerLink = page.getByRole("link", { name: /create.*account|sign up|register/i });
