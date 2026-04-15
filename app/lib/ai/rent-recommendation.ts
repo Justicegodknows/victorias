@@ -2,6 +2,8 @@ export type RentRecommendationInput = {
     comparableRents: number[];
     rpiValue?: number | null;
     rpiSampleSize?: number;
+    /** ML model predicted annual rent, when available. Acts as the primary anchor. */
+    mlPrediction?: number | null;
 };
 
 export type RentRecommendation = {
@@ -10,7 +12,7 @@ export type RentRecommendation = {
     anchorRent: number;
     confidence: "high" | "medium" | "low";
     sampleCount: number;
-    source: "comparables" | "rpi";
+    source: "ml" | "comparables" | "rpi";
 };
 
 function median(values: number[]): number {
@@ -51,6 +53,24 @@ export function buildRentRecommendation(input: RentRecommendationInput): RentRec
     const sampleCount = comparableRents.length;
     const rpiValue = input.rpiValue ?? null;
     const rpiSampleSize = input.rpiSampleSize ?? 0;
+    const mlPrediction = typeof input.mlPrediction === "number" && input.mlPrediction > 0
+        ? input.mlPrediction
+        : null;
+
+    // ML prediction is the primary anchor — use it when available with a tighter spread
+    if (mlPrediction !== null) {
+        const confidence = resolveConfidence(sampleCount, rpiSampleSize);
+        // ML predictions get a tighter spread than statistical sources
+        const spread = confidence === "high" ? 0.15 : confidence === "medium" ? 0.20 : 0.25;
+        return {
+            minRent: roundToNearest(mlPrediction * (1 - spread)),
+            maxRent: roundToNearest(mlPrediction * (1 + spread)),
+            anchorRent: roundToNearest(mlPrediction),
+            confidence,
+            sampleCount,
+            source: "ml",
+        };
+    }
 
     const hasComparableAnchor = sampleCount >= 4;
     const hasRpiAnchor = typeof rpiValue === "number" && rpiValue > 0;

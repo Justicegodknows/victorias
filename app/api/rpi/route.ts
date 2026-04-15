@@ -6,6 +6,9 @@ import {
     getSupabaseUrl,
 } from "@/app/lib/supabase/server-env";
 import type { Database } from "@/app/lib/types";
+import { predictRentalCost } from "@/app/lib/ai/ml-client";
+import { buildRentalRequest } from "@/app/lib/ai/ml-adapter";
+import type { City, ApartmentType } from "@/app/lib/types";
 
 function getServiceClient(): ReturnType<typeof createClient<Database>> {
     return createClient<Database>(
@@ -89,17 +92,43 @@ export async function POST(req: Request): Promise<Response> {
     };
 
     const service = getServiceClient();
-    const { data, error } = await service.rpc("compute_lga_rpi", {
-        target_year: body.year,
-        target_month: body.month,
-        filter_city: body.city ?? null,
-        filter_lga: body.lga ?? null,
-        filter_apartment_type: body.apartment_type ?? "all",
-    });
 
-    if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    // Run RPI recompute and ML rent estimate in parallel (ML is best-effort)
+    const repType = !body.apartment_type || body.apartment_type === "all"
+        ? "2-bedroom"
+        : body.apartment_type;
+
+    const [rpiResult, mlResult] = await Promise.all([
+        service.rpc("compute_lga_rpi", {
+            target_year: body.year,
+            target_month: body.month,
+            filter_city: body.city ?? null,
+            filter_lga: body.lga ?? null,
+            filter_apartment_type: body.apartment_type ?? "all",
+        }),
+        body.city && body.lga
+            ? predictRentalCost(buildRentalRequest({
+                city: body.city as City,
+                neighborhood: body.lga,
+                apartment_type: repType as ApartmentType,
+                annual_rent: 0,
+                amenities: [],
+            })).catch(() => null)
+            : Promise.resolve(null),
+    ]);
+
+    if (rpiResult.error) {
+        return NextResponse.json({ error: rpiResult.error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ ok: true, rows_affected: data ?? 0 });
+    const mlRent = mlResult?.ok ? mlResult.data.annual_rent_ngn : null;
+
+    return NextResponse.json({
+        ok: true,
+        rows_affected: rpiResult.data ?? 0,
+        ...(mlRent !== null && {
+            ml_rent_estimate: mlRent,
+            ml_note: "ML model rent estimate included for cross-validation. Not blended into stored RPI.",
+        }),
+    });
 }

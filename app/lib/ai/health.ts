@@ -15,6 +15,8 @@ type ProbeResult = {
     message: string;
 };
 
+import { checkMlHealth } from "@/app/lib/ai/ml-client";
+
 const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL ?? "http://127.0.0.1:11434/v1";
 // Ollama is primary by default; set AI_PRIMARY_PROVIDER=huggingface to override.
 const AI_PRIMARY_PROVIDER =
@@ -116,7 +118,11 @@ async function probeHuggingFace(): Promise<ProviderProbe> {
 }
 
 export async function getAiHealthSnapshot(): Promise<Record<string, unknown>> {
-    const [ollama, huggingface] = await Promise.all([probeOllama(), probeHuggingFace()]);
+    const [ollama, huggingface, mlModel] = await Promise.all([
+        probeOllama(),
+        probeHuggingFace(),
+        checkMlHealth(),
+    ]);
 
     const chatOrder = getProviderOrder(
         AI_PRIMARY_PROVIDER,
@@ -150,9 +156,17 @@ export async function getAiHealthSnapshot(): Promise<Record<string, unknown>> {
             ollama,
             huggingface,
         },
+        ml_model: {
+            url: (process.env.ML_MODEL_BASE_URL ?? "https://property-price-model.onrender.com"),
+            reachable: mlModel.reachable,
+            latency_ms: mlModel.latency_ms,
+            status: mlModel.reachable ? "healthy" : "unreachable",
+            message: mlModel.message,
+        },
         readiness: {
             chat: chatReady,
             embeddings: embeddingsReady,
+            ml_predictions: mlModel.reachable,
             overall: chatReady && embeddingsReady,
         },
     };

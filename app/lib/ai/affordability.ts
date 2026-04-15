@@ -11,6 +11,10 @@ export type AffordabilityResult = {
         agreement_fee: number;
     };
     recommendation: string;
+    /** ML model price-tier classification, when available. */
+    ml_price_tier?: string;
+    /** ML model price-tier probabilities, when available. */
+    ml_price_tier_probabilities?: Record<string, number>;
 };
 
 const AGREEMENT_FEE_ESTIMATE = 100_000; // ₦100k average

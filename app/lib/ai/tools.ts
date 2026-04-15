@@ -9,6 +9,9 @@ import {
     getSupabaseServiceRoleKey,
     getSupabaseUrl,
 } from "@/app/lib/supabase/server-env";
+import { predictAll, predictRentalCost, predictPriceTier } from "@/app/lib/ai/ml-client";
+import { buildAllRequest, buildRentalRequest, buildClassificationRequest } from "@/app/lib/ai/ml-adapter";
+import type { City, ApartmentType } from "@/app/lib/types";
 
 type TavilySearchResponse = {
     query: string;
@@ -326,14 +329,45 @@ export const getApartmentDetails = tool({
             return { error: "Apartment not found." };
         }
 
+        const amenities = (data.apartment_amenities as Array<{ amenity: string }>).map((a) => a.amenity);
+        const envFactors = data.environmental_factors as { power_supply_rating?: number } | null;
+
+        // Run ML predictions in parallel with response assembly (best-effort)
+        const mlFeatures = {
+            city: data.city as City,
+            neighborhood: data.neighborhood,
+            apartment_type: data.apartment_type as ApartmentType,
+            annual_rent: data.annual_rent,
+            amenities,
+            power_supply_rating: envFactors?.power_supply_rating ?? 3,
+        };
+
+        const mlResult = await predictAll(buildAllRequest(mlFeatures)).catch(() => null);
+        const ml = mlResult?.ok ? mlResult.data : null;
+
         return {
             ...data,
             annual_rent_formatted: formatNaira(data.annual_rent),
             total_upfront_cost_formatted: formatNaira(data.total_upfront_cost),
-            amenities: (data.apartment_amenities as Array<{ amenity: string }>).map((a) => a.amenity),
+            amenities,
             images: (data.apartment_images as Array<{ image_url: string; is_primary: boolean; display_order: number }>),
             environmental_factors: data.environmental_factors,
             landlord: data.profiles,
+            ml_insights: ml
+                ? {
+                    predicted_annual_rent: ml.rental.annual_rent_ngn,
+                    predicted_annual_rent_formatted: formatNaira(Math.round(ml.rental.annual_rent_ngn)),
+                    predicted_monthly_rent_formatted: formatNaira(Math.round(ml.rental.monthly_rent_ngn)),
+                    property_type: ml.property_type.property_type,
+                    property_type_confidence: Math.round(
+                        (ml.property_type.probabilities[ml.property_type.property_type] ?? 0) * 100,
+                    ),
+                    price_tier: ml.price_tier.price_tier,
+                    price_tier_confidence: Math.round(
+                        (ml.price_tier.probabilities[ml.price_tier.price_tier] ?? 0) * 100,
+                    ),
+                }
+                : null,
         };
     },
 });
@@ -346,15 +380,57 @@ export const checkAffordability = tool({
         annual_rent: z.number().describe("The apartment's annual rent in Naira"),
         deposit: z.number().default(0).describe("Caution/security deposit in Naira"),
         agent_fee: z.number().default(0).describe("Agent/caretaker fee in Naira"),
+        /** Optional apartment context for ML price-tier enrichment */
+        apartment_id: z.string().uuid().optional().describe("Apartment ID for ML price-tier classification"),
     }),
-    execute: async ({ annual_income, annual_rent, deposit, agent_fee }) => {
+    execute: async ({ annual_income, annual_rent, deposit, agent_fee, apartment_id }) => {
         const result = calculateAffordability(annual_income, annual_rent, deposit, agent_fee);
+
+        // Optionally enrich with ML price tier when apartment context is available
+        let mlPriceTier: string | undefined;
+        let mlPriceTierProbabilities: Record<string, number> | undefined;
+
+        if (apartment_id) {
+            try {
+                const supabase = getServiceClient();
+                const { data: apt } = await supabase
+                    .from("apartments")
+                    .select("city, neighborhood, apartment_type, annual_rent, apartment_amenities(amenity), environmental_factors(power_supply_rating)")
+                    .eq("id", apartment_id)
+                    .single();
+
+                if (apt) {
+                    const amenities = (apt.apartment_amenities as Array<{ amenity: string }>).map((a) => a.amenity);
+                    const envFactor = apt.environmental_factors as { power_supply_rating?: number } | null;
+                    const mlInput = buildClassificationRequest({
+                        city: apt.city as City,
+                        neighborhood: apt.neighborhood,
+                        apartment_type: apt.apartment_type as ApartmentType,
+                        annual_rent: apt.annual_rent,
+                        amenities,
+                        power_supply_rating: envFactor?.power_supply_rating ?? 3,
+                    });
+                    const mlResult = await predictPriceTier(mlInput);
+                    if (mlResult.ok) {
+                        mlPriceTier = mlResult.data.price_tier;
+                        mlPriceTierProbabilities = mlResult.data.probabilities;
+                    }
+                }
+            } catch {
+                // ML enrichment is best-effort; never block affordability calculation
+            }
+        }
+
         return {
             ...result,
             annual_income_formatted: formatNaira(result.annual_income),
             annual_rent_formatted: formatNaira(result.annual_rent),
             total_upfront_cost_formatted: formatNaira(result.total_upfront_cost),
             rent_to_income_percentage: `${Math.round(result.rent_to_income_ratio * 100)}%`,
+            ...(mlPriceTier !== undefined && {
+                ml_price_tier: mlPriceTier,
+                ml_price_tier_probabilities: mlPriceTierProbabilities,
+            }),
         };
     },
 });
@@ -411,22 +487,33 @@ export const getRentalPriceIndex = tool({
     execute: async ({ city, lga, apartment_type, year, month }) => {
         const supabase = getServiceClient();
 
-        const { data, error } = await supabase.rpc("get_lga_rpi", {
-            p_city: city,
-            p_lga: lga,
-            p_apartment_type: apartment_type,
-            p_year: year ?? null,
-            p_month: month ?? null,
-        });
+        // Run RPI fetch and ML rent estimate in parallel
+        const [rpiResult, mlResult] = await Promise.all([
+            supabase.rpc("get_lga_rpi", {
+                p_city: city,
+                p_lga: lga,
+                p_apartment_type: apartment_type,
+                p_year: year ?? null,
+                p_month: month ?? null,
+            }),
+            // Use first neighborhood in the LGA as representative (best-effort)
+            predictRentalCost(buildRentalRequest({
+                city: city as City,
+                neighborhood: lga,
+                apartment_type: apartment_type === "all" ? "2-bedroom" : apartment_type as ApartmentType,
+                annual_rent: 0,
+                amenities: [],
+            })).catch(() => null),
+        ]);
 
-        if (error) {
+        if (rpiResult.error) {
             return {
                 found: false,
                 message: "Unable to fetch Rental Price Index right now.",
             };
         }
 
-        const row = data?.[0];
+        const row = rpiResult.data?.[0];
 
         if (!row) {
             return {
@@ -442,6 +529,8 @@ export const getRentalPriceIndex = tool({
                 : totalSamples >= 12
                     ? "medium"
                     : "low";
+
+        const mlRent = mlResult?.ok ? mlResult.data.annual_rent_ngn : null;
 
         return {
             found: true,
@@ -465,6 +554,13 @@ export const getRentalPriceIndex = tool({
                 total: totalSamples,
             },
             confidence,
+            ...(mlRent !== null && {
+                ml_rent_estimate: mlRent,
+                ml_rent_estimate_formatted: formatNaira(Math.round(mlRent)),
+                ml_vs_rpi_delta: Math.round(mlRent - row.rpi_value),
+                ml_vs_rpi_delta_formatted: formatNaira(Math.abs(Math.round(mlRent - row.rpi_value))),
+                ml_vs_rpi_direction: mlRent > row.rpi_value ? "above" : mlRent < row.rpi_value ? "below" : "equal",
+            }),
         };
     },
 });
@@ -723,20 +819,37 @@ export const compareRpiAcrossLgas = tool({
     }),
     execute: async ({ city, lgas, apartment_type }) => {
         const supabase = getServiceClient();
+        const repType = apartment_type === "all" ? "2-bedroom" : apartment_type as ApartmentType;
 
         const results = await Promise.all(
             lgas.map(async (lga) => {
-                const { data } = await supabase.rpc("get_lga_rpi", {
-                    p_city: city,
-                    p_lga: lga,
-                    p_apartment_type: apartment_type,
-                    p_year: null,
-                    p_month: null,
-                });
+                const [rpiData, mlData] = await Promise.all([
+                    supabase.rpc("get_lga_rpi", {
+                        p_city: city,
+                        p_lga: lga,
+                        p_apartment_type: apartment_type,
+                        p_year: null,
+                        p_month: null,
+                    }),
+                    predictRentalCost(buildRentalRequest({
+                        city: city as City,
+                        neighborhood: lga,
+                        apartment_type: repType,
+                        annual_rent: 0,
+                        amenities: [],
+                    })).catch(() => null),
+                ]);
 
-                const row = data?.[0];
+                const row = rpiData.data?.[0];
+                const mlRent = mlData?.ok ? mlData.data.annual_rent_ngn : null;
+
                 if (!row) {
-                    return { lga, found: false };
+                    return {
+                        lga,
+                        found: false,
+                        ml_rent_estimate: mlRent,
+                        ml_rent_estimate_formatted: mlRent !== null ? formatNaira(Math.round(mlRent)) : null,
+                    };
                 }
 
                 const totalSamples = row.sample_size_hist + row.sample_size_comp;
@@ -757,6 +870,8 @@ export const compareRpiAcrossLgas = tool({
                         comparable: row.sample_size_comp,
                         total: totalSamples,
                     },
+                    ml_rent_estimate: mlRent,
+                    ml_rent_estimate_formatted: mlRent !== null ? formatNaira(Math.round(mlRent)) : null,
                 };
             }),
         );
@@ -771,6 +886,8 @@ export const compareRpiAcrossLgas = tool({
             trend_percent: number;
             confidence: string;
             sample_sizes: { historical: number; comparable: number; total: number };
+            ml_rent_estimate: number | null;
+            ml_rent_estimate_formatted: string | null;
         }>;
 
         if (found.length === 0) {
@@ -816,7 +933,7 @@ export const assessRentVsMarket = tool({
 
         const { data: apt, error: aptError } = await supabase
             .from("apartments")
-            .select("id, ppid, title, annual_rent, city, lga, apartment_type, neighborhood")
+            .select("id, ppid, title, annual_rent, city, lga, apartment_type, neighborhood, apartment_amenities(amenity), environmental_factors(power_supply_rating)")
             .eq("id", apartment_id)
             .single();
 
@@ -824,15 +941,31 @@ export const assessRentVsMarket = tool({
             return { found: false, message: "Apartment not found." };
         }
 
-        const { data: rpiData } = await supabase.rpc("get_lga_rpi", {
-            p_city: apt.city,
-            p_lga: apt.lga,
-            p_apartment_type: apt.apartment_type,
-            p_year: null,
-            p_month: null,
-        });
+        const amenities = (apt.apartment_amenities as Array<{ amenity: string }>).map((a) => a.amenity);
+        const envFactor = apt.environmental_factors as { power_supply_rating?: number } | null;
 
-        const rpiRow = rpiData?.[0];
+        // Run RPI fetch and ML predictions in parallel
+        const [rpiResult, mlResult] = await Promise.all([
+            supabase.rpc("get_lga_rpi", {
+                p_city: apt.city,
+                p_lga: apt.lga,
+                p_apartment_type: apt.apartment_type,
+                p_year: null,
+                p_month: null,
+            }),
+            predictAll(buildAllRequest({
+                city: apt.city as City,
+                neighborhood: apt.neighborhood,
+                apartment_type: apt.apartment_type as ApartmentType,
+                annual_rent: apt.annual_rent,
+                amenities,
+                power_supply_rating: envFactor?.power_supply_rating ?? 3,
+            })).catch(() => null),
+        ]);
+
+        const ml = mlResult?.ok ? mlResult.data : null;
+
+        const rpiRow = rpiResult.data?.[0];
 
         if (!rpiRow) {
             // Try 'all' types as fallback
@@ -853,21 +986,54 @@ export const assessRentVsMarket = tool({
                     annual_rent_formatted: formatNaira(apt.annual_rent),
                     rpi_available: false,
                     message: "No market index data available for this LGA yet.",
+                    ...(ml && buildMlInsights(apt.annual_rent, ml)),
                 };
             }
 
             const delta = apt.annual_rent - fallbackRow.rpi_value;
             const pct = (delta / fallbackRow.rpi_value) * 100;
 
-            return buildAssessment(apt, fallbackRow, delta, pct, "all");
+            return { ...buildAssessment(apt, fallbackRow, delta, pct, "all"), ...(ml && buildMlInsights(apt.annual_rent, ml)) };
         }
 
         const delta = apt.annual_rent - rpiRow.rpi_value;
         const pct = (delta / rpiRow.rpi_value) * 100;
 
-        return buildAssessment(apt, rpiRow, delta, pct, apt.apartment_type);
+        return { ...buildAssessment(apt, rpiRow, delta, pct, apt.apartment_type), ...(ml && buildMlInsights(apt.annual_rent, ml)) };
     },
 });
+
+function buildMlInsights(
+    actualRent: number,
+    ml: { rental: { annual_rent_ngn: number; monthly_rent_ngn: number }; property_type: { property_type: string; probabilities: Record<string, number> }; price_tier: { price_tier: string; probabilities: Record<string, number> } },
+): Record<string, unknown> {
+    const mlRent = ml.rental.annual_rent_ngn;
+    const delta = actualRent - mlRent;
+    const pct = (delta / mlRent) * 100;
+
+    let mlVerdict: string;
+    if (Math.abs(pct) <= 5) mlVerdict = "fairly_priced";
+    else if (pct < -5 && pct >= -20) mlVerdict = "good_value";
+    else if (pct < -20) mlVerdict = "exceptional_value";
+    else if (pct > 5 && pct <= 20) mlVerdict = "slightly_above_market";
+    else mlVerdict = "significantly_overpriced";
+
+    return {
+        ml_predicted_rent: mlRent,
+        ml_predicted_rent_formatted: formatNaira(Math.round(mlRent)),
+        ml_predicted_monthly_formatted: formatNaira(Math.round(ml.rental.monthly_rent_ngn)),
+        ml_property_type: ml.property_type.property_type,
+        ml_property_type_confidence: Math.round(
+            (ml.property_type.probabilities[ml.property_type.property_type] ?? 0) * 100,
+        ),
+        ml_price_tier: ml.price_tier.price_tier,
+        ml_price_tier_confidence: Math.round(
+            (ml.price_tier.probabilities[ml.price_tier.price_tier] ?? 0) * 100,
+        ),
+        ml_verdict: mlVerdict,
+        ml_vs_asking_pct: `${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%`,
+    };
+}
 
 function buildAssessment(
     apt: { id: string; ppid: string; title: string; annual_rent: number; city: string; lga: string; apartment_type: string; neighborhood: string },
