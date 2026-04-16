@@ -12,9 +12,9 @@ const HF_EMBEDDING_MODEL =
     process.env.HF_EMBEDDING_MODEL ?? "sentence-transformers/all-MiniLM-L6-v2";
 const HF_BASE_URL = "https://api-inference.huggingface.co/v1";
 
-// Ollama is the default primary; set EMBEDDING_PRIMARY_PROVIDER=huggingface to override.
+// HuggingFace is the default primary; set EMBEDDING_PRIMARY_PROVIDER=ollama to use Ollama instead.
 const EMBEDDING_PRIMARY_PROVIDER =
-    process.env.EMBEDDING_PRIMARY_PROVIDER === "huggingface" ? "huggingface" : "ollama";
+    process.env.EMBEDDING_PRIMARY_PROVIDER === "ollama" ? "ollama" : "huggingface";
 
 function hasHuggingFaceEmbeddings(): boolean {
     return Boolean(process.env.HUGGINGFACE_API_KEY && process.env.HUGGINGFACE_API_KEY.trim());

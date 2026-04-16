@@ -12,9 +12,9 @@ const OLLAMA_PROBE_TIMEOUT_MS = 2500;
 const HF_MODEL = process.env.HF_MODEL ?? "meta-llama/Llama-3.1-70B-Instruct";
 const HF_BASE_URL = "https://api-inference.huggingface.co/v1";
 
-// Ollama is the default primary; set AI_PRIMARY_PROVIDER=huggingface to override.
+// HuggingFace is the default primary; set AI_PRIMARY_PROVIDER=ollama to use Ollama instead.
 const AI_PRIMARY_PROVIDER: AiProvider =
-    process.env.AI_PRIMARY_PROVIDER === "huggingface" ? "huggingface" : "ollama";
+    process.env.AI_PRIMARY_PROVIDER === "ollama" ? "ollama" : "huggingface";
 
 function hasHuggingFace(): boolean {
     return Boolean(process.env.HUGGINGFACE_API_KEY && process.env.HUGGINGFACE_API_KEY.trim());

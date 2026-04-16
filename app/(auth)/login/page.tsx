@@ -397,7 +397,7 @@ function LoginPageContent(): React.ReactElement {
 function LoginPageFallback(): React.ReactElement {
     return (
         <div className="space-y-6">
-            <div className="bg-[#f8efe7] dark:bg-zinc-900 rounded-[2rem] p-8 md:p-12 ambient-shadow relative overflow-hidden min-h-[32rem]" />
+            <div className="bg-[#f8efe7] dark:bg-zinc-900 rounded-[2rem] p-8 md:p-12 ambient-shadow relative overflow-hidden min-h-128" />
         </div>
     );
 }

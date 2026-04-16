@@ -18,12 +18,12 @@ type ProbeResult = {
 import { checkMlHealth } from "@/app/lib/ai/ml-client";
 
 const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL ?? "http://127.0.0.1:11434/v1";
-// Ollama is primary by default; set AI_PRIMARY_PROVIDER=huggingface to override.
+// HuggingFace is primary by default; set AI_PRIMARY_PROVIDER=ollama to use Ollama instead.
 const AI_PRIMARY_PROVIDER =
-    process.env.AI_PRIMARY_PROVIDER === "huggingface" ? "huggingface" : "ollama";
-// Ollama is primary by default; set EMBEDDING_PRIMARY_PROVIDER=huggingface to override.
+    process.env.AI_PRIMARY_PROVIDER === "ollama" ? "ollama" : "huggingface";
+// HuggingFace is primary by default; set EMBEDDING_PRIMARY_PROVIDER=ollama to use Ollama instead.
 const EMBEDDING_PRIMARY_PROVIDER =
-    process.env.EMBEDDING_PRIMARY_PROVIDER === "huggingface" ? "huggingface" : "ollama";
+    process.env.EMBEDDING_PRIMARY_PROVIDER === "ollama" ? "ollama" : "huggingface";
 
 function getProviderOrder(primary: ProviderName, hasOllama: boolean, hasHuggingFace: boolean): ProviderName[] {
     const available: ProviderName[] = [];

@@ -78,34 +78,56 @@ export default function NewListingPage(): React.ReactElement {
             setRecommendationLoading(true);
 
             type ComparableRentRow = { annual_rent: number };
-            const { data: comparableRows } = await supabase
-                .from("apartments")
-                .select("annual_rent")
-                .eq("city", city)
-                .ilike("lga", normalizedLga)
-                .eq("apartment_type", apartmentType)
-                .eq("is_available", true)
-                .limit(200)
-                .overrideTypes<ComparableRentRow[]>();
-
             type LgaRpiProbe = {
                 rpi_value: number;
                 sample_size_hist: number;
                 sample_size_comp: number;
             };
+            type MlPredictResponse = { ok: boolean; annual_rent_ngn?: number };
+
+            // Resolve the neighborhood for ML — fall back to LGA when not yet filled
+            const normalizedNeighborhood = neighborhood.trim() || normalizedLga;
+
+            // Run comparables, type-specific RPI, and ML prediction in parallel
+            const [comparableResult, typeRpiResult, mlResponse] = await Promise.all([
+                supabase
+                    .from("apartments")
+                    .select("annual_rent")
+                    .eq("city", city)
+                    .ilike("lga", normalizedLga)
+                    .eq("apartment_type", apartmentType)
+                    .eq("is_available", true)
+                    .limit(200)
+                    .overrideTypes<ComparableRentRow[]>(),
+                supabase
+                    .from("lga_rpi_monthly")
+                    .select("rpi_value, sample_size_hist, sample_size_comp")
+                    .eq("city", city)
+                    .ilike("lga", normalizedLga)
+                    .eq("apartment_type", apartmentType)
+                    .order("year", { ascending: false })
+                    .order("month", { ascending: false })
+                    .limit(1)
+                    .overrideTypes<LgaRpiProbe[]>(),
+                fetch("/api/ml/predict", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        city,
+                        neighborhood: normalizedNeighborhood,
+                        apartment_type: apartmentType,
+                        amenities: Array.from(amenities),
+                        power_supply_rating: powerRating,
+                    }),
+                })
+                    .then((r) => (r.ok ? (r.json() as Promise<MlPredictResponse>) : null))
+                    .catch(() => null),
+            ]);
+
+            const comparableRows = comparableResult.data;
+            const typeRpiRows = typeRpiResult.data;
 
             // Prefer apartment-type-specific RPI, fall back to 'all'
-            const { data: typeRpiRows } = await supabase
-                .from("lga_rpi_monthly")
-                .select("rpi_value, sample_size_hist, sample_size_comp")
-                .eq("city", city)
-                .ilike("lga", normalizedLga)
-                .eq("apartment_type", apartmentType)
-                .order("year", { ascending: false })
-                .order("month", { ascending: false })
-                .limit(1)
-                .overrideTypes<LgaRpiProbe[]>();
-
             const rpiRow = typeRpiRows?.[0]
                 ? typeRpiRows[0]
                 : (await supabase
@@ -119,10 +141,16 @@ export default function NewListingPage(): React.ReactElement {
                     .limit(1)
                     .overrideTypes<LgaRpiProbe[]>()).data?.[0];
 
+            const mlPrediction =
+                mlResponse?.ok && typeof mlResponse.annual_rent_ngn === "number"
+                    ? mlResponse.annual_rent_ngn
+                    : null;
+
             const recommendation = buildRentRecommendation({
                 comparableRents: (comparableRows ?? []).map((row) => row.annual_rent),
                 rpiValue: rpiRow?.rpi_value,
                 rpiSampleSize: (rpiRow?.sample_size_hist ?? 0) + (rpiRow?.sample_size_comp ?? 0),
+                mlPrediction,
             });
 
             if (!isCancelled) {
@@ -141,7 +169,7 @@ export default function NewListingPage(): React.ReactElement {
         return () => {
             isCancelled = true;
         };
-    }, [apartmentType, city, lga, supabase]);
+    }, [apartmentType, city, lga, neighborhood, amenities, powerRating, supabase]);
 
     const numericAnnualRent = Number.parseInt(annualRent, 10);
     const hasValidAnnualRent = Number.isFinite(numericAnnualRent) && numericAnnualRent > 0;
@@ -342,10 +370,10 @@ export default function NewListingPage(): React.ReactElement {
                                         </p>
                                         {hasValidAnnualRent && (
                                             <p className={`mt-2 text-[11px] font-bold ${numericAnnualRent < rentRecommendation.minRent
+                                                ? "text-amber-700 dark:text-amber-400"
+                                                : numericAnnualRent > rentRecommendation.maxRent
                                                     ? "text-amber-700 dark:text-amber-400"
-                                                    : numericAnnualRent > rentRecommendation.maxRent
-                                                        ? "text-amber-700 dark:text-amber-400"
-                                                        : "text-amber-700 dark:text-amber-400"
+                                                    : "text-amber-700 dark:text-amber-400"
                                                 }`}>
                                                 {numericAnnualRent < rentRecommendation.minRent
                                                     ? "Current asking rent is below the suggested market band."

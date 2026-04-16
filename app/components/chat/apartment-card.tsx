@@ -28,7 +28,7 @@ export function ApartmentCard({ apartment }: ApartmentCardProps): React.ReactEle
     const envFactors = apartment.environmental_factors ?? null;
 
     return (
-        <div className="min-w-[280px] w-[320px] bg-white dark:bg-zinc-900 rounded-2xl overflow-hidden shadow-sm flex flex-col shrink-0">
+        <div className="min-w-7[280px] w-[320px] bg-white dark:bg-zinc-900 rounded-2xl overflow-hidden shadow-sm flex flex-col shrink-0">
             {/* Image */}
             {primaryImage ? (
                 <div className="relative h-44">
