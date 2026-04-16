@@ -168,3 +168,78 @@ test.describe("Navigation", () => {
         expect(page.url()).toContain("/login");
     });
 });
+
+test.describe("Chat UI", () => {
+    test("chat page redirects unauthenticated users to login", async ({ page }) => {
+        await page.goto("/landlord/chat");
+        await page.waitForURL("**/login**");
+        expect(page.url()).toContain("/login");
+    });
+});
+
+// ── Authenticated Chat UI tests ─────────────────────────────────────────
+// Require TEST_USER_EMAIL and TEST_USER_PASSWORD env vars pointing at a
+// real landlord account in the connected Supabase instance.
+const hasTestUser = !!(process.env.TEST_USER_EMAIL && process.env.TEST_USER_PASSWORD);
+
+test.describe("Chat UI (authenticated)", () => {
+    test.beforeEach(async ({ page }) => {
+        test.skip(!hasTestUser, "Requires TEST_USER_EMAIL and TEST_USER_PASSWORD env vars");
+
+        // Log in via the UI
+        await page.goto("/login");
+        await page.getByLabel("Email Address").fill(process.env.TEST_USER_EMAIL!);
+        await page.getByLabel("Password").fill(process.env.TEST_USER_PASSWORD!);
+        await page.getByRole("button", { name: /sign in/i }).click();
+        await page.waitForURL("**/landlord**");
+    });
+
+    test("chat page renders Victoria greeting and suggestions", async ({ page }) => {
+        await page.goto("/landlord/chat");
+        await expect(page.getByText("Hi! I\u2019m Victoria")).toBeVisible();
+        await expect(
+            page.getByText("Your premium AI apartment curator"),
+        ).toBeVisible();
+
+        // All four suggestion buttons should be visible
+        await expect(page.getByRole("button", { name: /Lekki/i })).toBeVisible();
+        await expect(page.getByRole("button", { name: /Yaba/i })).toBeVisible();
+        await expect(page.getByRole("button", { name: /Abuja/i })).toBeVisible();
+        await expect(page.getByRole("button", { name: /expats/i })).toBeVisible();
+    });
+
+    test("chat page has message input and send button", async ({ page }) => {
+        await page.goto("/landlord/chat");
+        await expect(
+            page.getByPlaceholder("Message Victoria..."),
+        ).toBeVisible();
+        await expect(
+            page.getByRole("button", { name: /send message/i }),
+        ).toBeVisible();
+    });
+
+    test("send button is disabled when input is empty", async ({ page }) => {
+        await page.goto("/landlord/chat");
+        const sendBtn = page.getByRole("button", { name: /send message/i });
+        await expect(sendBtn).toBeDisabled();
+    });
+
+    test("send button enables when text is entered", async ({ page }) => {
+        await page.goto("/landlord/chat");
+        await page.getByPlaceholder("Message Victoria...").fill("Hello");
+        const sendBtn = page.getByRole("button", { name: /send message/i });
+        await expect(sendBtn).toBeEnabled();
+    });
+
+    test("chat page shows disclaimer", async ({ page }) => {
+        await page.goto("/landlord/chat");
+        await expect(
+            page.getByText(/verify critical info/i),
+        ).toBeVisible();
+    });
+
+    test("navigation sidebar has AI Chat link", async ({ page }) => {
+        await page.goto("/landlord/chat");
+        await expect(page.getByRole("link", { name: /ai chat/i }).first()).toBeVisible();
+    });
+});

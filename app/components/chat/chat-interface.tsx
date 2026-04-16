@@ -220,6 +220,15 @@ export function ChatInterface(): React.ReactElement {
                                                     </div>
                                                 );
                                             }
+
+                                            // Fallback: show a completion pill for tools without custom renderers
+                                            const doneLabel = TOOL_LABELS[toolName]?.replace(/\.\.\.$/, "") ?? toolName;
+                                            return (
+                                                <div key={i} className="flex items-center gap-2 text-xs text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-4 py-2 rounded-full w-fit">
+                                                    <span>✓</span>
+                                                    <span>{doneLabel} done</span>
+                                                </div>
+                                            );
                                         }
                                     }
 
