@@ -5,6 +5,33 @@ import { isToolUIPart, getToolName } from "ai";
 import { useState, useRef, useEffect } from "react";
 import { ApartmentCard, type ApartmentCardData } from "@/app/components/chat/apartment-card";
 
+/** Human-readable labels for tool loading states */
+const TOOL_LABELS: Record<string, string> = {
+    searchApartments: "Searching listings...",
+    semanticSearchApartments: "Searching listings...",
+    semanticSearchKnowledge: "Looking up neighborhood info...",
+    webSearch: "Searching the web...",
+    getApartmentDetails: "Fetching apartment details...",
+    checkAffordability: "Running affordability check...",
+    getNeighborhoodInfo: "Loading neighborhood data...",
+    getRentalPriceIndex: "Fetching rental price index...",
+    compareRpiAcrossLgas: "Comparing rental prices...",
+    assessRentVsMarket: "Assessing rent vs market...",
+    saveApartment: "Saving apartment...",
+    createInquiry: "Sending inquiry...",
+    generateTenancyAgreementTemplate: "Preparing agreement template...",
+};
+
+/** Returns true if a text part is actually a raw function-call JSON emitted by the model */
+function isRawToolCallText(text: string): boolean {
+    const t = text.trim();
+    return (
+        t.startsWith("{") &&
+        (t.includes('"type":"function"') || t.includes('"type": "function"') ||
+            t.includes('"name":"') && t.includes('"arguments":'))
+    );
+}
+
 const suggestions = [
     "Find me a 2-bedroom in Lekki under ₦2M",
     "Affordable studio in Yaba near Tech Hub",
@@ -76,7 +103,13 @@ export function ChatInterface(): React.ReactElement {
                                     }`}
                             >
                                 {message.parts.map((part, i) => {
+                                    // ── Text parts ──────────────────────────────────────────
                                     if (part.type === "text") {
+                                        // Some small models emit tool calls as raw JSON text.
+                                        // Skip those — the real tool-call part handles display.
+                                        if (isRawToolCallText(part.text)) return null;
+                                        if (!part.text.trim()) return null;
+
                                         if (message.role === "user") {
                                             return <p key={i} className="whitespace-pre-wrap">{part.text}</p>;
                                         }
@@ -86,44 +119,110 @@ export function ChatInterface(): React.ReactElement {
                                             </div>
                                         );
                                     }
-                                    if (isToolUIPart(part) && part.state === "output-available") {
-                                        const output = part.output as Record<string, unknown>;
+
+                                    // ── Tool parts ──────────────────────────────────────────
+                                    if (isToolUIPart(part)) {
                                         const toolName = getToolName(part);
 
-                                        if (toolName === "searchApartments" && output?.results) {
-                                            const apartments = output.results as ApartmentCardData[];
+                                        // In-progress: show a loading pill
+                                        if (part.state === "input-streaming" || part.state === "input-available") {
+                                            const label = TOOL_LABELS[toolName] ?? "Working...";
                                             return (
-                                                <div key={i} className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
-                                                    {apartments.map((apt, j) => (
-                                                        <ApartmentCard key={apt.title + j} apartment={apt} />
-                                                    ))}
+                                                <div key={i} className="flex items-center gap-2 text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 px-4 py-2 rounded-full w-fit">
+                                                    <svg className="animate-spin w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                                        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                                                    </svg>
+                                                    <span>{label}</span>
                                                 </div>
                                             );
                                         }
 
-                                        if (toolName === "checkAffordability" && output) {
-                                            const affordable = output.is_affordable as boolean;
-                                            return (
-                                                <div
-                                                    key={i}
-                                                    className={`rounded-2xl p-4 ${affordable
-                                                        ? "bg-[#f3ddc8] dark:bg-amber-950 text-amber-900 dark:text-amber-300"
-                                                        : "bg-[#ffdad6] dark:bg-red-950 text-[#93000a] dark:text-red-300"
-                                                        }`}
-                                                >
-                                                    <div className="flex items-center gap-2 mb-1">
-                                                        <span className="text-lg">{affordable ? "✓" : "⚠"}</span>
-                                                        <span className="text-sm font-bold">
-                                                            {output.recommendation as string}
-                                                        </span>
+                                        // Completed: render results
+                                        if (part.state === "output-available") {
+                                            const output = part.output as Record<string, unknown>;
+
+                                            // searchApartments — full apartment objects
+                                            if (toolName === "searchApartments" && output?.results) {
+                                                const apartments = output.results as ApartmentCardData[];
+                                                if (apartments.length === 0) return null;
+                                                return (
+                                                    <div key={i} className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
+                                                        {apartments.map((apt, j) => (
+                                                            <ApartmentCard key={apt.title + j} apartment={apt} />
+                                                        ))}
                                                     </div>
-                                                    <p className="text-xs opacity-80">
-                                                        Rent-to-income: {output.rent_to_income_percentage as string} | Total upfront: {output.total_upfront_cost_formatted as string}
-                                                    </p>
-                                                </div>
-                                            );
+                                                );
+                                            }
+
+                                            // semanticSearchApartments — results with metadata
+                                            if (toolName === "semanticSearchApartments" && output?.results) {
+                                                type SemanticResult = { apartment_id: string; summary: string; metadata: Record<string, unknown> };
+                                                const results = output.results as SemanticResult[];
+                                                if (results.length === 0) return null;
+                                                const apartments: ApartmentCardData[] = results.map((r) => ({
+                                                    ppid: r.metadata.ppid as string | undefined,
+                                                    title: (r.metadata.title as string) ?? `Apartment ${r.apartment_id}`,
+                                                    apartment_type: (r.metadata.apartment_type as string) ?? "",
+                                                    annual_rent: (r.metadata.annual_rent as number) ?? 0,
+                                                    total_upfront_cost: (r.metadata.total_upfront_cost as number) ?? 0,
+                                                    city: (r.metadata.city as string) ?? "",
+                                                    neighborhood: (r.metadata.neighborhood as string) ?? "",
+                                                    description: r.summary,
+                                                    primary_image: (r.metadata.primary_image as string | null) ?? null,
+                                                    amenities: (r.metadata.amenities as string[]) ?? [],
+                                                }));
+                                                return (
+                                                    <div key={i} className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
+                                                        {apartments.map((apt, j) => (
+                                                            <ApartmentCard key={apt.title + j} apartment={apt} />
+                                                        ))}
+                                                    </div>
+                                                );
+                                            }
+
+                                            // semanticSearchKnowledge — text results
+                                            if (toolName === "semanticSearchKnowledge" && output?.results) {
+                                                type KnowledgeResult = { summary: string; source_type?: string };
+                                                const results = output.results as KnowledgeResult[];
+                                                if (results.length === 0) return null;
+                                                return (
+                                                    <div key={i} className="flex flex-col gap-2">
+                                                        {results.map((r, j) => (
+                                                            <div key={j} className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 px-4 py-3 rounded-xl text-xs text-amber-900 dark:text-amber-300">
+                                                                {r.source_type && <span className="uppercase tracking-widest text-[10px] opacity-60 block mb-1">{r.source_type.replace("_", " ")}</span>}
+                                                                <p>{r.summary}</p>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                );
+                                            }
+
+                                            // checkAffordability
+                                            if (toolName === "checkAffordability" && output) {
+                                                const affordable = output.is_affordable as boolean;
+                                                return (
+                                                    <div
+                                                        key={i}
+                                                        className={`rounded-2xl p-4 ${affordable
+                                                            ? "bg-[#f3ddc8] dark:bg-amber-950 text-amber-900 dark:text-amber-300"
+                                                            : "bg-[#ffdad6] dark:bg-red-950 text-[#93000a] dark:text-red-300"
+                                                            }`}
+                                                    >
+                                                        <div className="flex items-center gap-2 mb-1">
+                                                            <span className="text-lg">{affordable ? "✓" : "⚠"}</span>
+                                                            <span className="text-sm font-bold">
+                                                                {output.recommendation as string}
+                                                            </span>
+                                                        </div>
+                                                        <p className="text-xs opacity-80">
+                                                            Rent-to-income: {output.rent_to_income_percentage as string} | Total upfront: {output.total_upfront_cost_formatted as string}
+                                                        </p>
+                                                    </div>
+                                                );
+                                            }
                                         }
                                     }
+
                                     return null;
                                 })}
                             </div>
