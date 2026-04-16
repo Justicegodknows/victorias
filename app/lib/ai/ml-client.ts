@@ -1,6 +1,8 @@
 /**
  * Typed client for the Nigerian Real Estate Prediction ML API.
- * Base URL: https://property-price-model.onrender.com
+ *
+ * Primary:  Railway  — ML_MODEL_RAILWAY_URL  (fast, always-on)
+ * Fallback: Render   — ML_MODEL_BASE_URL     (cold-starts, used when Railway fails)
  *
  * Endpoints:
  *   GET  /health                  — Liveness check
@@ -12,7 +14,10 @@
  *   POST /predict/all             — All three predictions in one call
  */
 
-const ML_BASE_URL =
+const ML_RAILWAY_URL =
+    (process.env.ML_MODEL_RAILWAY_URL ?? "").replace(/\/$/, "");
+
+const ML_RENDER_URL =
     (process.env.ML_MODEL_BASE_URL ?? "https://property-price-model.onrender.com").replace(/\/$/, "");
 
 const ML_TIMEOUT_MS = 8000;
@@ -109,15 +114,15 @@ export type MlResult<T> =
     | { ok: true; data: T; latency_ms: number }
     | { ok: false; error: string; latency_ms: number };
 
-// ─── Internal fetch helper ───────────────────────────────────────────────────
+// ─── Internal fetch helpers ───────────────────────────────────────────────────
 
-async function mlFetch<T>(path: string, init?: RequestInit): Promise<MlResult<T>> {
+async function mlFetchFromBase<T>(baseUrl: string, path: string, init?: RequestInit): Promise<MlResult<T>> {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), ML_TIMEOUT_MS);
     const startedAt = Date.now();
 
     try {
-        const response = await fetch(`${ML_BASE_URL}${path}`, {
+        const response = await fetch(`${baseUrl}${path}`, {
             ...init,
             signal: controller.signal,
             headers: {
@@ -151,6 +156,22 @@ async function mlFetch<T>(path: string, init?: RequestInit): Promise<MlResult<T>
     } finally {
         clearTimeout(timeout);
     }
+}
+
+/**
+ * Try Railway first; if it fails or is not configured, fall back to Render.
+ * All public functions go through this so routing is transparent to callers.
+ */
+async function mlFetch<T>(path: string, init?: RequestInit): Promise<MlResult<T>> {
+    if (ML_RAILWAY_URL) {
+        const railwayResult = await mlFetchFromBase<T>(ML_RAILWAY_URL, path, init);
+        if (railwayResult.ok) {
+            return railwayResult;
+        }
+        console.warn(`[ML] Railway failed (${railwayResult.error}) — falling back to Render`);
+    }
+
+    return mlFetchFromBase<T>(ML_RENDER_URL, path, init);
 }
 
 // ─── Public API ──────────────────────────────────────────────────────────────
@@ -195,18 +216,45 @@ export async function predictAll(
     });
 }
 
-/** Liveness check — returns true if the ML API is reachable. */
+/** Liveness check — probes Railway first, then Render, and reports both. */
 export async function checkMlHealth(): Promise<{
     reachable: boolean;
     latency_ms: number | null;
     message: string;
+    railway: { configured: boolean; reachable: boolean; latency_ms: number | null };
+    render: { reachable: boolean; latency_ms: number | null };
 }> {
-    const result = await mlFetch<unknown>("/health", { method: "GET" });
+    const railwayConfigured = Boolean(ML_RAILWAY_URL);
+
+    const [railwayResult, renderResult] = await Promise.all([
+        railwayConfigured
+            ? mlFetchFromBase<unknown>(ML_RAILWAY_URL, "/health", { method: "GET" })
+            : Promise.resolve(null),
+        mlFetchFromBase<unknown>(ML_RENDER_URL, "/health", { method: "GET" }),
+    ]);
+
+    const railwayOk = railwayResult?.ok ?? false;
+    const renderOk = renderResult.ok;
+    const reachable = railwayOk || renderOk;
+
+    const primary = railwayOk ? railwayResult! : renderResult;
+
     return {
-        reachable: result.ok,
-        latency_ms: result.latency_ms,
-        message: result.ok
-            ? "ML model API reachable."
-            : `ML model probe failed: ${result.error}`,
+        reachable,
+        latency_ms: primary.latency_ms,
+        message: reachable
+            ? railwayOk
+                ? `ML model reachable via Railway (${primary.latency_ms}ms).`
+                : `Railway unavailable — ML model reachable via Render fallback (${primary.latency_ms}ms).`
+            : "ML model unreachable on both Railway and Render.",
+        railway: {
+            configured: railwayConfigured,
+            reachable: railwayOk,
+            latency_ms: railwayResult?.latency_ms ?? null,
+        },
+        render: {
+            reachable: renderOk,
+            latency_ms: renderResult.latency_ms,
+        },
     };
 }

@@ -10,7 +10,7 @@ const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL ?? "http://127.0.0.1:11434/v
 // HuggingFace embedding model (fallback)
 const HF_EMBEDDING_MODEL =
     process.env.HF_EMBEDDING_MODEL ?? "sentence-transformers/all-MiniLM-L6-v2";
-const HF_BASE_URL = "https://api-inference.huggingface.co/v1";
+const HF_BASE_URL = "https://router.huggingface.co/v1";
 
 // HuggingFace is the default primary; set EMBEDDING_PRIMARY_PROVIDER=ollama to use Ollama instead.
 const EMBEDDING_PRIMARY_PROVIDER =

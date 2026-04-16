@@ -9,10 +9,11 @@ const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL ?? "http://127.0.0.1:11434/v
 const OLLAMA_PROBE_TIMEOUT_MS = 2500;
 
 // HuggingFace — fallback provider when Ollama is unreachable.
-// mistralai/Mistral-7B-Instruct-v0.3 is ungated and available on HF serverless inference.
+// meta-llama/Llama-3.1-8B-Instruct is free and ungated on the HF router.
+// HF migrated from api-inference.huggingface.co/v1 → router.huggingface.co/v1 (Apr 2026).
 // Override with HF_MODEL env var — use a larger model if your HF account has access.
-const HF_MODEL = process.env.HF_MODEL ?? "mistralai/Mistral-7B-Instruct-v0.3";
-const HF_BASE_URL = "https://api-inference.huggingface.co/v1";
+const HF_MODEL = process.env.HF_MODEL ?? "meta-llama/Llama-3.1-8B-Instruct";
+const HF_BASE_URL = "https://router.huggingface.co/v1";
 
 // HuggingFace is the default primary; set AI_PRIMARY_PROVIDER=ollama to use Ollama instead.
 const AI_PRIMARY_PROVIDER: AiProvider =

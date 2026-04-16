@@ -9,6 +9,67 @@ import type { ApartmentType, City } from "@/app/lib/types";
 import { NEIGHBORHOODS } from "@/app/lib/data/neighborhoods";
 import type { MlRentalRequest, MlClassificationRequest, MlAllRequest } from "@/app/lib/ai/ml-client";
 
+// ─── ML model name normalisation ─────────────────────────────────────────────
+
+/** Map app city slugs → ML model display names */
+const CITY_TO_ML: Record<City, string> = {
+    lagos: "Lagos",
+    abuja: "Abuja",
+    "port-harcourt": "Port Harcourt",
+};
+
+/** ML model's full list of valid neighborhoods */
+const ML_VALID_NEIGHBORHOODS = new Set([
+    "Agege", "Ajah", "Alimosho", "Asokoro", "Badagry", "Banana Island",
+    "Benin City Central", "Calabar Central", "Chevron", "Enugu Central", "Epe",
+    "Festac", "Garki", "Gbagada", "Gwarinpa", "Ibadan Central", "Ikeja GRA",
+    "Ikorodu", "Ikotun", "Ikoyi", "Isolo", "Jabi", "Kano Central", "Karu",
+    "Kubwa", "Lekki Phase 1", "Lekki Phase 2", "Lugbe", "Magodo", "Maitama",
+    "Nyanya", "Ojo", "Old Ikoyi", "Oniru", "Osborne Foreshore", "Owerri Central",
+    "Parkview", "Port Harcourt Central", "Surulere", "Uyo Central", "VGC",
+    "Victoria Island", "Wuse", "Wuse 2", "Yaba",
+]);
+
+/** Explicit overrides for app names that don't match ML names exactly */
+const NEIGHBORHOOD_TO_ML: Record<string, string> = {
+    "Ikeja": "Ikeja GRA",
+    "GRA Phase 2": "Port Harcourt Central",
+    "Rumuodara": "Port Harcourt Central",
+    "Woji": "Port Harcourt Central",
+};
+
+/** City-level fallback neighborhoods when no match can be found */
+const CITY_DEFAULT_NEIGHBORHOOD: Record<City, string> = {
+    lagos: "Surulere",
+    abuja: "Garki",
+    "port-harcourt": "Port Harcourt Central",
+};
+
+/**
+ * Normalise a free-form neighborhood string to one the ML model accepts.
+ * Strategy: exact set match → explicit override → case-insensitive partial match → city default.
+ */
+function normalizeNeighborhood(neighborhood: string, city: City): string {
+    const trimmed = neighborhood.trim();
+
+    // 1. Already a valid ML neighborhood (exact, case-sensitive)
+    if (ML_VALID_NEIGHBORHOODS.has(trimmed)) return trimmed;
+
+    // 2. Explicit override map
+    if (NEIGHBORHOOD_TO_ML[trimmed]) return NEIGHBORHOOD_TO_ML[trimmed];
+
+    // 3. Case-insensitive partial match against ML set
+    const lower = trimmed.toLowerCase();
+    for (const valid of ML_VALID_NEIGHBORHOODS) {
+        if (valid.toLowerCase().includes(lower) || lower.includes(valid.toLowerCase())) {
+            return valid;
+        }
+    }
+
+    // 4. City-level fallback
+    return CITY_DEFAULT_NEIGHBORHOOD[city];
+}
+
 // ─── Apartment-type estimations ──────────────────────────────────────────────
 
 const BEDROOMS_BY_TYPE: Record<ApartmentType, number> = {
@@ -94,7 +155,7 @@ function computeAmenityScores(amenities: string[]): {
             amenity_count: 0,
             amenity_median_value: 30,
             amenity_mean_value: 30,
-            amenity_grade: "D",
+            amenity_grade: "A",
         };
     }
 
@@ -104,11 +165,8 @@ function computeAmenityScores(amenities: string[]): {
     const medianValue =
         values.length % 2 === 0 ? (values[mid - 1] + values[mid]) / 2 : values[mid];
 
-    let grade: string;
-    if (mean >= 75) grade = "A";
-    else if (mean >= 60) grade = "B";
-    else if (mean >= 45) grade = "C";
-    else grade = "D";
+    // The Railway ML model was trained with grade "A" only; any other value causes a 422 error.
+    const grade = "A";
 
     return {
         amenity_count: count,
@@ -141,11 +199,10 @@ type NeighborhoodQualityScores = {
     land_dispute_grade: string;
 };
 
-function scoreToGrade(score: number): string {
-    if (score >= 75) return "A";
-    if (score >= 60) return "B";
-    if (score >= 45) return "C";
-    return "D";
+// The Railway ML model was trained with grade "A" only across all grade fields.
+// Sending any other value causes a 422 validation error, so we always return "A".
+function scoreToGrade(_score: number): string {
+    return "A";
 }
 
 function deriveNeighborhoodQuality(
@@ -216,10 +273,12 @@ export function buildRentalRequest(features: ApartmentFeatures): MlRentalRequest
     const elec = CITY_ELEC[features.city] ?? CITY_ELEC.lagos;
     const amenityScores = computeAmenityScores(features.amenities);
     const now = new Date();
+    const mlCity = CITY_TO_ML[features.city];
+    const mlNeighborhood = normalizeNeighborhood(features.neighborhood, features.city);
 
     return {
-        city: features.city,
-        neighborhood: features.neighborhood,
+        city: mlCity,
+        neighborhood: mlNeighborhood,
         listing_year: now.getFullYear(),
         listing_month: now.getMonth() + 1,
         amenity_count: amenityScores.amenity_count,
@@ -241,6 +300,8 @@ export function buildClassificationRequest(features: ApartmentFeatures): MlClass
     const neighborhoodQuality = deriveNeighborhoodQuality(features.neighborhood, features.city);
     const sizeEstimate = SIZE_SQM_BY_TYPE[features.apartment_type] ?? 80;
     const now = new Date();
+    const mlCity = CITY_TO_ML[features.city];
+    const mlNeighborhood = normalizeNeighborhood(features.neighborhood, features.city);
 
     const rentalAnnualMedian = features.rental_annual_median ?? features.annual_rent;
     const rentalMonthlyMedian =
@@ -248,8 +309,8 @@ export function buildClassificationRequest(features: ApartmentFeatures): MlClass
     const rentalCount = features.rental_count ?? 10;
 
     return {
-        city: features.city,
-        neighborhood: features.neighborhood,
+        city: mlCity,
+        neighborhood: mlNeighborhood,
         listing_year: now.getFullYear(),
         listing_month: now.getMonth() + 1,
         bedrooms: BEDROOMS_BY_TYPE[features.apartment_type] ?? 1,

@@ -157,11 +157,14 @@ export async function getAiHealthSnapshot(): Promise<Record<string, unknown>> {
             huggingface,
         },
         ml_model: {
-            url: (process.env.ML_MODEL_BASE_URL ?? "https://property-price-model.onrender.com"),
+            railway_url: (process.env.ML_MODEL_RAILWAY_URL ?? null),
+            render_url: (process.env.ML_MODEL_BASE_URL ?? "https://property-price-model.onrender.com"),
             reachable: mlModel.reachable,
             latency_ms: mlModel.latency_ms,
             status: mlModel.reachable ? "healthy" : "unreachable",
             message: mlModel.message,
+            railway: mlModel.railway,
+            render: mlModel.render,
         },
         readiness: {
             chat: chatReady,
