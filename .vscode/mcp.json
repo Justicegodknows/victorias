@@ -2,7 +2,10 @@
 	"servers": {
 		"supabase": {
 			"type": "http",
-			"url": "https://mcp.supabase.com/mcp?project_ref=lqvrzqryfjtsytcahnpb&read_only=true&features=docs,account,database,debugging,development,functions,branching"
+			"url": "https://mcp.supabase.com/mcp?project_ref=lqvrzqryfjtsytcahnpb&read_only=true&features=docs,account,database,debugging,development,functions,branching",
+			"headers": {
+				"Authorization": "Bearer sb_secret_c4X6o9JJtqNEkfNNMwahog__kULCqii"
+			}
 		},
 		"tavily": {
 			"type": "http",
