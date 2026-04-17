@@ -264,6 +264,12 @@ export default async function ApartmentDetailPage({
                         >
                             Ask Victoria about this
                         </Link>
+                        <Link
+                            href={`/tenant/apartments/${apartment.id}/apply`}
+                            className="mt-3 block w-full bg-[#f3ddc8] dark:bg-amber-900/40 text-[#7b5d43] dark:text-amber-300 py-3 rounded-xl text-center font-bold hover:bg-[#e8ccb0] dark:hover:bg-amber-900/60 active:scale-[0.98] transition-all"
+                        >
+                            Apply Now
+                        </Link>
                     </div>
 
                     {rpiData && (

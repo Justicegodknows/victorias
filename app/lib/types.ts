@@ -160,6 +160,27 @@ export type ViewingRequest = {
     updated_at: string;
 };
 
+export type ApplicationEmploymentStatus = "employed" | "self-employed" | "student" | "unemployed";
+
+export type ApplicationStatus = "submitted" | "under_review" | "approved" | "rejected";
+
+export type RentalApplication = {
+    id: string;
+    tenant_id: string;
+    apartment_id: string;
+    employment_status: ApplicationEmploymentStatus;
+    employer_name: string | null;
+    monthly_income_ngn: number | null;
+    num_occupants: number;
+    proposed_move_in_date: string;
+    reason_for_moving: string | null;
+    notes: string | null;
+    status: ApplicationStatus;
+    landlord_note: string | null;
+    created_at: string;
+    updated_at: string;
+};
+
 export type RentalTransaction = {
     id: string;
     apartment_id: string | null;
@@ -441,6 +462,34 @@ export type Database = {
                     },
                     {
                         foreignKeyName: "viewing_requests_apartment_id_fkey";
+                        columns: ["apartment_id"];
+                        isOneToOne: false;
+                        referencedRelation: "apartments";
+                        referencedColumns: ["id"];
+                    },
+                ];
+            };
+            rental_applications: {
+                Row: RentalApplication;
+                Insert: Omit<RentalApplication, "id" | "created_at" | "updated_at" | "status" | "landlord_note" | "employer_name" | "monthly_income_ngn" | "reason_for_moving" | "notes"> & {
+                    status?: ApplicationStatus;
+                    employer_name?: string | null;
+                    monthly_income_ngn?: number | null;
+                    reason_for_moving?: string | null;
+                    notes?: string | null;
+                    landlord_note?: string | null;
+                };
+                Update: Partial<Pick<RentalApplication, "status" | "landlord_note">>;
+                Relationships: [
+                    {
+                        foreignKeyName: "rental_applications_tenant_id_fkey";
+                        columns: ["tenant_id"];
+                        isOneToOne: false;
+                        referencedRelation: "profiles";
+                        referencedColumns: ["id"];
+                    },
+                    {
+                        foreignKeyName: "rental_applications_apartment_id_fkey";
                         columns: ["apartment_id"];
                         isOneToOne: false;
                         referencedRelation: "apartments";
