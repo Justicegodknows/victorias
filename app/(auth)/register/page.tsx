@@ -122,6 +122,13 @@ export default function RegisterPage(): React.ReactElement {
             }
         }
 
+        if (role === "landlord") {
+            if (!/^\d{11}$/.test(sanitizedNin)) {
+                setError("NIN must be exactly 11 digits.");
+                return;
+            }
+        }
+
         setLoading(true);
 
         const { error } = await supabase.auth.signUp({
@@ -132,7 +139,7 @@ export default function RegisterPage(): React.ReactElement {
                     full_name: fullName,
                     phone: normalizedPhone,
                     role,
-                    nin: role === "tenant" ? sanitizedNin : null,
+                    nin: (role === "tenant" || role === "landlord") ? sanitizedNin : null,
                     bvn: role === "tenant" ? sanitizedBvn : null,
                     government_id_type:
                         role === "tenant" && governmentIdNumber.trim()
@@ -398,49 +405,69 @@ export default function RegisterPage(): React.ReactElement {
                     )}
 
                     {role === "landlord" && (
-                        <div>
-                            <label htmlFor="agentCode" className="block text-xs font-mono uppercase tracking-[0.2em] text-[#6a5e54] dark:text-zinc-400 mb-2 ml-1">
-                                Agent Code <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                id="agentCode"
-                                type="text"
-                                required
-                                disabled={authUnavailable || loading}
-                                value={agentCode}
-                                onChange={(e) => {
-                                    setAgentCode(e.target.value.toUpperCase());
-                                    setAgentCodeValid(null);
-                                    setAgentName(null);
-                                }}
-                                onBlur={handleAgentCodeBlur}
-                                className={`w-full bg-white dark:bg-zinc-800 border-none rounded-xl px-4 py-4 focus:ring-2 text-[#2a221d] dark:text-zinc-50 placeholder:text-[#6e7b6c] dark:placeholder:text-zinc-500 transition-all font-mono tracking-widest ${agentCodeValid === true
-                                    ? "ring-2 ring-green-500/40"
-                                    : agentCodeValid === false
-                                        ? "ring-2 ring-red-400/40"
-                                        : "focus:ring-[#7b5d43]/20"
-                                    }`}
-                                placeholder="AGT-XXXXXXXX"
-                            />
-                            {agentCodeChecking && (
-                                <p className="mt-2 text-xs text-[#6e7b6c] dark:text-zinc-500 ml-1">Verifying code…</p>
-                            )}
-                            {agentCodeValid === true && agentName && (
-                                <p className="mt-2 text-xs text-green-600 dark:text-green-400 ml-1">
-                                    ✓ Valid — Agent: <strong>{agentName}</strong>
-                                </p>
-                            )}
-                            {agentCodeValid === false && (
-                                <p className="mt-2 text-xs text-red-500 dark:text-red-400 ml-1">
-                                    ✗ Invalid agent code. Ask your agent for the correct code.
-                                </p>
-                            )}
-                            {agentCodeValid === null && !agentCodeChecking && (
-                                <p className="mt-2 text-xs text-[#6e7b6c] dark:text-zinc-500 ml-1">
-                                    Required. Get this code from your agent.
-                                </p>
-                            )}
-                        </div>
+                        <>
+                            <div>
+                                <label htmlFor="landlordNin" className="block text-xs font-mono uppercase tracking-[0.2em] text-[#6a5e54] dark:text-zinc-400 mb-2 ml-1">
+                                    NIN (11 Digits)
+                                </label>
+                                <input
+                                    id="landlordNin"
+                                    type="text"
+                                    required
+                                    inputMode="numeric"
+                                    maxLength={11}
+                                    disabled={authUnavailable || loading}
+                                    value={nin}
+                                    onChange={(e) => setNin(e.target.value.replace(/\D/g, "").slice(0, 11))}
+                                    className="w-full bg-white dark:bg-zinc-800 border-none rounded-xl px-4 py-4 focus:ring-2 focus:ring-[#7b5d43]/20 text-[#2a221d] dark:text-zinc-50 placeholder:text-[#6e7b6c] dark:placeholder:text-zinc-500 transition-all"
+                                    placeholder="e.g., 12345678901"
+                                />
+                            </div>
+
+                            <div>
+                                <label htmlFor="agentCode" className="block text-xs font-mono uppercase tracking-[0.2em] text-[#6a5e54] dark:text-zinc-400 mb-2 ml-1">
+                                    Agent Code <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    id="agentCode"
+                                    type="text"
+                                    required
+                                    disabled={authUnavailable || loading}
+                                    value={agentCode}
+                                    onChange={(e) => {
+                                        setAgentCode(e.target.value.toUpperCase());
+                                        setAgentCodeValid(null);
+                                        setAgentName(null);
+                                    }}
+                                    onBlur={handleAgentCodeBlur}
+                                    className={`w-full bg-white dark:bg-zinc-800 border-none rounded-xl px-4 py-4 focus:ring-2 text-[#2a221d] dark:text-zinc-50 placeholder:text-[#6e7b6c] dark:placeholder:text-zinc-500 transition-all font-mono tracking-widest ${agentCodeValid === true
+                                        ? "ring-2 ring-green-500/40"
+                                        : agentCodeValid === false
+                                            ? "ring-2 ring-red-400/40"
+                                            : "focus:ring-[#7b5d43]/20"
+                                        }`}
+                                    placeholder="AGT-XXXXXXXX"
+                                />
+                                {agentCodeChecking && (
+                                    <p className="mt-2 text-xs text-[#6e7b6c] dark:text-zinc-500 ml-1">Verifying code…</p>
+                                )}
+                                {agentCodeValid === true && agentName && (
+                                    <p className="mt-2 text-xs text-green-600 dark:text-green-400 ml-1">
+                                        ✓ Valid — Agent: <strong>{agentName}</strong>
+                                    </p>
+                                )}
+                                {agentCodeValid === false && (
+                                    <p className="mt-2 text-xs text-red-500 dark:text-red-400 ml-1">
+                                        ✗ Invalid agent code. Ask your agent for the correct code.
+                                    </p>
+                                )}
+                                {agentCodeValid === null && !agentCodeChecking && (
+                                    <p className="mt-2 text-xs text-[#6e7b6c] dark:text-zinc-500 ml-1">
+                                        Required. Get this code from your agent.
+                                    </p>
+                                )}
+                            </div>
+                        </>
                     )}
 
                     <button
