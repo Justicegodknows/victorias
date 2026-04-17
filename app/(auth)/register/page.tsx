@@ -116,7 +116,7 @@ export default function RegisterPage(): React.ReactElement {
                 setError("NIN must be exactly 11 digits.");
                 return;
             }
-            if (!/^\d{11}$/.test(sanitizedBvn)) {
+            if (sanitizedBvn && !/^\d{11}$/.test(sanitizedBvn)) {
                 setError("BVN must be exactly 11 digits.");
                 return;
             }
@@ -140,7 +140,7 @@ export default function RegisterPage(): React.ReactElement {
                     phone: normalizedPhone,
                     role,
                     nin: (role === "tenant" || role === "landlord") ? sanitizedNin : null,
-                    bvn: role === "tenant" ? sanitizedBvn : null,
+                    bvn: role === "tenant" && sanitizedBvn ? sanitizedBvn : null,
                     government_id_type:
                         role === "tenant" && governmentIdNumber.trim()
                             ? governmentIdType
@@ -353,12 +353,11 @@ export default function RegisterPage(): React.ReactElement {
 
                             <div>
                                 <label htmlFor="bvn" className="block text-xs font-mono uppercase tracking-[0.2em] text-[#6a5e54] dark:text-zinc-400 mb-2 ml-1">
-                                    BVN (11 Digits)
+                                    BVN (11 Digits) <span className="normal-case tracking-normal text-[#6e7b6c] dark:text-zinc-500">(Optional)</span>
                                 </label>
                                 <input
                                     id="bvn"
                                     type="text"
-                                    required
                                     inputMode="numeric"
                                     maxLength={11}
                                     disabled={authUnavailable || loading}
@@ -367,6 +366,7 @@ export default function RegisterPage(): React.ReactElement {
                                     className="w-full bg-white dark:bg-zinc-800 border-none rounded-xl px-4 py-4 focus:ring-2 focus:ring-[#7b5d43]/20 text-[#2a221d] dark:text-zinc-50 placeholder:text-[#6e7b6c] dark:placeholder:text-zinc-500 transition-all"
                                     placeholder="e.g., 12345678901"
                                 />
+                                <p className="mt-2 text-xs text-[#6e7b6c] dark:text-zinc-500 ml-1">You can add this later. Must be 11 digits if provided.</p>
                             </div>
 
                             <div>
@@ -399,7 +399,7 @@ export default function RegisterPage(): React.ReactElement {
                                     className="w-full bg-white dark:bg-zinc-800 border-none rounded-xl px-4 py-4 focus:ring-2 focus:ring-[#7b5d43]/20 text-[#2a221d] dark:text-zinc-50 placeholder:text-[#6e7b6c] dark:placeholder:text-zinc-500 transition-all"
                                     placeholder="Enter ID number exactly as shown"
                                 />
-                                <p className="mt-2 text-xs text-[#6e7b6c] dark:text-zinc-500 ml-1">Optional for now. NIN and BVN remain mandatory.</p>
+                                <p className="mt-2 text-xs text-[#6e7b6c] dark:text-zinc-500 ml-1">Optional for now. NIN remains mandatory.</p>
                             </div>
                         </>
                     )}
