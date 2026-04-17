@@ -59,7 +59,7 @@ export default async function AgentDashboardPage(): Promise<React.ReactElement> 
                     Your Agent Code
                 </p>
                 <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                    <span className="font-(family-name:--font-geist-mono) text-3xl font-bold text-[#7b5d43] dark:text-amber-400 tracking-widest">
+                    <span className="font-mono text-3xl font-bold text-[#7b5d43] dark:text-amber-400 tracking-widest">
                         {agentRow.agent_code}
                     </span>
                     <p className="text-sm text-[#6a5e54] dark:text-zinc-400">

@@ -187,7 +187,7 @@ export default function RegisterPage(): React.ReactElement {
                     <h2 className="font-(family-name:--font-manrope) text-2xl font-bold dark:text-zinc-50">Choose your role</h2>
                     <p className="text-[#6a5e54] dark:text-zinc-400 mt-1">Get started with the curator.</p>
                 </div>
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <button
                         type="button"
                         onClick={() => setRole("tenant")}
@@ -221,6 +221,25 @@ export default function RegisterPage(): React.ReactElement {
                         <h3 className="font-bold text-lg mb-1 dark:text-zinc-50">Landlord</h3>
                         <p className="text-xs text-[#6a5e54] dark:text-zinc-400 leading-relaxed">List and manage your premium assets.</p>
                         {role === "landlord" && (
+                            <div className="absolute top-2 right-2">
+                                <span className="text-[#7b5d43] dark:text-amber-400">✓</span>
+                            </div>
+                        )}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setRole("agent")}
+                        className={`group cursor-pointer p-6 rounded-3xl ambient-shadow transition-all relative overflow-hidden text-left ${role === "agent"
+                            ? "bg-[#7b5d43]/5 dark:bg-amber-900/20 ring-2 ring-[#7b5d43] dark:ring-amber-400"
+                            : "bg-[#f8efe7] dark:bg-zinc-900 hover:bg-[#7b5d43]/5 dark:hover:bg-zinc-800"
+                            }`}
+                    >
+                        <div className="mb-4 w-12 h-12 rounded-2xl bg-[#3b6842]/20 dark:bg-[#3b6842]/40 flex items-center justify-center">
+                            <span className="text-2xl">🤝</span>
+                        </div>
+                        <h3 className="font-bold text-lg mb-1 dark:text-zinc-50">Agent</h3>
+                        <p className="text-xs text-[#6a5e54] dark:text-zinc-400 leading-relaxed">Manage landlords under your agency.</p>
+                        {role === "agent" && (
                             <div className="absolute top-2 right-2">
                                 <span className="text-[#7b5d43] dark:text-amber-400">✓</span>
                             </div>
@@ -396,10 +415,10 @@ export default function RegisterPage(): React.ReactElement {
                                 }}
                                 onBlur={handleAgentCodeBlur}
                                 className={`w-full bg-white dark:bg-zinc-800 border-none rounded-xl px-4 py-4 focus:ring-2 text-[#2a221d] dark:text-zinc-50 placeholder:text-[#6e7b6c] dark:placeholder:text-zinc-500 transition-all font-mono tracking-widest ${agentCodeValid === true
-                                        ? "ring-2 ring-green-500/40"
-                                        : agentCodeValid === false
-                                            ? "ring-2 ring-red-400/40"
-                                            : "focus:ring-[#7b5d43]/20"
+                                    ? "ring-2 ring-green-500/40"
+                                    : agentCodeValid === false
+                                        ? "ring-2 ring-red-400/40"
+                                        : "focus:ring-[#7b5d43]/20"
                                     }`}
                                 placeholder="AGT-XXXXXXXX"
                             />
