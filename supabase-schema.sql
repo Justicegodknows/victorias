@@ -2,6 +2,27 @@
 -- Run this in the Supabase SQL Editor
 
 -- ============================================================
+-- 0. Agents (real estate agents who manage landlords)
+-- ============================================================
+create table public.agents (
+  id uuid default gen_random_uuid() primary key,
+  name text not null,
+  phone text not null check (phone ~ '^\+[1-9][0-9]{9,14}$'),
+  email text,
+  license_number text,
+  office_address text,
+  city text check (city in ('lagos', 'abuja', 'port-harcourt')),
+  is_verified boolean default false not null,
+  created_at timestamptz default now() not null,
+  updated_at timestamptz default now() not null
+);
+
+alter table public.agents enable row level security;
+
+create policy "Authenticated users can read agents"
+  on public.agents for select to authenticated using (true);
+
+-- ============================================================
 -- 1. Profiles (extends auth.users)
 -- ============================================================
 create table public.profiles (
@@ -17,7 +38,9 @@ create table public.profiles (
   government_id_number text,
   income_range text,
   preferred_cities text[] default '{}',
+  agent_id uuid references public.agents(id) on delete set null,
   created_at timestamptz default now() not null,
+  constraint profiles_agent_id_landlord_only check (agent_id is null or role = 'landlord'),
   constraint profiles_tenant_identity_required check (
     role <> 'tenant'
     or (
@@ -136,6 +159,10 @@ $$ language plpgsql;
 
 create trigger set_apartments_updated_at
   before update on public.apartments
+  for each row execute function public.update_updated_at();
+
+create trigger set_agents_updated_at
+  before update on public.agents
   for each row execute function public.update_updated_at();
 
 create or replace function public.generate_apartment_ppid(

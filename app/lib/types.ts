@@ -40,6 +40,19 @@ export type GovernmentIdType =
 
 // ---- Database row types ----
 
+export type Agent = {
+    id: string;
+    name: string;
+    phone: string;
+    email: string | null;
+    license_number: string | null;
+    office_address: string | null;
+    city: City | null;
+    is_verified: boolean;
+    created_at: string;
+    updated_at: string;
+};
+
 export type Profile = {
     id: string;
     full_name: string;
@@ -51,6 +64,7 @@ export type Profile = {
     government_id_number: string | null;
     income_range: string | null;
     preferred_cities: City[];
+    agent_id: string | null;
     created_at: string;
 };
 
@@ -177,6 +191,7 @@ export type ApartmentWithDetails = Apartment & {
     images: ApartmentImage[];
     environmental_factors: EnvironmentalFactors | null;
     landlord: Pick<Profile, "full_name" | "phone"> | null;
+    agent: Pick<Agent, "name" | "phone" | "email"> | null;
 };
 
 // ---- Supabase database type helper ----
@@ -184,11 +199,23 @@ export type ApartmentWithDetails = Apartment & {
 export type Database = {
     public: {
         Tables: {
+            agents: {
+                Row: Agent;
+                Insert: Omit<Agent, "id" | "created_at" | "updated_at" | "is_verified" | "email" | "license_number" | "office_address" | "city"> & {
+                    email?: string | null;
+                    license_number?: string | null;
+                    office_address?: string | null;
+                    city?: City | null;
+                    is_verified?: boolean;
+                };
+                Update: Partial<Omit<Agent, "id" | "created_at">>;
+                Relationships: [];
+            };
             profiles: {
                 Row: Profile;
                 Insert: Omit<
                     Profile,
-                    "created_at" | "phone" | "income_range" | "preferred_cities" | "nin" | "bvn" | "government_id_type" | "government_id_number"
+                    "created_at" | "phone" | "income_range" | "preferred_cities" | "nin" | "bvn" | "government_id_type" | "government_id_number" | "agent_id"
                 > & {
                     phone?: string | null;
                     nin?: string | null;
@@ -197,9 +224,18 @@ export type Database = {
                     government_id_number?: string | null;
                     income_range?: string | null;
                     preferred_cities?: City[];
+                    agent_id?: string | null;
                 };
                 Update: Partial<Omit<Profile, "id" | "created_at">>;
-                Relationships: [];
+                Relationships: [
+                    {
+                        foreignKeyName: "profiles_agent_id_fkey";
+                        columns: ["agent_id"];
+                        isOneToOne: false;
+                        referencedRelation: "agents";
+                        referencedColumns: ["id"];
+                    },
+                ];
             };
             apartments: {
                 Row: Apartment;
