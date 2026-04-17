@@ -45,9 +45,11 @@ function LoginPageContent(): React.ReactElement {
             .select("role")
             .eq("id", userId)
             .maybeSingle()
-            .overrideTypes<{ role: "tenant" | "landlord" }, { merge: false }>();
+            .overrideTypes<{ role: "tenant" | "landlord" | "agent" }, { merge: false }>();
 
-        return profile?.role === "landlord" ? "/landlord" : "/tenant/browse";
+        if (profile?.role === "landlord") return "/landlord";
+        if (profile?.role === "agent") return "/agent";
+        return "/tenant/browse";
     }
 
     async function handleGoogleSignIn(): Promise<void> {
@@ -178,11 +180,10 @@ function LoginPageContent(): React.ReactElement {
                             setAuthMode("email");
                             setError(null);
                         }}
-                        className={`px-6 py-2 rounded-xl text-sm font-semibold transition-all ${
-                            authMode === "email"
+                        className={`px-6 py-2 rounded-xl text-sm font-semibold transition-all ${authMode === "email"
                                 ? "bg-white dark:bg-zinc-700 text-[#7b5d43] dark:text-amber-400 shadow-sm"
                                 : "text-[#6a5e54] dark:text-zinc-400 hover:text-[#2a221d] dark:hover:text-zinc-200"
-                        }`}
+                            }`}
                     >
                         Email
                     </button>
@@ -192,11 +193,10 @@ function LoginPageContent(): React.ReactElement {
                             setAuthMode("phone");
                             setError(null);
                         }}
-                        className={`px-6 py-2 rounded-xl text-sm font-semibold transition-all ${
-                            authMode === "phone"
+                        className={`px-6 py-2 rounded-xl text-sm font-semibold transition-all ${authMode === "phone"
                                 ? "bg-white dark:bg-zinc-700 text-[#7b5d43] dark:text-amber-400 shadow-sm"
                                 : "text-[#6a5e54] dark:text-zinc-400 hover:text-[#2a221d] dark:hover:text-zinc-200"
-                        }`}
+                            }`}
                     >
                         Phone OTP
                     </button>

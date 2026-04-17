@@ -1,6 +1,6 @@
 // ---- Enum types for Nigerian real estate domain ----
 
-export type UserRole = "landlord" | "tenant";
+export type UserRole = "landlord" | "tenant" | "agent";
 
 export type City = "lagos" | "abuja" | "port-harcourt";
 
@@ -46,8 +46,10 @@ export type GovernmentIdType =
 
 export type Agent = {
     id: string;
+    user_id: string | null;
+    agent_code: string;
     name: string;
-    phone: string;
+    phone: string | null;
     email: string | null;
     license_number: string | null;
     office_address: string | null;

@@ -41,6 +41,10 @@ export default function RegisterPage(): React.ReactElement {
     const [bvn, setBvn] = useState("");
     const [governmentIdType, setGovernmentIdType] = useState<GovernmentIdType>("national-id-card");
     const [governmentIdNumber, setGovernmentIdNumber] = useState("");
+    const [agentCode, setAgentCode] = useState("");
+    const [agentName, setAgentName] = useState<string | null>(null);
+    const [agentCodeChecking, setAgentCodeChecking] = useState(false);
+    const [agentCodeValid, setAgentCodeValid] = useState<boolean | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -50,6 +54,26 @@ export default function RegisterPage(): React.ReactElement {
     );
     const activeError = error ?? supabaseError;
     const authUnavailable = !supabase;
+
+    async function handleAgentCodeBlur(): Promise<void> {
+        const code = agentCode.trim().toUpperCase();
+        if (!code) {
+            setAgentCodeValid(null);
+            setAgentName(null);
+            return;
+        }
+        setAgentCodeChecking(true);
+        try {
+            const res = await fetch(`/api/agents/validate?code=${encodeURIComponent(code)}`);
+            const json = (await res.json()) as { valid: boolean; agent_name?: string };
+            setAgentCodeValid(json.valid);
+            setAgentName(json.valid ? (json.agent_name ?? null) : null);
+        } catch {
+            setAgentCodeValid(null);
+        } finally {
+            setAgentCodeChecking(false);
+        }
+    }
 
     function handleGoogleSignUp(): void {
         setError("Phone number is mandatory for registration. Use the form above to continue.");
@@ -70,6 +94,18 @@ export default function RegisterPage(): React.ReactElement {
         if (!normalizedPhone) {
             setError("Enter a valid phone number with 10 to 15 digits.");
             return;
+        }
+
+        if (role === "landlord") {
+            const code = agentCode.trim().toUpperCase();
+            if (!code) {
+                setError("Agent code is required to register as a landlord.");
+                return;
+            }
+            if (agentCodeValid !== true) {
+                setError("Invalid agent code. Please verify the code your agent gave you.");
+                return;
+            }
         }
 
         const sanitizedNin = nin.replace(/\D/g, "");
@@ -106,6 +142,7 @@ export default function RegisterPage(): React.ReactElement {
                         role === "tenant" && governmentIdNumber.trim()
                             ? governmentIdNumber.trim()
                             : null,
+                    agent_code: role === "landlord" ? agentCode.trim().toUpperCase() : null,
                 },
             },
         });
@@ -339,6 +376,52 @@ export default function RegisterPage(): React.ReactElement {
                                 <p className="mt-2 text-xs text-[#6e7b6c] dark:text-zinc-500 ml-1">Optional for now. NIN and BVN remain mandatory.</p>
                             </div>
                         </>
+                    )}
+
+                    {role === "landlord" && (
+                        <div>
+                            <label htmlFor="agentCode" className="block text-xs font-mono uppercase tracking-[0.2em] text-[#6a5e54] dark:text-zinc-400 mb-2 ml-1">
+                                Agent Code <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                id="agentCode"
+                                type="text"
+                                required
+                                disabled={authUnavailable || loading}
+                                value={agentCode}
+                                onChange={(e) => {
+                                    setAgentCode(e.target.value.toUpperCase());
+                                    setAgentCodeValid(null);
+                                    setAgentName(null);
+                                }}
+                                onBlur={handleAgentCodeBlur}
+                                className={`w-full bg-white dark:bg-zinc-800 border-none rounded-xl px-4 py-4 focus:ring-2 text-[#2a221d] dark:text-zinc-50 placeholder:text-[#6e7b6c] dark:placeholder:text-zinc-500 transition-all font-mono tracking-widest ${agentCodeValid === true
+                                        ? "ring-2 ring-green-500/40"
+                                        : agentCodeValid === false
+                                            ? "ring-2 ring-red-400/40"
+                                            : "focus:ring-[#7b5d43]/20"
+                                    }`}
+                                placeholder="AGT-XXXXXXXX"
+                            />
+                            {agentCodeChecking && (
+                                <p className="mt-2 text-xs text-[#6e7b6c] dark:text-zinc-500 ml-1">Verifying code…</p>
+                            )}
+                            {agentCodeValid === true && agentName && (
+                                <p className="mt-2 text-xs text-green-600 dark:text-green-400 ml-1">
+                                    ✓ Valid — Agent: <strong>{agentName}</strong>
+                                </p>
+                            )}
+                            {agentCodeValid === false && (
+                                <p className="mt-2 text-xs text-red-500 dark:text-red-400 ml-1">
+                                    ✗ Invalid agent code. Ask your agent for the correct code.
+                                </p>
+                            )}
+                            {agentCodeValid === null && !agentCodeChecking && (
+                                <p className="mt-2 text-xs text-[#6e7b6c] dark:text-zinc-500 ml-1">
+                                    Required. Get this code from your agent.
+                                </p>
+                            )}
+                        </div>
                     )}
 
                     <button

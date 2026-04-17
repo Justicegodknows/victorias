@@ -1,0 +1,115 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - navigation [ref=e4]:
+        - generic [ref=e5]:
+          - generic [ref=e6]: Victoria's
+          - generic [ref=e7]:
+            - link "Home" [ref=e8] [cursor=pointer]:
+              - /url: /
+            - link "Properties" [ref=e9] [cursor=pointer]:
+              - /url: /tenant/browse
+            - link "Concierge" [ref=e10] [cursor=pointer]:
+              - /url: /tenant
+        - generic [ref=e11]:
+          - link "Sign In" [ref=e12] [cursor=pointer]:
+            - /url: /login
+          - link "Get Started" [ref=e13] [cursor=pointer]:
+            - /url: /register
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - paragraph [ref=e16]: Trusted In Lagos, Abuja & Port Harcourt
+          - heading "Find a house that suits you." [level=1] [ref=e17]:
+            - text: Find a house
+            - text: that suits you.
+          - paragraph [ref=e18]: Browse verified homes, compare true annual move-in costs, and let Victoria match you with properties aligned to your budget and lifestyle.
+          - generic [ref=e19]:
+            - generic [ref=e20]:
+              - paragraph [ref=e21]: 2.5k+
+              - paragraph [ref=e22]: Listings
+            - generic [ref=e23]:
+              - paragraph [ref=e24]: 96%
+              - paragraph [ref=e25]: Match Rate
+            - generic [ref=e26]:
+              - paragraph [ref=e27]: 24h
+              - paragraph [ref=e28]: Avg Reply
+        - generic [ref=e29]:
+          - img "Elegant modern home exterior" [ref=e32]
+          - generic [ref=e33]:
+            - paragraph [ref=e34]: Featured Area
+            - paragraph [ref=e35]: Lekki Phase 1
+            - paragraph [ref=e36]: From N1.8M / year
+      - generic [ref=e38]:
+        - generic [ref=e39]:
+          - paragraph [ref=e40]: Location
+          - paragraph [ref=e41]: Lagos, Abuja, Port Harcourt
+        - generic [ref=e42]:
+          - paragraph [ref=e43]: Property Type
+          - paragraph [ref=e44]: Apartments, Duplex, Mini-flat
+        - generic [ref=e45]:
+          - paragraph [ref=e46]: Budget
+          - paragraph [ref=e47]: N500,000 - N15,000,000
+        - link "Search Homes" [ref=e48] [cursor=pointer]:
+          - /url: /tenant/browse
+    - generic [ref=e49]:
+      - generic [ref=e50]:
+        - generic [ref=e51]:
+          - paragraph [ref=e52]: Featured Properties
+          - heading "Handpicked for your lifestyle" [level=2] [ref=e53]
+        - link "View all →" [ref=e54] [cursor=pointer]:
+          - /url: /tenant/browse
+      - generic [ref=e55]:
+        - article [ref=e56]:
+          - img "Luxury Villa in Maitama" [ref=e57]
+          - generic [ref=e58]:
+            - paragraph [ref=e59]: Abuja
+            - heading "Luxury Villa in Maitama" [level=3] [ref=e60]
+            - paragraph [ref=e61]: N12,500,000 / year
+            - generic [ref=e62]:
+              - generic [ref=e63]: 4 Beds
+              - generic [ref=e64]: 5 Baths
+              - generic [ref=e65]: 620 sqm
+        - article [ref=e66]:
+          - img "Modern Apartment in Lekki" [ref=e67]
+          - generic [ref=e68]:
+            - paragraph [ref=e69]: Lagos
+            - heading "Modern Apartment in Lekki" [level=3] [ref=e70]
+            - paragraph [ref=e71]: N3,600,000 / year
+            - generic [ref=e72]:
+              - generic [ref=e73]: 2 Beds
+              - generic [ref=e74]: 2 Baths
+              - generic [ref=e75]: 180 sqm
+        - article [ref=e76]:
+          - img "Waterfront Home in GRA" [ref=e77]
+          - generic [ref=e78]:
+            - paragraph [ref=e79]: Port Harcourt
+            - heading "Waterfront Home in GRA" [level=3] [ref=e80]
+            - paragraph [ref=e81]: N2,400,000 / year
+            - generic [ref=e82]:
+              - generic [ref=e83]: 3 Beds
+              - generic [ref=e84]: 3 Baths
+              - generic [ref=e85]: 260 sqm
+    - generic [ref=e89]:
+      - generic [ref=e90]:
+        - paragraph [ref=e91]: For Landlords
+        - heading "List your property and reach verified tenants faster." [level=3] [ref=e92]
+        - paragraph [ref=e93]: Use Victoria's AI-assisted listing tools, neighborhood positioning, and fair-pricing insights to reduce vacancy and close faster.
+      - link "List Property" [ref=e94] [cursor=pointer]:
+        - /url: /register
+    - contentinfo [ref=e95]:
+      - generic [ref=e96]:
+        - generic [ref=e97]:
+          - text: Victoria's
+          - paragraph [ref=e98]: © 2026 Victoria's Shell. All rights reserved.
+        - generic [ref=e99]:
+          - link "Privacy" [ref=e100] [cursor=pointer]:
+            - /url: "#"
+          - link "Terms" [ref=e101] [cursor=pointer]:
+            - /url: "#"
+          - link "Contact" [ref=e102] [cursor=pointer]:
+            - /url: "#"
+  - alert [ref=e103]
+```
