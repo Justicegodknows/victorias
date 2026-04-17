@@ -30,6 +30,10 @@ export type FloodRisk = "low" | "medium" | "high";
 
 export type InquiryStatus = "pending" | "responded" | "closed";
 
+export type ViewingRequestStatus = "pending" | "confirmed" | "declined" | "cancelled";
+
+export type ViewingRequestTime = "morning" | "afternoon" | "evening";
+
 export type Rating = 1 | 2 | 3 | 4 | 5;
 
 export type GovernmentIdType =
@@ -141,6 +145,19 @@ export type Inquiry = {
     message: string;
     status: InquiryStatus;
     created_at: string;
+};
+
+export type ViewingRequest = {
+    id: string;
+    tenant_id: string;
+    apartment_id: string;
+    preferred_date: string;
+    preferred_time: ViewingRequestTime;
+    message: string | null;
+    status: ViewingRequestStatus;
+    landlord_note: string | null;
+    created_at: string;
+    updated_at: string;
 };
 
 export type RentalTransaction = {
@@ -399,6 +416,31 @@ export type Database = {
                     },
                     {
                         foreignKeyName: "inquiries_apartment_id_fkey";
+                        columns: ["apartment_id"];
+                        isOneToOne: false;
+                        referencedRelation: "apartments";
+                        referencedColumns: ["id"];
+                    },
+                ];
+            };
+            viewing_requests: {
+                Row: ViewingRequest;
+                Insert: Omit<ViewingRequest, "id" | "created_at" | "updated_at" | "status" | "landlord_note" | "message"> & {
+                    status?: ViewingRequestStatus;
+                    message?: string | null;
+                    landlord_note?: string | null;
+                };
+                Update: Partial<Pick<ViewingRequest, "status" | "landlord_note">>;
+                Relationships: [
+                    {
+                        foreignKeyName: "viewing_requests_tenant_id_fkey";
+                        columns: ["tenant_id"];
+                        isOneToOne: false;
+                        referencedRelation: "profiles";
+                        referencedColumns: ["id"];
+                    },
+                    {
+                        foreignKeyName: "viewing_requests_apartment_id_fkey";
                         columns: ["apartment_id"];
                         isOneToOne: false;
                         referencedRelation: "apartments";

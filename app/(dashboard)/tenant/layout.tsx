@@ -49,6 +49,9 @@ export default async function TenantDashboardLayout({
                             <Link href="/tenant/saved" className="text-zinc-500 transition-colors hover:text-amber-600 dark:text-zinc-400">
                                 Saved
                             </Link>
+                            <Link href="/tenant/viewings" className="text-zinc-500 transition-colors hover:text-amber-600 dark:text-zinc-400">
+                                Viewings
+                            </Link>
                             {allowRoleSwitch && (
                                 <Link href="/landlord" className="text-zinc-500 transition-colors hover:text-amber-600 dark:text-zinc-400">
                                     Switch to Landlord
@@ -94,6 +97,10 @@ export default async function TenantDashboardLayout({
                             <Link href="/tenant/saved" className="flex items-center gap-3 rounded-lg px-4 py-2.5 text-zinc-500 transition-all hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900">
                                 <span>❤️</span>
                                 <span className="text-sm">Saved</span>
+                            </Link>
+                            <Link href="/tenant/viewings" className="flex items-center gap-3 rounded-lg px-4 py-2.5 text-zinc-500 transition-all hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900">
+                                <span>📅</span>
+                                <span className="text-sm">Viewings</span>
                             </Link>
                             {allowRoleSwitch && (
                                 <Link href="/landlord" className="flex items-center gap-3 rounded-lg px-4 py-2.5 text-zinc-500 transition-all hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900">

@@ -46,6 +46,9 @@ export default async function LandlordDashboardLayout({
                             <Link href="/landlord/inquiries" className="text-zinc-500 transition-colors hover:text-amber-600 dark:text-zinc-400">
                                 Inquiries
                             </Link>
+                            <Link href="/landlord/viewings" className="text-zinc-500 transition-colors hover:text-amber-600 dark:text-zinc-400">
+                                Viewings
+                            </Link>
                             <Link href="/landlord/chat" className="text-zinc-500 transition-colors hover:text-amber-600 dark:text-zinc-400">
                                 AI Chat
                             </Link>
@@ -94,6 +97,10 @@ export default async function LandlordDashboardLayout({
                             <Link href="/landlord/inquiries" className="flex items-center gap-3 rounded-lg px-4 py-2.5 text-zinc-500 transition-all hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900">
                                 <span>📩</span>
                                 <span className="text-sm">Inquiries</span>
+                            </Link>
+                            <Link href="/landlord/viewings" className="flex items-center gap-3 rounded-lg px-4 py-2.5 text-zinc-500 transition-all hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900">
+                                <span>📅</span>
+                                <span className="text-sm">Viewings</span>
                             </Link>
                             <Link href="/landlord/chat" className="flex items-center gap-3 rounded-lg px-4 py-2.5 text-zinc-500 transition-all hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900">
                                 <span>💬</span>
